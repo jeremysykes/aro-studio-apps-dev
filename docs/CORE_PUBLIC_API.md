@@ -37,20 +37,20 @@ Options (MVP):
 
 ## runs
 
-- `startRun(params): { runId: string }`
-- `finishRun(params): void`
+- `startRun(params?): { runId: string }` (params optional; no required fields for MVP)
+- `finishRun(params): void` — params: `{ runId: string; status: 'success' | 'error' | 'cancelled' }`
 - `getRun(runId: string): Run | null`
 - `listRuns(filter?): Run[]`
 
 ## logs
 
-- `appendLog(entry): void`
+- `appendLog(entry): void` — entry: `{ runId: string; level: string; message: string }`
 - `listLogs(runId: string): LogEntry[]`
 - `subscribe(runId: string, handler): Unsubscribe`
 
 ## artifacts
 
-- `writeArtifact(params): Artifact`
+- `writeArtifact(params): Artifact` — params: `{ runId: string; path: string; content: string }`
 - `listArtifacts(runId: string): Artifact[]`
 
 ## jobs
@@ -78,5 +78,8 @@ Options (MVP):
 - `Artifact`
 - `ValidationIssue`
 - `ValidationResult`
+- `TokenDiff` (return type of `tokens.diffTokens`)
 - `JobDefinition`
 - `JobContext`
+- `AroCore` (return type of `createCore`)
+- `AroCoreOptions` (options for `createCore`: `workspaceRoot`, `dbPath?`, `tokensPath?`; exported for typing)
