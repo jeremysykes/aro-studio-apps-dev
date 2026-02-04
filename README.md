@@ -1,2 +1,2 @@
-# apps-aro.studio
+# aro-studio-apps
 Design system application suite.
