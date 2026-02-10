@@ -8,6 +8,7 @@ Design-system application suite: Core (headless engine), Desktop (Electron host)
 pnpm install
 pnpm build
 pnpm test
+pnpm start   # Launch Desktop app
 ```
 
 See [package.json](package.json) for scripts.

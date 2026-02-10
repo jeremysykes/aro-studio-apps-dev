@@ -1,0 +1,29 @@
+{
+  "name": "@aro/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/main/index.js",
+  "scripts": {
+    "build": "pnpm run build:compile && pnpm run build:renderer",
+    "build:compile": "tsc",
+    "build:renderer": "vite build",
+    "postinstall": "electron-rebuild",
+    "start": "electron .",
+    "dev": "vite build --watch & tsc && electron ."
+  },
+  "dependencies": {
+    "@aro/core": "workspace:*",
+    "electron-store": "^10.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "electron": "^33.2.0",
+    "electron-rebuild": "^3.2.9",
+    "typescript": "^5.6.3",
+    "vite": "^6.0.1"
+  }
+}
