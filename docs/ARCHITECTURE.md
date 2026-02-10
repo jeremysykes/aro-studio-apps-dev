@@ -1,8 +1,8 @@
 ## Purpose
 
 Aro Studio is a modular desktop application built as a single repo:
-- `packages/core` is the engine (headless, Node-based)
-- `apps/desktop` is the Electron host (later)
+- `packages/core` is the engine (headless, Node-based) — MVP complete
+- `apps/desktop` is the Electron host — MVP complete
 - `packages/modules/*` are feature modules (later)
 
 This document is the source of truth for boundaries and dependency direction.

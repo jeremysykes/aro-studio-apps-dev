@@ -1,9 +1,11 @@
 You are working inside the Aro Studio monorepo.
 
+**Note:** This document initiated Core planning. Core and Desktop are now implemented.
+
 This is a modular desktop application consisting of:
 
 - Core: a Node-based engine handling workspace, jobs, logging, artifacts, tokens, and validation
-- Desktop: an Electron host application (not yet implemented)
+- Desktop: an Electron host application (implemented)
 - Modules: feature units (tokens, validator, sync, etc.) that depend on Core
 
 Your current task is ONLY to help build `packages/core`.

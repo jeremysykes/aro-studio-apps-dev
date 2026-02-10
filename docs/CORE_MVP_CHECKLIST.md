@@ -3,55 +3,55 @@ Core is MVP-complete when every item below passes.
 
 ## Workspace
 
-- [ ] Can initialize a workspace (creates `.aro/` directory)
-- [ ] Can safely resolve paths within workspace
-- [ ] Blocks `../` path traversal attempts
-- [ ] Can read/write text files via workspace service
+- [x] Can initialize a workspace (creates `.aro/` directory)
+- [x] Can safely resolve paths within workspace
+- [x] Blocks `../` path traversal attempts
+- [x] Can read/write text files via workspace service
 
 ## SQLite persistence
 
-- [ ] Creates SQLite db file on first run
-- [ ] Creates required tables idempotently
-- [ ] Stores and loads run history
+- [x] Creates SQLite db file on first run
+- [x] Creates required tables idempotently
+- [x] Stores and loads run history
 
 ## Runs
 
-- [ ] Can start a run and receive a runId
-- [ ] Can finish a run with status (success/error/cancelled)
-- [ ] Can list runs ordered by time
+- [x] Can start a run and receive a runId
+- [x] Can finish a run with status (success/error/cancelled)
+- [x] Can list runs ordered by time
 
 ## Logs
 
-- [ ] Can append log entries during a run
-- [ ] Can stream logs to subscribers
-- [ ] Logs persist and can be reloaded after restart
+- [x] Can append log entries during a run
+- [x] Can stream logs to subscribers
+- [x] Logs persist and can be reloaded after restart
 
 ## Artifacts
 
-- [ ] Can write an artifact to `.aro/artifacts/<runId>/...`
-- [ ] Artifacts are indexed in SQLite
-- [ ] Can list artifacts for a run
+- [x] Can write an artifact to `.aro/artifacts/<runId>/...`
+- [x] Artifacts are indexed in SQLite
+- [x] Can list artifacts for a run
 
 ## Jobs
 
-- [ ] Can register a job definition
-- [ ] Can run a job and persist run record
-- [ ] Job can report progress events
-- [ ] Job can be cancelled via AbortSignal
-- [ ] Cancellation results in cancelled run status
+- [x] Can register a job definition
+- [x] Can run a job and persist run record
+- [x] Job can report progress events
+- [x] Job can be cancelled via AbortSignal
+- [x] Cancellation results in cancelled run status
 
 ## Tokens + Validation (minimum)
 
-- [ ] Can load tokens from `tokens/tokens.json` (or configured path)
-- [ ] Can save tokens back to disk
-- [ ] Can validate tokens via Zod at boundary
-- [ ] Validation returns a stable issue format
+- [x] Can load tokens from `tokens/tokens.json` (or configured path)
+- [x] Can save tokens back to disk
+- [x] Can validate tokens via Zod at boundary
+- [x] Validation returns a stable issue format
 
 ## Headless proof
 
-- [ ] All of the above works with Node only (no Desktop, no Electron)
+- [x] All of the above works with Node only (no Desktop, no Electron)
 
 ## Architectural integrity
 
-- [ ] Core has no imports from `apps/` or `packages/modules/`
-- [ ] No SQL or filesystem access exists outside Core infra
+- [x] Core has no imports from `apps/` or `packages/modules/`
+- [x] No SQL or filesystem access exists outside Core infra
