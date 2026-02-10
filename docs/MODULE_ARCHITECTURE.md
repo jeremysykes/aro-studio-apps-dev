@@ -45,6 +45,8 @@ The MVP uses Model A. See [docs/MODULE_MODELS.md](MODULE_MODELS.md) for the full
 - **Job definitions** — One or more jobs registered with Core via `core.jobs.register()`.
 - **UI** — React components that render inside the Desktop shell; triggers jobs and displays logs/artifacts via `window.aro`.
 
+For context when writing PRDs and TRDs for new modules, see [MODULE_PRD_TRD_CONTEXT.md](MODULE_PRD_TRD_CONTEXT.md).
+
 ---
 
 ## What a module must not do

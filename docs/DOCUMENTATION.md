@@ -11,6 +11,8 @@ When project status or entry points change in a way a new contributor would care
 
 Design changes, API changes, checklists, and dependencies: update the relevant file in `docs/` (e.g. ARCHITECTURE.md, CORE_PUBLIC_API.md, DEPENDENCIES.md, kick-off or checklist docs). Do this before implementing the change.
 
+When the application or module contract changes in a way that affects how PRDs/TRDs should be written (e.g. new IPC surface, new job context fields, new constraints), update [MODULE_PRD_TRD_CONTEXT.md](MODULE_PRD_TRD_CONTEXT.md) so it remains the single source of context for module requirements.
+
 ## When to add or update `adr/`
 
 When making a **significant architectural or technical decision** (e.g. persistence choice, boundary rules, technology choice that affects the codebase):
