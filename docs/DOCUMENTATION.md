@@ -1,5 +1,12 @@
 # When and how to update documentation
 
+## When to update the README
+
+When project status or entry points change in a way a new contributor would care about (e.g. MVP completion, new top-level scripts, new package, major stack or agent-model change):
+
+- Update [README.md](../README.md) so that the **Status**, **Run / build**, and **Testing** sections (and any other high-level sections) stay accurate.
+- Do not move deep technical or API detail into the README; keep linking to `docs/` and [AGENTS.md](../AGENTS.md).
+
 ## When to update `docs/`
 
 Design changes, API changes, checklists, and dependencies: update the relevant file in `docs/` (e.g. ARCHITECTURE.md, CORE_PUBLIC_API.md, DEPENDENCIES.md, kick-off or checklist docs). Do this before implementing the change.

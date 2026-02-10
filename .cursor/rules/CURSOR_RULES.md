@@ -10,7 +10,7 @@ Rules applied by Cursor when working in this repository. Must be consistent with
 6. No new dependencies without justification in /docs/DEPENDENCIES.md.
 7. Prefer synchronous code in Core
 8. Favor applied tests over unit tests
-9. All decisions must be consistent with /docs. If unclear, update docs first, then implement. For design/API/dependencies, update the relevant file in `docs/`. When and how to update `adr/`, `decisions/`, and `diagrams/`: follow [docs/DOCUMENTATION.md](../../docs/DOCUMENTATION.md).
+9. All decisions must be consistent with /docs. If unclear, update docs first, then implement. For design/API/dependencies, update the relevant file in `docs/`. When project status, main commands, or stack change, update [README.md](../../README.md) so it reflects current state (see [docs/DOCUMENTATION.md](../../docs/DOCUMENTATION.md)). When and how to update `adr/`, `decisions/`, and `diagrams/`: follow [docs/DOCUMENTATION.md](../../docs/DOCUMENTATION.md).
 10. Significant architectural or technical decisions: record in `adr/` (numbered ADR with context, decision, consequences).
 11. Other product/process/design decisions: record in `decisions/`.
 12. When adding or changing a diagram in a doc or ADR: put the diagram in `diagrams/` as an `.md` file with a mermaid code block (for Obsidian visual fidelity). Reference it from the doc or ADR using `![[diagrams/filename]]` or per [docs/DOCUMENTATION.md](../../docs/DOCUMENTATION.md).

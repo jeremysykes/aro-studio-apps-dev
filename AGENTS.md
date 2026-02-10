@@ -110,3 +110,5 @@ Renderer UI is owned solely by **UI Engineer**. Desktop Engineer owns only the h
 5. Module Engineer adds module job logic and feature behavior
 6. Product Designer may produce or update design/a11y specs
 7. UI Engineer implements all UI (Desktop shell and module screens) from specs using the design system
+
+When MVP status or main commands change, the README should be updated (see [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md)).
