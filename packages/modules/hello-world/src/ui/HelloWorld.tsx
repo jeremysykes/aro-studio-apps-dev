@@ -1,6 +1,8 @@
 /// <reference path="./window.d.ts" />
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Run, LogEntry, Artifact } from './types';
+import { Button } from '@aro/desktop/components';
+import { Card, CardContent, CardHeader, CardTitle } from '@aro/desktop/components';
 
 const JOB_KEY = 'hello-world:greet';
 
@@ -134,108 +136,129 @@ export default function HelloWorld() {
   };
 
   return (
-    <main style={{ padding: 16, fontFamily: 'system-ui' }}>
-      <h1>Aro Studio — Hello World</h1>
+    <main className="p-4 font-sans">
+      <h1 className="text-2xl font-semibold mb-4">Aro Studio — Hello World</h1>
 
-      <section>
-        <h2>Workspace</h2>
-        {!workspacePath ? (
-          <button type="button" onClick={handleSelectWorkspace}>
-            Select workspace
-          </button>
-        ) : (
-          <div>
-            <p>
-              <strong>Path:</strong> {workspacePath}
-            </p>
-            <button type="button" onClick={handleSelectWorkspace}>
-              Change workspace
-            </button>
-          </div>
-        )}
-      </section>
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>Workspace</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {!workspacePath ? (
+            <Button type="button" onClick={handleSelectWorkspace}>
+              Select workspace
+            </Button>
+          ) : (
+            <div>
+              <p className="mb-2">
+                <strong>Path:</strong> {workspacePath}
+              </p>
+              <Button type="button" variant="outline" onClick={handleSelectWorkspace}>
+                Change workspace
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {error && (
-        <p role="alert" style={{ color: 'red' }}>
+        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 mb-4">
           {error}
-        </p>
+        </div>
       )}
 
       {workspacePath && (
         <>
-          <section>
-            <h2>Jobs</h2>
-            <ul>
-              <li>
-                <button type="button" onClick={handleRunJob}>
-                  Run {JOB_KEY}
-                </button>
-                {runningRunId && (
-                  <button
-                    type="button"
-                    onClick={() => handleCancelJob(runningRunId)}
-                    style={{ marginLeft: 8 }}
-                  >
-                    Cancel
-                  </button>
-                )}
-              </li>
-            </ul>
-          </section>
-
-          <section>
-            <h2>Runs</h2>
-            <ul>
-              {runs.map((run) => (
-                <li key={run.id}>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedRunId(run.id)}
-                    style={{
-                      fontWeight: selectedRunId === run.id ? 'bold' : 'normal',
-                    }}
-                  >
-                    {run.id.slice(0, 8)} - {run.status} -{' '}
-                    {new Date(run.startedAt).toISOString()}
-                  </button>
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle>Jobs</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-none space-y-2">
+                <li className="flex items-center gap-2">
+                  <Button type="button" onClick={handleRunJob}>
+                    Run {JOB_KEY}
+                  </Button>
+                  {runningRunId && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => handleCancelJob(runningRunId)}
+                    >
+                      Cancel
+                    </Button>
+                  )}
                 </li>
-              ))}
-            </ul>
-          </section>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card className="mb-4">
+            <CardHeader>
+              <CardTitle>Runs</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="list-none space-y-1">
+                {runs.map((run) => (
+                  <li key={run.id}>
+                    <Button
+                      type="button"
+                      variant={selectedRunId === run.id ? 'default' : 'ghost'}
+                      className="w-full justify-start font-normal"
+                      onClick={() => setSelectedRunId(run.id)}
+                    >
+                      {run.id.slice(0, 8)} - {run.status} -{' '}
+                      {new Date(run.startedAt).toISOString()}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
 
           {selectedRunId && (
             <>
-              <section>
-                <h2>Logs</h2>
-                <ul>
-                  {logs.map((entry) => (
-                    <li key={entry.id}>
-                      [{entry.level}] {entry.message}
-                    </li>
-                  ))}
-                </ul>
-              </section>
+              <Card className="mb-4">
+                <CardHeader>
+                  <CardTitle>Logs</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-none space-y-1 font-mono text-sm">
+                    {logs.map((entry) => (
+                      <li key={entry.id}>
+                        [{entry.level}] {entry.message}
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
 
-              <section>
-                <h2>Artifacts</h2>
-                <ul>
-                  {artifacts.map((artifact) => (
-                    <li key={artifact.id}>
-                      <button
-                        type="button"
-                        onClick={() => handleSelectArtifact(artifact)}
-                      >
-                        {artifact.path}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-                {artifactContent !== null && (
-                  <pre style={{ background: '#f4f4f4', padding: 8 }}>
-                    {artifactContent}
-                  </pre>
-                )}
-              </section>
+              <Card className="mb-4">
+                <CardHeader>
+                  <CardTitle>Artifacts</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-none space-y-1">
+                    {artifacts.map((artifact) => (
+                      <li key={artifact.id}>
+                        <Button
+                          type="button"
+                          variant="link"
+                          className="p-0 h-auto font-normal"
+                          onClick={() => handleSelectArtifact(artifact)}
+                        >
+                          {artifact.path}
+                        </Button>
+                      </li>
+                    ))}
+                  </ul>
+                  {artifactContent !== null && (
+                    <pre className="mt-4 rounded-md bg-zinc-100 p-4 text-sm overflow-auto">
+                      {artifactContent}
+                    </pre>
+                  )}
+                </CardContent>
+              </Card>
             </>
           )}
         </>

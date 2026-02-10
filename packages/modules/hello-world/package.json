@@ -12,7 +12,8 @@
     "build": "tsc"
   },
   "dependencies": {
-    "@aro/core": "workspace:*"
+    "@aro/core": "workspace:*",
+    "@aro/desktop": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.0.0",

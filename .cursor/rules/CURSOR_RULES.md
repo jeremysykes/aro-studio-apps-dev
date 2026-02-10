@@ -27,3 +27,11 @@ Rules applied by Cursor when working in this repository. Must be consistent with
 17. Modules must not access SQLite or filesystem directly; use Core public API and workspace facet in job context.
 18. Modules use Core public API and Desktop IPC only (`window.aro`); no custom IPC unless documented in `docs/MODULE_PUBLIC_API.md`.
 19. Module design and implementation must follow `docs/MODULE_ARCHITECTURE.md`, `docs/MODULE_PUBLIC_API.md`, `docs/MODULE_CONSTRAINTS.md`, and `docs/MODULE_MVP_CHECKLIST.md`.
+
+## Product Designer
+
+20. Product Designer produces design specs and a11y requirements only. Specs and requirements live in `docs/` or `decisions/`; no application code. Must follow [docs/UI_UX_ACCESSIBILITY.md](../../docs/UI_UX_ACCESSIBILITY.md).
+
+## UI Engineer
+
+21. UI Engineer implements UI from design specs; uses the design system (shadcn + Tailwind) and semantic HTML/ARIA; follows [docs/UI_UX_ACCESSIBILITY.md](../../docs/UI_UX_ACCESSIBILITY.md). No new dependencies without justification in `docs/DEPENDENCIES.md`.
