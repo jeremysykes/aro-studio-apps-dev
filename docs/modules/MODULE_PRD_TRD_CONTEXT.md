@@ -44,7 +44,7 @@ See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comparison.
 - Access SQLite or Core internals (no `better-sqlite3`, no `infra/db`).
 - Use `fs`/`path` for domain data; only `ctx.workspace` in job code (resolve, readText, writeText, exists, mkdirp).
 - Expose or use Core handles in the renderer; no undocumented IPC.
-- Add dependencies without documenting them in [DEPENDENCIES.md](DEPENDENCIES.md) (name, reason, what it replaces).
+- Add dependencies without documenting them in [meta/DEPENDENCIES.md](../meta/DEPENDENCIES.md) (name, reason, what it replaces).
 
 See [MODULE_ARCHITECTURE.md](MODULE_ARCHITECTURE.md) and [MODULE_CONSTRAINTS.md](MODULE_CONSTRAINTS.md) for the full constraints.
 
