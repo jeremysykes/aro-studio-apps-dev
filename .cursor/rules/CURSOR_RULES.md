@@ -20,3 +20,10 @@ Rules applied by Cursor when working in this repository. Must be consistent with
 13. Desktop is an Electron host, UI shell, IPC bridge, and lifecycle manager. It must not implement business logic, persistence, validation, or job execution; those live in Core.
 14. Desktop must not access SQLite, filesystem (for domain data), or Core internals directly. All domain operations go through Core's public API. The renderer never receives Core handles, DB paths, or workspace roots.
 15. Desktop design and implementation must follow `docs/DESKTOP_ARCHITECTURE.md`, `docs/DESKTOP_PUBLIC_API.md`, and `docs/DESKTOP_MVP_CHECKLIST.md`. New Desktop dependencies require justification in `docs/DEPENDENCIES.md`.
+
+## Modules
+
+16. Modules must not import each other.
+17. Modules must not access SQLite or filesystem directly; use Core public API and workspace facet in job context.
+18. Modules use Core public API and Desktop IPC only (`window.aro`); no custom IPC unless documented in `docs/MODULE_PUBLIC_API.md`.
+19. Module design and implementation must follow `docs/MODULE_ARCHITECTURE.md`, `docs/MODULE_PUBLIC_API.md`, `docs/MODULE_CONSTRAINTS.md`, and `docs/MODULE_MVP_CHECKLIST.md`.
