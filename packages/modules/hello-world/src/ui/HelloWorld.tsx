@@ -138,6 +138,9 @@ export default function HelloWorld() {
   return (
     <main className="p-4 font-sans">
       <h1 className="text-2xl font-semibold mb-4">Aro Studio — Hello World</h1>
+      <p className="text-sm text-muted-foreground mb-4">
+        This is the default module when ARO_ACTIVE_MODULE is not set. To use Inspect, set ARO_ACTIVE_MODULE=inspect in your environment or in apps/desktop/.env. See README.
+      </p>
 
       <Card className="mb-4">
         <CardHeader>

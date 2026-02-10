@@ -55,7 +55,7 @@ Desktop is MVP-complete when every item below passes. This checklist defines wha
 
 - [x] App startup shows workspace selection or last workspace
 - [x] App quit triggers Core shutdown before exit
-- [x] Desktop loads the active module after Core init and uses module-registered job keys for `job:listRegistered`; module UI is rendered in main content
+- [x] Desktop loads the active module after Core init (ARO_ACTIVE_MODULE, default hello-world; see ACTIVE_MODULE_SWITCH.md) and uses module-registered job keys for `job:listRegistered`; module UI is rendered in main content
 
 ## Definition of done
 

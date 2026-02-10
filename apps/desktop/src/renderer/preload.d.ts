@@ -1,6 +1,7 @@
 import type { Run, LogEntry, Artifact } from '../shared/types';
 
 export interface AroPreloadAPI {
+  getActiveModuleKey(): Promise<string>;
   workspace: {
     select(): Promise<{ path: string } | null>;
     getCurrent(): Promise<{ path: string } | null>;

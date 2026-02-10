@@ -16,6 +16,9 @@ importers:
       '@aro/module-hello-world':
         specifier: workspace:*
         version: link:../../packages/modules/hello-world
+      '@aro/module-inspect':
+        specifier: workspace:*
+        version: link:../../packages/modules/inspect
       '@radix-ui/react-slot':
         specifier: ^1.2.4
         version: 1.2.4(@types/react@18.3.28)(react@18.3.1)
@@ -28,6 +31,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      dotenv:
+        specifier: ^16.6.1
+        version: 16.6.1
       electron-store:
         specifier: ^10.0.0
         version: 10.1.0
@@ -95,6 +101,25 @@ importers:
         version: 2.1.9(@types/node@25.0.10)(lightningcss@1.30.2)
 
   packages/modules/hello-world:
+    dependencies:
+      '@aro/core':
+        specifier: workspace:*
+        version: link:../../core
+      '@aro/desktop':
+        specifier: workspace:*
+        version: link:../../../apps/desktop
+      react:
+        specifier: ^18.0.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.0.0
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+
+  packages/modules/inspect:
     dependencies:
       '@aro/core':
         specifier: workspace:*
@@ -1109,6 +1134,10 @@ packages:
   dot-prop@9.0.0:
     resolution: {integrity: sha512-1gxPBJpI/pcjQhKgIU91II6Wkay+dLcN3M6rf2uwP8hRur3HtQXjVrdAK3sjC0piaEuxzMwjXChcETiJl47lAQ==}
     engines: {node: '>=18'}
+
+  dotenv@16.6.1:
+    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
+    engines: {node: '>=12'}
 
   electron-rebuild@3.2.9:
     resolution: {integrity: sha512-FkEZNFViUem3P0RLYbZkUjC8LUFIK+wKq09GHoOITSJjfDAVQv964hwaNseTTWt58sITQX3/5fHNYcTefqaCWw==}
@@ -3001,6 +3030,8 @@ snapshots:
   dot-prop@9.0.0:
     dependencies:
       type-fest: 4.41.0
+
+  dotenv@16.6.1: {}
 
   electron-rebuild@3.2.9:
     dependencies:

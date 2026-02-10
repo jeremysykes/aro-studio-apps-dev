@@ -17,7 +17,7 @@ This document defines two architectural models for how Modules integrate with Co
 
 ## Model A (Multi-Variant)
 
-**Description:** One module per application. The active module effectively is the application. Core + Desktop are shared infrastructure; the module owns the main UI and user experience. Each shipped product is a distinct app (e.g. "Aro Studio Tokens", "Aro Studio Figma").
+**Description:** One module per application. The active module effectively is the application; it is selected by `ARO_ACTIVE_MODULE` (default `hello-world`) or `apps/desktop/.env` (see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md)). Core + Desktop are shared infrastructure; the module owns the main UI and user experience. Each shipped product is a distinct app (e.g. "Aro Studio Tokens", "Aro Studio Figma").
 
 **When to use:**
 - Different applications packaged from the same platform

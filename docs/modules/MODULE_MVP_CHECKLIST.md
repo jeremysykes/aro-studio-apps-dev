@@ -23,3 +23,4 @@ Pass/fail checklist for the Model A hello-world module.
 - [MODULE_ARCHITECTURE.md](MODULE_ARCHITECTURE.md)
 - [MODULE_CONSTRAINTS.md](MODULE_CONSTRAINTS.md)
 - [MODULE_PUBLIC_API.md](MODULE_PUBLIC_API.md)
+- Active module is set via `ARO_ACTIVE_MODULE` (default `hello-world`) or `apps/desktop/.env`; see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md).

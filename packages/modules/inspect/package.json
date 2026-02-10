@@ -1,0 +1,25 @@
+{
+  "name": "@aro/module-inspect",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./ui": "./src/ui/Inspect.tsx"
+  },
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@aro/core": "workspace:*",
+    "@aro/desktop": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

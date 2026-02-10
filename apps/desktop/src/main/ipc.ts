@@ -9,6 +9,7 @@ import {
   removeLogSubscription,
 } from './state.js';
 import { loadActiveModule } from './moduleLoader.js';
+import { getActiveModuleKey } from './moduleRegistry.js';
 
 const NO_WORKSPACE = 'No workspace selected';
 
@@ -41,6 +42,10 @@ export function registerIpcHandlers(getMainWindow: () => BrowserWindow | null): 
   ipcMain.handle('workspace:getCurrent', async () => {
     const path = getCurrentWorkspacePath();
     return path ? { path } : null;
+  });
+
+  ipcMain.handle('app:getActiveModuleKey', async () => {
+    return getActiveModuleKey();
   });
 
   ipcMain.handle('job:run', async (_, jobKey: string, input?: unknown) => {

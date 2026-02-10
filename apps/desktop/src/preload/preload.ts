@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('aro', {
+  getActiveModuleKey: () => ipcRenderer.invoke('app:getActiveModuleKey'),
   workspace: {
     select: () => ipcRenderer.invoke('workspace:select'),
     getCurrent: () => ipcRenderer.invoke('workspace:getCurrent'),

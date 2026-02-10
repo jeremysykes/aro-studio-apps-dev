@@ -23,7 +23,7 @@ Desktop is the host; Modules and Core are dependencies. Dependency flow is one-w
 
 The MVP uses Model A. See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comparison.
 
-- **One active module** — Build or config selects which module is loaded.
+- **One active module** — The active module is selected by `ARO_ACTIVE_MODULE` (default `hello-world` when unset); for development, set it in `apps/desktop/.env`. See [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md).
 - **Module owns the UI** — The module provides the main renderer content; Desktop hosts it.
 - **Job registration** — Desktop creates Core, loads the module, passes Core to the module's init; the module calls `core.jobs.register()`.
 
@@ -32,7 +32,7 @@ The MVP uses Model A. See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comp
 ## Job registration flow
 
 1. User selects workspace; Desktop calls `createCore({ workspaceRoot })`.
-2. Desktop loads the active module (from config or build selection).
+2. Desktop loads the active module (from `ARO_ACTIVE_MODULE` or `apps/desktop/.env`; default `hello-world`).
 3. Desktop invokes the module's init function, passing Core (or a restricted facade).
 4. The module calls `core.jobs.register({ key, run })` for each job it provides.
 5. Registration happens in the main process only.

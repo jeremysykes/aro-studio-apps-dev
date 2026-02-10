@@ -35,7 +35,7 @@ Must not:
 ### Desktop Engineer Agent
 
 Responsibilities:
-- Electron main process, preload, IPC wiring, module loading (calling module init), navigation/routing
+- Electron main process, preload, IPC wiring, module loading (calling module init; active module via `ARO_ACTIVE_MODULE`, default `hello-world`, or `apps/desktop/.env`), navigation/routing
 - Renderer process bootstrap (entry point that loads the app)
 
 Must not:
