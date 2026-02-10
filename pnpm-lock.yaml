@@ -13,6 +13,9 @@ importers:
       '@aro/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@aro/module-hello-world':
+        specifier: workspace:*
+        version: link:../../packages/modules/hello-world
       electron-store:
         specifier: ^10.0.0
         version: 10.1.0
@@ -63,6 +66,22 @@ importers:
       vitest:
         specifier: ^2.1.4
         version: 2.1.9(@types/node@25.0.10)
+
+  packages/modules/hello-world:
+    dependencies:
+      '@aro/core':
+        specifier: workspace:*
+        version: link:../../core
+      react:
+        specifier: ^18.0.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.0.0
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
 
 packages:
 

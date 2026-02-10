@@ -12,8 +12,17 @@ async function getStore() {
 
 let core: AroCore | null = null;
 let currentWorkspacePath: string | null = null;
+let registeredJobKeys: string[] = [];
 
 const logSubscriptions = new Map<string, () => void>();
+
+export function getRegisteredJobKeys(): string[] {
+  return registeredJobKeys;
+}
+
+export function setRegisteredJobKeys(keys: string[]): void {
+  registeredJobKeys = keys;
+}
 
 export function getCore(): AroCore | null {
   return core;
@@ -56,6 +65,7 @@ export function shutdownCore(): void {
     core = null;
   }
   currentWorkspacePath = null;
+  registeredJobKeys = [];
 }
 
 export function addLogSubscription(subscriptionId: string, unsubscribe: () => void): void {

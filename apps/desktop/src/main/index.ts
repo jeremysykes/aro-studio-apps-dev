@@ -3,6 +3,7 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { registerIpcHandlers } from './ipc.js';
 import { initCore, shutdownCore, getLastWorkspacePath } from './state.js';
+import { loadActiveModule } from './moduleLoader.js';
 import { createCore } from '@aro/core';
 
 let mainWindow: BrowserWindow | null = null;
@@ -28,13 +29,7 @@ function createWindow(): void {
     const lastPath = await getLastWorkspacePath();
     if (lastPath && existsSync(lastPath)) {
       const c = initCore(lastPath, createCore);
-      c.jobs.register({
-        key: 'hello',
-        run: async (ctx) => {
-          ctx.logger('info', 'Hello from Desktop MVP');
-          ctx.artifactWriter({ path: 'greeting.txt', content: 'Hello, World!' });
-        },
-      });
+      loadActiveModule(c);
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('workspace:changed', { path: lastPath });
       }

@@ -43,5 +43,17 @@ Desktop (`apps/desktop`) may use:
 - **electron-store** — Persist last workspace path; Desktop-owned state (not Core). Replaces manual JSON file handling; provides atomic writes and standard Electron app data path.
 - **vite** — Renderer bundler; provides fast dev server, ESM bundling, and React/JSX support. Built-in Node or raw script loading is insufficient for renderer which needs JSX transpilation and proper module resolution.
 - **@vitejs/plugin-react** — Vite plugin for React; enables JSX and Fast Refresh. Required when using React with Vite.
+- **@aro/module-hello-world** — Model A active module. Desktop loads it after Core init, calls its `init(core)` to register jobs, and renders its UI in the main content area. Required for the current app variant.
 
 Dev-only: **typescript** (type-checking), **@types/react**, **@types/react-dom** (type definitions). **electron-rebuild** — Rebuilds native modules (e.g. better-sqlite3 from Core) for Electron's Node ABI. Required because Electron bundles a specific Node version; native modules built for the system Node will fail. Run as postinstall.
+
+---
+
+## Allowed deps (Modules)
+
+Modules (`packages/modules/*`) may use:
+
+- **@aro/core** — Types only for init in the main process (e.g. `AroCore`). The module receives Core from Desktop when `init(core)` is called; the module must not import Core in renderer code so the renderer bundle stays free of native modules.
+- **react** / **react-dom** — Peer dependencies for module UI. Desktop supplies them when bundling the module's React component; the module does not list them as direct dependencies to avoid duplicate React in the renderer.
+
+New module dependencies require justification in this doc (name, reason, what it replaces) before addition.

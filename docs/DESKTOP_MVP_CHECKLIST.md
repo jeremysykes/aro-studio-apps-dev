@@ -55,7 +55,7 @@ Desktop is MVP-complete when every item below passes. This checklist defines wha
 
 - [x] App startup shows workspace selection or last workspace
 - [x] App quit triggers Core shutdown before exit
-- [x] No module loading (Modules are out of scope for MVP)
+- [x] Desktop loads the active module after Core init and uses module-registered job keys for `job:listRegistered`; module UI is rendered in main content
 
 ## Definition of done
 

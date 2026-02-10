@@ -6,7 +6,7 @@ This document defines Desktop's responsibilities, boundaries, and relationship t
 ```
 Core ──────────► Desktop
                       ▲
-Modules (future) ─────┘
+Modules ──────────────┘
 ```
 
 - Desktop MAY import Core.
@@ -68,9 +68,9 @@ All stateful, long-running, and domain-specific behavior lives in Core.
 | Job registration/run | Core     | Forward `job:run` → `core.jobs.run()`  |
 | Tokens, validation   | Core     | Forward when UI needs them             |
 | Window, menus, IPC   | Desktop  | Full ownership                         |
-| Module loading       | (future) | Out of scope for MVP                   |
+| Module loading       | Desktop  | Load active module after Core init; call module `init(core)`; use returned job keys for `job:listRegistered`; render module UI in main content |
 
-**MVP:** No Modules. Desktop hosts Core only. The first Module (hello-world) will plug in later to validate the abstraction.
+**Model A (hello-world):** Desktop loads the active module (e.g. `@aro/module-hello-world`) after creating Core, invokes the module's `init(core)` so the module registers jobs with Core, stores the returned job keys for IPC, and renders the module's UI in the main content area.
 
 ---
 
@@ -84,14 +84,15 @@ All stateful, long-running, and domain-specific behavior lives in Core.
 
 ---
 
+## Module loading (Model A)
+
+Desktop loads the active module in the main process after creating Core (on workspace select or on restore of last workspace). It calls the module's `init(core)` function, which registers job definitions with Core and returns the list of registered job keys. Desktop stores those keys and returns them from `job:listRegistered` IPC. The renderer imports and renders the module's UI component in the main content area. No new IPC channels; modules use existing `window.aro` (workspace, job, runs, logs, artifacts).
+
 ## Future extension points (Q7)
 
-*Not implemented in MVP; documented for the hello-world module and beyond.*
-
-1. **Module loading** — Main process would discover and load modules from `packages/modules/*`. Modules register job definitions with Core. Desktop would need an IPC channel for "list registered jobs" (from Core) so the UI can show module-specific actions.
-2. **Renderer route for module UI** — Future: renderer could have routes like `/module/:moduleKey` that load module-specific UI. MVP has no routes; single view only.
-3. **IPC channel for module-invoked jobs** — Same as `job:run`; modules would use the same IPC. No new channel needed for MVP.
-4. **Preload API extension** — When Modules exist, the preload script could expose a `module` namespace. MVP exposes only `workspace`, `job`, `logs`, `artifacts`.
+1. **Renderer route for module UI** — Future (Model B): renderer could have routes like `/module/:moduleKey` that load module-specific UI. Model A uses a single active module; single view only.
+2. **IPC channel for module-invoked jobs** — Same as `job:run`; modules use the same IPC. No new channel needed.
+3. **Preload API extension** — When moving to Model B, the preload script could expose a `module` namespace for module-specific IPC. Model A uses only `workspace`, `job`, `runs`, `logs`, `artifacts`.
 
 ---
 

@@ -3,15 +3,14 @@ import { createCore } from '@aro/core';
 import {
   getCore,
   getCurrentWorkspacePath,
-  getLastWorkspacePath,
+  getRegisteredJobKeys,
   initCore,
-  shutdownCore,
   addLogSubscription,
   removeLogSubscription,
 } from './state.js';
+import { loadActiveModule } from './moduleLoader.js';
 
 const NO_WORKSPACE = 'No workspace selected';
-const REGISTERED_JOB_KEYS = ['hello'];
 
 function requireCore(): NonNullable<ReturnType<typeof getCore>> {
   const c = getCore();
@@ -30,14 +29,7 @@ export function registerIpcHandlers(getMainWindow: () => BrowserWindow | null): 
     }
     const workspaceRoot = result.filePaths[0];
     const c = initCore(workspaceRoot, createCore);
-
-    c.jobs.register({
-      key: 'hello',
-      run: async (ctx) => {
-        ctx.logger('info', 'Hello from Desktop MVP');
-        ctx.artifactWriter({ path: 'greeting.txt', content: 'Hello, World!' });
-      },
-    });
+    loadActiveModule(c);
 
     const win = getMainWindow();
     if (win && !win.isDestroyed()) {
@@ -64,7 +56,7 @@ export function registerIpcHandlers(getMainWindow: () => BrowserWindow | null): 
 
   ipcMain.handle('job:listRegistered', async () => {
     requireCore();
-    return REGISTERED_JOB_KEYS;
+    return getRegisteredJobKeys();
   });
 
   ipcMain.handle('runs:list', async () => {
