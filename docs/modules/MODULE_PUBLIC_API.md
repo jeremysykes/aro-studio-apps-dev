@@ -11,7 +11,7 @@ This document defines the API surface for Modules: job registration and renderer
 **Flow:**
 
 1. Desktop creates Core (when workspace is selected).
-2. Desktop loads the active module (via `ARO_ACTIVE_MODULE`, default `hello-world`; see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md)) and invokes its init function, passing Core.
+2. Desktop loads the active module (via `ARO_ACTIVE_MODULE`, default `hello-world`; **`.env`** at project root; see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md)) and invokes its init function, passing Core.
 3. The module calls `core.jobs.register({ key, run })` for each job.
 
 **Job key format:**

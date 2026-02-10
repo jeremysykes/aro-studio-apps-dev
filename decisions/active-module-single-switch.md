@@ -15,7 +15,7 @@ Desktop implements a **single-switch** so that which module is loaded (main proc
 
 ## Implementation (Phase 3)
 
-- **Source of truth:** Environment variable `ARO_ACTIVE_MODULE`; default `hello-world` when unset. Developers can use `apps/desktop/.env` for development (see [docs/desktop/ACTIVE_MODULE_SWITCH.md](../docs/desktop/ACTIVE_MODULE_SWITCH.md)).
+- **Source of truth:** Environment variable `ARO_ACTIVE_MODULE`; default `hello-world` when unset. Developers can use **`.env`** at the project root for development (see [docs/desktop/ACTIVE_MODULE_SWITCH.md](../docs/desktop/ACTIVE_MODULE_SWITCH.md)).
 - **Module registry:** One registry in Desktop mapping each module key to (1) `init(core)` for main process, (2) root UI component for renderer. Both main and renderer resolve the active module from this single registry (or a renderer-visible mirror driven by the same key).
 - **Documentation:** README or docs/desktop describes how to set the switch and how to add a new module (package + registry registration).
 

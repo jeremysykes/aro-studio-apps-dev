@@ -42,7 +42,7 @@ See [MODULE_MODELS.md](MODULE_MODELS.md) for the full Model A vs Model B compari
 
 - **One module per app** — e.g. "Aro Studio Tokens", "Aro Studio Figma"
 - **Module owns the UI** — main content area
-- **Active module** — One module loaded at a time; selected by `ARO_ACTIVE_MODULE` (default `hello-world`), optionally `apps/desktop/.env` for development (see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md))
+- **Active module** — One module loaded at a time; selected by `ARO_ACTIVE_MODULE` (default `hello-world`), optionally **`.env`** at the project root for development (see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md))
 
 ---
 

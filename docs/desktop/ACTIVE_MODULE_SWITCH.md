@@ -10,7 +10,7 @@ Which module loads (main process job init and renderer root UI) is controlled by
 
 ### Using .env (development)
 
-For development you can set the active module in a `.env` file so you don’t need to pass the env var each time. Create `apps/desktop/.env` (or copy from `apps/desktop/.env.example`), set `ARO_ACTIVE_MODULE=hello-world` or `ARO_ACTIVE_MODULE=inspect`, then restart the app. Shell/inline env var overrides `.env` if both are set.
+For development you can set the active module in a `.env` file so you don’t need to pass the env var each time. Create **`.env`** at the project root (or copy from **`.env.example`**), set `ARO_ACTIVE_MODULE=hello-world` or `ARO_ACTIVE_MODULE=inspect`, then restart the app. Shell/inline env var overrides `.env` if both are set.
 
 ### Inline / shell
 

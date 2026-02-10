@@ -44,13 +44,13 @@ config();
 
 Then in `index.ts` make the first line `import './env.js';`. Use this if you want to customize `path` or `encoding` later (e.g. load from repo root).
 
-- **Where `.env` is resolved:** By default `dotenv` uses `path.resolve(process.cwd(), '.env')`. When running `pnpm start` (or `pnpm --filter @aro/desktop start`), the script runs with cwd = `apps/desktop`, so `.env` should live in **`apps/desktop/.env`**. Document this.
+- **Where `.env` is resolved:** By default `dotenv` uses `path.resolve(process.cwd(), '.env')`. When running `pnpm start` (or `pnpm --filter @aro/desktop start`), the script runs with cwd = `apps/desktop`, so `.env` should live in **`apps/desktop/.env`**. (Current implementation loads from **project root** `.env` instead; see plan at `.cursor/plans/env_at_project_root_*.plan.md`.) Document the chosen location.
 
 ---
 
 ## 3. .env.example and .gitignore
 
-- **Add** `apps/desktop/.env.example` with one line, e.g.:
+- **Add** `.env.example` at the project root (or formerly `apps/desktop/.env.example`) with one line, e.g.:
 
   ```bash
   # Active module: hello-world | inspect
@@ -59,34 +59,34 @@ Then in `index.ts` make the first line `import './env.js';`. Use this if you wan
 
   So developers can `cp .env.example .env` and edit.
 
-- **Add** `apps/desktop/.env` to `.gitignore` (or add `.env` under the repo root `.gitignore` if you prefer a single root `.env` later). This avoids committing local overrides. If the repo root has a single `.gitignore`, add a line:
+- **Add** `.env` to the repo root `.gitignore`. This avoids committing local overrides. (Root `.gitignore` contains:
 
   ```
   .env
   ```
 
-  so that both `apps/desktop/.env` and any root `.env` are ignored.
+  so that the project root `.env` is ignored.)
 
 ---
 
 ## 4. Documentation updates
 
 - **docs/desktop/ACTIVE_MODULE_SWITCH.md**
-  - Add a “Using .env (development)” section: create `apps/desktop/.env` (or copy from `.env.example`) and set `ARO_ACTIVE_MODULE=inspect` or `hello-world`; restart the app. No rebuild. Inline env var still overrides `.env` if both are set.
+  - Add a “Using .env (development)” section: create **`.env`** at the project root (or copy from **`.env.example`**) and set `ARO_ACTIVE_MODULE=inspect` or `hello-world`; restart the app. No rebuild. Inline env var still overrides `.env` if both are set.
   - Keep the existing “How to switch modules” section for CLI/shell (inline and export).
 
 - **docs/meta/DEPENDENCIES.md** (Desktop section)
   - Add **dotenv** with: developer convenience for loading `ARO_ACTIVE_MODULE` (and optional other vars) from `.env`; replaces the need to set the env var in the shell or inline when starting the app.
 
 - **README.md** (optional)
-  - In the “Switch active module” sentence, add: “Or set `ARO_ACTIVE_MODULE` in `apps/desktop/.env` (see [docs/desktop/ACTIVE_MODULE_SWITCH.md](docs/desktop/ACTIVE_MODULE_SWITCH.md)).”
+  - In the “Switch active module” sentence, add: “Or set `ARO_ACTIVE_MODULE` in the project root **`.env`** (see [docs/desktop/ACTIVE_MODULE_SWITCH.md](docs/desktop/ACTIVE_MODULE_SWITCH.md)).”
 
 ---
 
 ## 5. Verification
 
 - With no `.env`: app loads default module (hello-world).
-- With `apps/desktop/.env` containing `ARO_ACTIVE_MODULE=inspect`: after restart, inspect module loads.
+- With project root **`.env`** containing `ARO_ACTIVE_MODULE=inspect`: after restart, inspect module loads.
 - With `ARO_ACTIVE_MODULE=hello-world` set in the shell and `.env` containing `ARO_ACTIVE_MODULE=inspect`: shell wins (Node/Electron: env var overrides dotenv).
 - Run `pnpm build` and `pnpm start` from repo root; confirm no regression.
 
@@ -98,7 +98,7 @@ Then in `index.ts` make the first line `import './env.js';`. Use this if you wan
 |------|--------|
 | 1 | Add `dotenv` to `apps/desktop/package.json` dependencies; run `pnpm install`. |
 | 2 | In `apps/desktop/src/main/index.ts`, add `import 'dotenv/config';` as the first line. |
-| 3 | Create `apps/desktop/.env.example` with `ARO_ACTIVE_MODULE=hello-world`. |
+| 3 | Create **`.env.example`** at the project root with `ARO_ACTIVE_MODULE=hello-world`. |
 | 4 | Add `.env` to `.gitignore` (root or `apps/desktop` as chosen). |
 | 5 | Update `docs/desktop/ACTIVE_MODULE_SWITCH.md` (`.env` section). |
 | 6 | Update `docs/meta/DEPENDENCIES.md` (dotenv entry for Desktop). |

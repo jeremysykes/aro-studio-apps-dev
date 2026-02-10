@@ -27,7 +27,7 @@ See [ARCHITECTURE.md](../ARCHITECTURE.md) for the source of truth on boundaries 
 
 ## How modules fit in
 
-**Model A (current / Multi-Variant):** One active module per app. The module effectively *is* the app: it owns the main renderer content; Desktop hosts it. The active module is selected by `ARO_ACTIVE_MODULE` (default `hello-world`); for development, use `apps/desktop/.env` (see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md)). Job keys are namespaced for future use: `moduleKey:jobKey` (e.g. `hello-world:greet`).
+**Model A (current / Multi-Variant):** One active module per app. The module effectively *is* the app: it owns the main renderer content; Desktop hosts it. The active module is selected by `ARO_ACTIVE_MODULE` (default `hello-world`); for development, use **`.env`** at the project root (see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md)). Job keys are namespaced for future use: `moduleKey:jobKey` (e.g. `hello-world:greet`).
 
 **Model B (future / Dashboard):** One “Aro Studio” app with multiple modules (tabs/panels). Desktop would provide shell and navigation; multiple modules could be active. PRDs/TRDs for new modules should remain compatible with a possible move to Model B (namespaced job keys, no assumption that only one module exists).
 

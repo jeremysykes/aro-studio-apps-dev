@@ -86,7 +86,7 @@ All stateful, long-running, and domain-specific behavior lives in Core.
 
 ## Module loading (Model A)
 
-Desktop loads the **active module** in the main process after creating Core (on workspace select or on restore of last workspace). The active module is chosen by `ARO_ACTIVE_MODULE` (default `hello-world` when unset); for development, you can set it in `apps/desktop/.env` (see [ACTIVE_MODULE_SWITCH.md](ACTIVE_MODULE_SWITCH.md)). Desktop calls the module's `init(core)` function, which registers job definitions with Core and returns the list of registered job keys. Desktop stores those keys and returns them from `job:listRegistered` IPC. The renderer imports and renders the module's UI component in the main content area. No new IPC channels; modules use existing `window.aro` (workspace, job, runs, logs, artifacts).
+Desktop loads the **active module** in the main process after creating Core (on workspace select or on restore of last workspace). The active module is chosen by `ARO_ACTIVE_MODULE` (default `hello-world` when unset); for development, you can set it in **`.env`** at the project root (see [ACTIVE_MODULE_SWITCH.md](ACTIVE_MODULE_SWITCH.md)). Desktop calls the module's `init(core)` function, which registers job definitions with Core and returns the list of registered job keys. Desktop stores those keys and returns them from `job:listRegistered` IPC. The renderer imports and renders the module's UI component in the main content area. No new IPC channels; modules use existing `window.aro` (workspace, job, runs, logs, artifacts).
 
 ## Future extension points (Q7)
 

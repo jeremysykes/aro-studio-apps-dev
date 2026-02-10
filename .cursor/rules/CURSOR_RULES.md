@@ -17,7 +17,7 @@ Rules applied by Cursor when working in this repository. Must be consistent with
 
 ## Desktop
 
-13. Desktop is an Electron host, UI shell, IPC bridge, and lifecycle manager. It must not implement business logic, persistence, validation, or job execution; those live in Core. Active module is set via `ARO_ACTIVE_MODULE` (default `hello-world`); optionally use `apps/desktop/.env` for development (see README and docs/desktop/ACTIVE_MODULE_SWITCH.md).
+13. Desktop is an Electron host, UI shell, IPC bridge, and lifecycle manager. It must not implement business logic, persistence, validation, or job execution; those live in Core. Active module is set via `ARO_ACTIVE_MODULE` (default `hello-world`); optionally use **`.env`** at the project root for development (see README and docs/desktop/ACTIVE_MODULE_SWITCH.md).
 14. Desktop must not access SQLite, filesystem (for domain data), or Core internals directly. All domain operations go through Core's public API. The renderer never receives Core handles, DB paths, or workspace roots.
 15. Desktop design and implementation must follow `docs/desktop/DESKTOP_ARCHITECTURE.md`, `docs/desktop/DESKTOP_PUBLIC_API.md`, and `docs/desktop/DESKTOP_MVP_CHECKLIST.md`. New Desktop dependencies require justification in `docs/meta/DEPENDENCIES.md`.
 

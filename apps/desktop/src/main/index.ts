@@ -1,4 +1,7 @@
-import 'dotenv/config';
+import path from 'path';
+import { config as loadDotenv } from 'dotenv';
+loadDotenv({ path: path.resolve(__dirname, '../../../../.env') });
+
 import { app, BrowserWindow } from 'electron';
 import { join } from 'path';
 import { existsSync } from 'fs';
