@@ -20,11 +20,11 @@ No Desktop code should be written while executing this document.
 
 The following documents are authoritative and must be read first:
 
-- `ARCHITECTURE.md`
-- `CORE_PUBLIC_API.md`
-- `CORE_MVP_CHECKLIST.md`
-- `DEPENDENCIES.md`
-- `.cursor/rules/CURSOR_RULES.md`
+- [ARCHITECTURE.md](../ARCHITECTURE.md)
+- [core/CORE_PUBLIC_API.md](../core/CORE_PUBLIC_API.md)
+- [core/CORE_MVP_CHECKLIST.md](../core/CORE_MVP_CHECKLIST.md)
+- [meta/DEPENDENCIES.md](../meta/DEPENDENCIES.md)
+- [.cursor/rules/CURSOR_RULES.md](../../.cursor/rules/CURSOR_RULES.md)
 
 Core is complete, tested, and headless.
 Desktop must adapt to Core — not the other way around.
@@ -72,17 +72,17 @@ This is a **planning and framing exercise only**.
 Executing `DESKTOP_KICK_OFF.md` must produce the following documentation artifacts
 before any Desktop code is written:
 
-1. `docs/DESKTOP_ARCHITECTURE.md`
+1. [DESKTOP_ARCHITECTURE.md](DESKTOP_ARCHITECTURE.md)
    - Desktop responsibilities
    - Dependency direction
    - Relationship to Core and Modules
 
-2. `docs/DESKTOP_PUBLIC_API.md`
+2. [DESKTOP_PUBLIC_API.md](DESKTOP_PUBLIC_API.md)
    - IPC surface (method names, event names)
    - What Desktop exposes to renderers
    - What Desktop forwards to Core
 
-3. `docs/DESKTOP_MVP_CHECKLIST.md`
+3. [DESKTOP_MVP_CHECKLIST.md](DESKTOP_MVP_CHECKLIST.md)
    - Pass/fail checklist for Desktop MVP
    - What “done” means for the first Desktop iteration
 

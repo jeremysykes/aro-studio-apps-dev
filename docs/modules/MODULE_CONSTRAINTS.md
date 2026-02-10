@@ -82,9 +82,9 @@ This document details how to implement and verify each module constraint. Module
 **Implementation:**
 
 - Each module has its own `package.json`.
-- When adding a dependency to a module, update `docs/DEPENDENCIES.md` (or a module-specific section) with: name, reason, what it replaces.
-- Per [docs/DOCUMENTATION.md](DOCUMENTATION.md), dependencies are justified before addition.
+- When adding a dependency to a module, update [meta/DEPENDENCIES.md](../meta/DEPENDENCIES.md) (or a module-specific section) with: name, reason, what it replaces.
+- Per [meta/DOCUMENTATION.md](../meta/DOCUMENTATION.md), dependencies are justified before addition.
 
 **Verification:**
 
-- PR check: if `packages/modules/*/package.json` changes, `docs/DEPENDENCIES.md` must include the new dep with justification.
+- PR check: if `packages/modules/*/package.json` changes, [meta/DEPENDENCIES.md](../meta/DEPENDENCIES.md) must include the new dep with justification.

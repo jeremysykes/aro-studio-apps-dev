@@ -63,7 +63,7 @@ Responsibilities:
 - User flows, layout and interaction specs, visual hierarchy
 - Design tokens (spacing, type scale, colors where needed)
 - Accessibility requirements (e.g. WCAG 2.1 Level AA), acceptance criteria for UI/UX
-- Produce docs and specs in `docs/` or `decisions/` (e.g. wireframes in markdown, a11y checklist). May create or update [docs/UI_UX_ACCESSIBILITY.md](docs/UI_UX_ACCESSIBILITY.md).
+- Produce docs and specs in `docs/` or `decisions/` (e.g. wireframes in markdown, a11y checklist). May create or update [docs/meta/UI_UX_ACCESSIBILITY.md](docs/meta/UI_UX_ACCESSIBILITY.md).
 
 Must not:
 - Write application or component code
@@ -111,4 +111,4 @@ Renderer UI is owned solely by **UI Engineer**. Desktop Engineer owns only the h
 6. Product Designer may produce or update design/a11y specs
 7. UI Engineer implements all UI (Desktop shell and module screens) from specs using the design system
 
-When MVP status or main commands change, the README should be updated (see [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md)).
+When MVP status or main commands change, the README should be updated (see [docs/meta/DOCUMENTATION.md](docs/meta/DOCUMENTATION.md)).

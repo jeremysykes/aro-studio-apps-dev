@@ -1,6 +1,6 @@
 # UI/UX and Accessibility Standards
 
-This document is the single source of truth for UI/UX and accessibility expectations. Product Designer and UI Engineer agents align to it. See [AGENTS.md](../AGENTS.md) for role responsibilities.
+This document is the single source of truth for UI/UX and accessibility expectations. Product Designer and UI Engineer agents align to it. See [AGENTS.md](../../AGENTS.md) for role responsibilities.
 
 ## Accessibility (a11y)
 
@@ -20,4 +20,4 @@ This document is the single source of truth for UI/UX and accessibility expectat
 ## References
 
 - [WCAG 2.1](https://www.w3.org/WAI/WCAG21/quickref/)
-- [AGENTS.md](../AGENTS.md) — Product Designer (specs) vs UI Engineer (implementation)
+- [AGENTS.md](../../AGENTS.md) — Product Designer (specs) vs UI Engineer (implementation)

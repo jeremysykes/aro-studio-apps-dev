@@ -24,4 +24,4 @@ flowchart TB
   end
 ```
 
-Reference from [docs/MODULE_KICK_OFF.md](../docs/MODULE_KICK_OFF.md) and [docs/MODULE_MODELS.md](../docs/MODULE_MODELS.md).
+Reference from [docs/modules/MODULE_KICK_OFF.md](../docs/modules/MODULE_KICK_OFF.md) and [docs/modules/MODULE_MODELS.md](../docs/modules/MODULE_MODELS.md).

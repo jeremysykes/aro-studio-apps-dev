@@ -11,5 +11,5 @@ Start with Model A: one module per app; module owns the UI; build/config selects
 
 - Aligns with "different applications" vision (e.g. "Aro Studio Tokens", "Aro Studio Figma")
 - Simpler first implementation
-- Clear path to Model B; see [docs/MODULE_B_TRANSITION.md](../docs/MODULE_B_TRANSITION.md)
-- See [docs/MODULE_MODELS.md](../docs/MODULE_MODELS.md) for the full comparison table
+- Clear path to Model B; see [docs/modules/MODULE_B_TRANSITION.md](../docs/modules/MODULE_B_TRANSITION.md)
+- See [docs/modules/MODULE_MODELS.md](../docs/modules/MODULE_MODELS.md) for the full comparison table

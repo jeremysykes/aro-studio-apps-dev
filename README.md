@@ -4,8 +4,8 @@ Design-system application suite: Core (headless engine), Desktop (Electron host)
 
 ## Status
 
-- **Desktop MVP:** Complete — workspace selection, jobs, runs, logs, artifacts, IPC, module loading. See [docs/DESKTOP_MVP_CHECKLIST.md](docs/DESKTOP_MVP_CHECKLIST.md).
-- **Module MVP:** hello-world module complete — job registration, UI, logs and artifacts; no module-to-module imports or direct DB/filesystem access. See [docs/MODULE_MVP_CHECKLIST.md](docs/MODULE_MVP_CHECKLIST.md).
+- **Desktop MVP:** Complete — workspace selection, jobs, runs, logs, artifacts, IPC, module loading. See [docs/desktop/DESKTOP_MVP_CHECKLIST.md](docs/desktop/DESKTOP_MVP_CHECKLIST.md).
+- **Module MVP:** hello-world module complete — job registration, UI, logs and artifacts; no module-to-module imports or direct DB/filesystem access. See [docs/modules/MODULE_MVP_CHECKLIST.md](docs/modules/MODULE_MVP_CHECKLIST.md).
 - **Stack:** Core (Node, SQLite, Zod); Desktop (Electron, React, TypeScript, shadcn + Tailwind); Modules (React; use `@aro/desktop/components` for the shared design system).
 
 ## Run / build
@@ -31,11 +31,11 @@ Agent roles and execution order: [AGENTS.md](AGENTS.md).
 
 Documentation lives in this repo:
 
-- **Architecture and API:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/CORE_PUBLIC_API.md](docs/CORE_PUBLIC_API.md), and other files in [docs/](docs/).
-- **Checklists:** [docs/DESKTOP_MVP_CHECKLIST.md](docs/DESKTOP_MVP_CHECKLIST.md), [docs/MODULE_MVP_CHECKLIST.md](docs/MODULE_MVP_CHECKLIST.md).
-- **UI/UX and a11y:** [docs/UI_UX_ACCESSIBILITY.md](docs/UI_UX_ACCESSIBILITY.md).
+- **Architecture and API:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/core/CORE_PUBLIC_API.md](docs/core/CORE_PUBLIC_API.md). See [docs/README.md](docs/README.md) for the full index by layer (core/, desktop/, modules/, meta/).
+- **Checklists:** [docs/desktop/DESKTOP_MVP_CHECKLIST.md](docs/desktop/DESKTOP_MVP_CHECKLIST.md), [docs/modules/MODULE_MVP_CHECKLIST.md](docs/modules/MODULE_MVP_CHECKLIST.md).
+- **UI/UX and a11y:** [docs/meta/UI_UX_ACCESSIBILITY.md](docs/meta/UI_UX_ACCESSIBILITY.md).
 - **Agent roles and execution order:** [AGENTS.md](AGENTS.md).
 - **Cursor rules:** [.cursor/rules/](.cursor/rules/) (e.g. CURSOR_RULES.md, README.md).
 - **ADRs, decisions, diagrams:** [adr/](adr/), [decisions/](decisions/), [diagrams/](diagrams/).
 
-**Before coding:** Read [.cursor/rules/README.md](.cursor/rules/README.md), then follow [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/CORE_PUBLIC_API.md](docs/CORE_PUBLIC_API.md).
+**Before coding:** Read [.cursor/rules/README.md](.cursor/rules/README.md), then follow [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/core/CORE_PUBLIC_API.md](docs/core/CORE_PUBLIC_API.md).

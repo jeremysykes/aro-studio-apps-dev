@@ -38,7 +38,7 @@ core.jobs.register({
 
 **Context:** Module UI runs in the renderer. It uses the same IPC surface as the current Desktop UI.
 
-**API:** `window.aro` — workspace, job, runs, logs, artifacts. See [docs/DESKTOP_PUBLIC_API.md](DESKTOP_PUBLIC_API.md).
+**API:** `window.aro` — workspace, job, runs, logs, artifacts. See [desktop/DESKTOP_PUBLIC_API.md](../desktop/DESKTOP_PUBLIC_API.md).
 
 - No new IPC channels for Model A MVP.
 - Module UI calls `window.aro.job.run('hello-world:greet')`, `window.aro.runs.list()`, etc.

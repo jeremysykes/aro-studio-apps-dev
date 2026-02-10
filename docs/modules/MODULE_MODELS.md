@@ -39,4 +39,4 @@ This document defines two architectural models for how Modules integrate with Co
 
 ## Transition Path
 
-Moving from Model A (Multi-Variant) to Model B (Dashboard) is documented in [docs/MODULE_B_TRANSITION.md](MODULE_B_TRANSITION.md). The transition should be clear and painless; Core and the module-to-Core relationship remain the same.
+Moving from Model A (Multi-Variant) to Model B (Dashboard) is documented in [MODULE_B_TRANSITION.md](MODULE_B_TRANSITION.md). The transition should be clear and painless; Core and the module-to-Core relationship remain the same.

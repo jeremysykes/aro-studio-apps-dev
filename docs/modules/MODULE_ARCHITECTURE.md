@@ -21,7 +21,7 @@ Desktop is the host; Modules and Core are dependencies. Dependency flow is one-w
 
 ## Model A (MVP): Multi-Variant
 
-The MVP uses Model A. See [docs/MODULE_MODELS.md](MODULE_MODELS.md) for the full comparison.
+The MVP uses Model A. See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comparison.
 
 - **One active module** — Build or config selects which module is loaded.
 - **Module owns the UI** — The module provides the main renderer content; Desktop hosts it.
@@ -55,10 +55,10 @@ For context when writing PRDs and TRDs for new modules, see [MODULE_PRD_TRD_CONT
 - **Access SQLite** — No direct database access; use Core's public API.
 - **Access the filesystem** — No `fs` or `path` for domain data; use `ctx.workspace` in job context only.
 - **Break the Core/Desktop/Module contract** — Use only documented IPC; do not receive Core handles in the renderer.
-- **Introduce undocumented dependencies** — New deps require justification in `docs/DEPENDENCIES.md`.
+- **Introduce undocumented dependencies** — New deps require justification in [meta/DEPENDENCIES.md](../meta/DEPENDENCIES.md).
 
 ---
 
 ## Diagram
 
-See [diagrams/module-models.md](../diagrams/module-models.md) for Model A vs Model B.
+See [diagrams/module-models.md](../../diagrams/module-models.md) for Model A vs Model B.

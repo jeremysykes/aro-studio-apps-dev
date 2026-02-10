@@ -111,4 +111,6 @@ Desktop loads the active module in the main process after creating Core (on work
 
 ![[diagrams/desktop-mvp]]
 
+Fallback: [diagrams/desktop-mvp.md](../../diagrams/desktop-mvp.md).
+
 The renderer talks to the IPC layer via `contextBridge`. The main process holds the Core instance and forwards IPC to Core APIs.
