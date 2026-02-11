@@ -62,9 +62,13 @@ export default function HelloWorld() {
 
 	useEffect(() => {
 		loadRuns();
+	}, [loadRuns]);
+
+	useEffect(() => {
+		if (runningRunId == null) return;
 		const id = setInterval(loadRuns, 2000);
 		return () => clearInterval(id);
-	}, [loadRuns]);
+	}, [runningRunId, loadRuns]);
 
 	const handleRunJob = async () => {
 		setError(null);

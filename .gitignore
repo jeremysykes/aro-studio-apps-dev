@@ -1,4 +1,6 @@
 .DS_Store
+.aro
+.dev-state
 .env
 node_modules
 dist

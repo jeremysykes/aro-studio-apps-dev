@@ -47,13 +47,12 @@ export async function scanStorybookFromUrl(indexUrl: string): Promise<Component[
   if (!res.ok) return [];
   const text = await res.text();
 
-  let data: StorybookIndexData;
+  let data: StorybookIndexData | undefined;
 
   if (text.trimStart().startsWith('<')) {
     const u = new URL(indexUrl);
     const base = u.origin + (u.pathname.replace(/\/$/, '') || '') + '/';
     const candidates = ['index.json', 'stories.json'];
-    let found = false;
     for (const candidate of candidates) {
       const indexRes = await fetch(base + candidate);
       if (!indexRes.ok) continue;
@@ -62,14 +61,13 @@ export async function scanStorybookFromUrl(indexUrl: string): Promise<Component[
         const parsed = JSON.parse(indexText) as StorybookIndexData;
         if (parsed.entries != null || parsed.stories != null) {
           data = parsed;
-          found = true;
           break;
         }
       } catch {
         continue;
       }
     }
-    if (!found) {
+    if (data === undefined) {
       throw new Error(
         `Storybook URL returned HTML but index not found. Use the index URL, e.g. ${base}index.json`
       );

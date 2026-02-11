@@ -9,7 +9,7 @@ When project status or entry points change in a way a new contributor would care
 
 ## When to update `docs/`
 
-Docs are organized by layer: core/, desktop/, modules/, meta/. Update the file in the appropriate subdir. Design changes, API changes, checklists, and dependencies: update the relevant file in `docs/` (e.g. [ARCHITECTURE.md](../../ARCHITECTURE.md) at docs root, [core/CORE_PUBLIC_API.md](../core/CORE_PUBLIC_API.md), [meta/DEPENDENCIES.md](DEPENDENCIES.md), kick-off or checklist docs). Do this before implementing the change.
+Docs are organized by layer: core/, desktop/, web/, modules/, meta/. Update the file in the appropriate subdir. Design changes, API changes, checklists, and dependencies: update the relevant file in `docs/` (e.g. [ARCHITECTURE.md](../../ARCHITECTURE.md) at docs root, [core/CORE_PUBLIC_API.md](../core/CORE_PUBLIC_API.md), [meta/DEPENDENCIES.md](DEPENDENCIES.md), kick-off or checklist docs). Do this before implementing the change.
 
 When the application or module contract changes in a way that affects how PRDs/TRDs should be written (e.g. new IPC surface, new job context fields, new constraints), update [modules/MODULE_PRD_TRD_CONTEXT.md](../modules/MODULE_PRD_TRD_CONTEXT.md) so it remains the single source of context for module requirements.
 

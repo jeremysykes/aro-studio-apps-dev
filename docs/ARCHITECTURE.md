@@ -1,8 +1,9 @@
 ## Purpose
 
-Aro Studio is a modular desktop application built as a single repo:
+Aro Studio is a modular application built as a single repo:
 - `packages/core` is the engine (headless, Node-based) — MVP complete
 - `apps/desktop` is the Electron host — MVP complete
+- `apps/web` is the web host (Node backend + browser UI) — in progress
 - `packages/modules/*` are feature modules (later)
 
 This document is the source of truth for boundaries and dependency direction.
@@ -10,19 +11,22 @@ This document is the source of truth for boundaries and dependency direction.
 ## High-level diagram
 
 Core → Desktop
+Core → Web
 Modules → Desktop
+Modules → Web
 Modules → Core
 
 No other dependency direction is allowed.
 
 ## Dependency rules (hard)
 
-1. Core MUST NOT import Desktop or Modules.
+1. Core MUST NOT import Desktop, Web, or Modules.
 2. Modules MUST NOT import each other.
 3. Desktop MAY import Core and Modules.
-4. Core must never expose SQL/tables/queries.
-5. Modules must never access the database directly.
-6. Modules must never access the filesystem directly outside Core workspace APIs.
+4. Web MAY import Core and Modules.
+5. Core must never expose SQL/tables/queries.
+6. Modules must never access the database directly.
+7. Modules must never access the filesystem directly outside Core workspace APIs.
 
 ## Layers inside Core
 

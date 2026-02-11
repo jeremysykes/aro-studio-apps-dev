@@ -44,6 +44,18 @@ Must not:
 - Access SQLite directly
 
 ---
+### Web Engineer Agent
+
+Responsibilities:
+- Web server (Node), API that wraps Core, module loading for web (same `ARO_ACTIVE_MODULE` / init pattern), web app bootstrap
+- HTTP/WS API that mirrors Desktop IPC surface
+
+Must not:
+- Implement renderer UI content (React components, layout, or design system)
+- Implement business logic
+- Access SQLite directly
+
+---
 ### Module Engineer Agent
 
 Responsibilities:
@@ -74,7 +86,7 @@ Must not:
 ### UI Engineer Agent
 
 Responsibilities:
-- All renderer UI: Desktop shell and module UI
+- All renderer UI: Desktop shell, Web shell, and module screens
 - Implement UI from Product Designer specs; use design system (shadcn + Tailwind); semantic HTML and ARIA; component structure and composition in React; ensure markup and behavior meet documented a11y criteria
 
 Must not:
@@ -93,11 +105,12 @@ Each role has a single clear owner for its domain. No overlap.
 | **Architect** | Core layering, service boundaries, public API design, folder structure. | Write UI; introduce dependencies; implement features. |
 | **Core Engineer** | Core services, SQLite schema/statements, job runner, applied tests. | Touch Desktop or Modules; Electron; modify /docs without Architect approval. |
 | **Desktop Engineer** | Main process, preload, IPC, module loading, navigation; renderer bootstrap. | Implement renderer UI content (React, layout, design system); business logic; SQLite. |
+| **Web Engineer** | Web server, API, module loading for web, web app bootstrap. | Implement renderer UI content (React, layout, design system); business logic; SQLite. |
 | **Module Engineer** | Module job definitions, module feature behavior, Core APIs from the module. | Implement React/components or module UI screens; fs/DB directly; import other modules. |
 | **Product Designer** | User flows, layout/specs, visual hierarchy, design tokens, a11y requirements; docs/specs only. | Write any application or component code; touch implementation files. |
-| **UI Engineer** | All renderer UI (Desktop shell + module screens); design system usage; semantic HTML/ARIA. | Define product/visual design from scratch without design input; business logic; new deps without DEPENDENCIES.md. |
+| **UI Engineer** | All renderer UI (Desktop shell, Web shell, module screens); design system usage; semantic HTML/ARIA. | Define product/visual design from scratch without design input; business logic; new deps without DEPENDENCIES.md. |
 
-Renderer UI is owned solely by **UI Engineer**. Desktop Engineer owns only the host (main, preload, IPC, module loading, renderer entry). Module screens and components are **UI Engineer**; **Module Engineer** owns only job registration and module behavior.
+Renderer UI is owned solely by **UI Engineer**. Desktop Engineer owns only the Desktop host (main, preload, IPC, module loading, renderer entry). Web Engineer owns only the Web host (server, API, module loading, web app bootstrap). Module screens and components are **UI Engineer**; **Module Engineer** owns only job registration and module behavior.
 
 ---
 
@@ -107,8 +120,9 @@ Renderer UI is owned solely by **UI Engineer**. Desktop Engineer owns only the h
 2. Core Engineer implements Core
 3. Core Engineer writes applied tests
 4. Desktop Engineer wires Core into Electron and sets up module loading
-5. Module Engineer adds module job logic and feature behavior
-6. Product Designer may produce or update design/a11y specs
-7. UI Engineer implements all UI (Desktop shell and module screens) from specs using the design system
+5. Web Engineer wires Core into Web host and sets up module loading
+6. Module Engineer adds module job logic and feature behavior
+7. Product Designer may produce or update design/a11y specs
+8. UI Engineer implements all UI (Desktop shell, Web shell, and module screens) from specs using the design system
 
 When MVP status or main commands change, the README should be updated (see [docs/meta/DOCUMENTATION.md](docs/meta/DOCUMENTATION.md)).

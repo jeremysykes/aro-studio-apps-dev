@@ -56,6 +56,36 @@ Dev-only: **typescript** (type-checking), **@types/react**, **@types/react-dom**
 
 ---
 
+## Allowed deps (Web MVP)
+
+Web (`apps/web`) may use:
+
+- **electron** — Required so the web server runs under Electron's Node for better-sqlite3 ABI compatibility (same build as Desktop). No alternative when Core uses native SQLite.
+- **express** — HTTP API server; required for web backend. No built-in Node HTTP server with routing is as standard. Replaces manual HTTP handling.
+- **cors** — Allow frontend (different origin in dev) to call API. Standard CORS middleware.
+- **ws** — WebSocket for live log subscription; mirrors Desktop's IPC `logs:subscribe`. No built-in WebSocket server in Node.
+- **vite** — Client bundler; same as Desktop. Provides fast dev server, ESM bundling, React/JSX support.
+- **@vitejs/plugin-react** — Vite plugin for React; same as Desktop.
+- **react** / **react-dom** — UI framework; same as Desktop.
+- **dotenv** — Load `ARO_ACTIVE_MODULE`, `ARO_WORKSPACE_ROOT` from `.env` at project root; same pattern as Desktop.
+- **@aro/core** — Core engine; Web backend runs Core.
+- **@aro/module-hello-world** — Default active module.
+- **@aro/module-inspect** — Inspect module (when `ARO_ACTIVE_MODULE=inspect`).
+- **@aro/desktop** (components subpath) — Shared design system; module UI uses shadcn components. Same as modules.
+- **tailwindcss**, **postcss**, **autoprefixer**, **tailwindcss-animate**, **class-variance-authority**, **clsx**, **tailwind-merge**, **@radix-ui/react-slot** — Design system; same as Desktop/client.
+
+Dev-only: **typescript**, **@types/react**, **@types/react-dom**, **@types/ws** (type definitions), **nodemon** (restart server when dist/server changes for hot-reload). Dev is run via the root orchestrator (`pnpm web`), which starts API then Vite after readiness; see `dev/dev-web.ts`.
+
+---
+
+## Root / monorepo
+
+Root (`package.json` at repo root) dev-only:
+
+- **tsx** — Runs `dev/dev-web.ts` for deterministic Web dev orchestrator. Starts API first, waits for readiness (`SERVER_READY`), then starts Vite; prefixed logs, clean shutdown, cross-platform. No built-in Node runner for TypeScript in `dev/` without adding a build step; tsx provides zero-config ESM + TS execution.
+
+---
+
 ## Allowed deps (Modules)
 
 Modules (`packages/modules/*`) may use:

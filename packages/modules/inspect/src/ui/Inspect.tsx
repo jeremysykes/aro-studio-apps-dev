@@ -93,9 +93,13 @@ export default function Inspect() {
 
   useEffect(() => {
     loadRuns();
+  }, [loadRuns]);
+
+  useEffect(() => {
+    if (runningRunId == null) return;
     const id = setInterval(loadRuns, 2000);
     return () => clearInterval(id);
-  }, [loadRuns]);
+  }, [runningRunId, loadRuns]);
 
   useEffect(() => {
     const run = runs.find((r) => r.id === runningRunId);

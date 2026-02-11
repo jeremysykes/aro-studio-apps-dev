@@ -6,12 +6,12 @@ This document defines the API surface for Modules: job registration and renderer
 
 ## Job registration
 
-**Context:** Modules register jobs with Core via Desktop. Registration happens in the main process when Desktop loads the module.
+**Context:** Modules register jobs with Core via the host (Desktop or Web). Registration happens in the main/backend process when the host loads the module.
 
 **Flow:**
 
-1. Desktop creates Core (when workspace is selected).
-2. Desktop loads the active module (via `ARO_ACTIVE_MODULE`, default `hello-world`; **`.env`** at project root; see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md)) and invokes its init function, passing Core.
+1. Host (Desktop or Web) creates Core (when workspace is selected or from env).
+2. Host loads the active module (via `ARO_ACTIVE_MODULE`, default `hello-world`; **`.env`** at project root; see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md)) and invokes its init function, passing Core.
 3. The module calls `core.jobs.register({ key, run })` for each job.
 
 **Job key format:**
@@ -36,9 +36,9 @@ core.jobs.register({
 
 ## Renderer API (Model A MVP)
 
-**Context:** Module UI runs in the renderer. It uses the same IPC surface as the current Desktop UI.
+**Context:** Module UI runs in the renderer (Desktop) or browser (Web). It receives the same intent-based API from the host: Desktop exposes `window.aro` via IPC; Web exposes `window.aro` via HTTP/WS API. Same capability surface in both hosts.
 
-**API:** `window.aro` — workspace, job, runs, logs, artifacts. See [desktop/DESKTOP_PUBLIC_API.md](../desktop/DESKTOP_PUBLIC_API.md).
+**API:** `window.aro` — workspace, job, runs, logs, artifacts. See [desktop/DESKTOP_PUBLIC_API.md](../desktop/DESKTOP_PUBLIC_API.md) and [web/WEB_PUBLIC_API.md](../web/WEB_PUBLIC_API.md).
 
 - No new IPC channels for Model A MVP.
 - Module UI calls `window.aro.job.run('hello-world:greet')`, `window.aro.runs.list()`, etc.
