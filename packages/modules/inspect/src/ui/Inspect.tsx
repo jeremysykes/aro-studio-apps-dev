@@ -5,6 +5,10 @@ import {
 	CardContent,
 	CardHeader,
 	CardTitle,
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
 } from '@aro/desktop/components';
 import type { InspectReport } from './types';
 
@@ -284,6 +288,7 @@ export default function Inspect() {
 
 	return (
 		<main className='min-w-[900px] min-h-screen p-6 font-sans' role='main'>
+			<TooltipProvider delayDuration={300}>
 			<h1 className='text-2xl font-semibold mb-4'>Aro Inspect</h1>
 
 			{!workspacePath ? (
@@ -487,23 +492,34 @@ export default function Inspect() {
 										<CardHeader>
 											<CardTitle>Runs</CardTitle>
 										</CardHeader>
-										<CardContent className='min-[900px]:overflow-y-auto min-[900px]:min-h-0'>
-											<ul className='list-none space-y-1'>
-												{runs.map((run) => (
-													<li key={run.id}>
-														<Button
-															type='button'
-															variant={
-																selectedRunId === run.id ? 'default' : 'ghost'
-															}
-															className='w-full justify-start font-normal'
-															onClick={() => setSelectedRunId(run.id)}
-														>
-															{run.id.slice(0, 8)} — {run.status} —{' '}
-															{new Date(run.startedAt).toLocaleString()}
-														</Button>
-													</li>
-												))}
+										<CardContent className='min-[900px]:overflow-y-auto min-[900px]:min-h-0 min-w-0'>
+											<ul className='list-none space-y-1 min-w-0'>
+												{runs.map((run) => {
+													const fullLabel = `${run.id} — ${run.status} — ${new Date(run.startedAt).toLocaleString()}`;
+													return (
+														<li key={run.id} className='min-w-0'>
+															<Tooltip>
+																<TooltipTrigger asChild>
+																	<Button
+																		type='button'
+																		variant={
+																			selectedRunId === run.id ? 'default' : 'ghost'
+																		}
+																		className='w-full min-w-0 justify-start overflow-hidden font-normal'
+																		onClick={() => setSelectedRunId(run.id)}
+																	>
+																		<span className='block min-w-0 truncate text-left'>
+																			{fullLabel}
+																		</span>
+																	</Button>
+																</TooltipTrigger>
+																<TooltipContent side='top'>
+																	<p>{fullLabel}</p>
+																</TooltipContent>
+															</Tooltip>
+														</li>
+													);
+												})}
 											</ul>
 										</CardContent>
 									</Card>
@@ -556,25 +572,36 @@ export default function Inspect() {
 										<CardHeader>
 											<CardTitle>Runs</CardTitle>
 										</CardHeader>
-										<CardContent className='min-[900px]:overflow-y-auto min-[900px]:min-h-0'>
-											<ul className='list-none space-y-1'>
+										<CardContent className='min-[900px]:overflow-y-auto min-[900px]:min-h-0 min-w-0'>
+											<ul className='list-none space-y-1 min-w-0'>
 												{runs
 													.filter((r) => r.status === 'success')
-													.map((run) => (
-														<li key={run.id}>
-															<Button
-																type='button'
-																variant={
-																	selectedRunId === run.id ? 'default' : 'ghost'
-																}
-																className='w-full justify-start font-normal'
-																onClick={() => setSelectedRunId(run.id)}
-															>
-																{run.id.slice(0, 8)} —{' '}
-																{new Date(run.startedAt).toLocaleString()}
-															</Button>
-														</li>
-													))}
+													.map((run) => {
+														const fullLabel = `${run.id} — ${new Date(run.startedAt).toLocaleString()}`;
+														return (
+															<li key={run.id} className='min-w-0'>
+																<Tooltip>
+																	<TooltipTrigger asChild>
+																		<Button
+																			type='button'
+																			variant={
+																				selectedRunId === run.id ? 'default' : 'ghost'
+																			}
+																			className='w-full min-w-0 justify-start overflow-hidden font-normal'
+																			onClick={() => setSelectedRunId(run.id)}
+																		>
+																			<span className='block min-w-0 truncate text-left'>
+																				{fullLabel}
+																			</span>
+																		</Button>
+																	</TooltipTrigger>
+																	<TooltipContent side='top'>
+																		<p>{fullLabel}</p>
+																	</TooltipContent>
+																</Tooltip>
+															</li>
+														);
+													})}
 											</ul>
 										</CardContent>
 									</Card>
@@ -810,6 +837,7 @@ export default function Inspect() {
 					)}
 				</>
 			)}
+			</TooltipProvider>
 		</main>
 	);
 }
