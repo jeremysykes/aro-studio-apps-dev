@@ -9,6 +9,7 @@ View-level acceptance criteria and accessibility checklist for the Inspect UI. I
 ### Setup view
 
 - Workspace path is shown; user can change it via Desktop workspace selector.
+- **Spacing:** When no source is configured, there is a visible 16px gap between the helper text (“Configure at least one source…”) and the three-column source card layout. See [Design-spec.md §8.1](Design-spec.md#81-setup-tab--helper-text-to-source-cards).
 - Per-source cards: Figma (file key(s), connection status), Code (path(s), format), Storybook (URL or path to index).
 - "Test Connection" per source shows result (success/error); errors shown with `role="alert"` or equivalent.
 - "Run Inspect" is disabled until at least one source is configured; when enabled, running a scan is the primary action.

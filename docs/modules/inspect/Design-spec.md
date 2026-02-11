@@ -93,7 +93,24 @@ All report data is read from artifacts of the chosen run; no live mutation of so
 
 ---
 
-## 8. Explicit non-goals
+## 8. Layout and spacing
+
+### 8.1 Setup tab — helper text to source cards
+
+**Context:** When no source is configured, the Setup view shows the message “Configure at least one source (Figma, Code tokens, or Storybook) to enable Run Inspect.” above the three-column source card layout (Figma, Code tokens, Storybook).
+
+**Problem:** Without explicit spacing, the helper text and the source cards can appear to touch or nearly touch, making the hierarchy unclear.
+
+**Spacing spec:**
+- **Required:** A visible gap of **1rem (16px)** between the baseline/descender of the helper text and the top edge of the first source card row.
+- Apply spacing via margin-bottom on the helper text paragraph **or** margin-top on the section containing the three-column grid—whichever keeps the layout structure clean. The design-system token `space-4` (16px) is the intended value.
+- Rationale: Clear separation so the helper reads as distinct guidance above the cards; aligns with `gap-4` / `mb-4` used elsewhere in the Setup view.
+
+**Acceptance (must pass):** When viewing the Setup tab with no sources configured, measure the vertical space between the last line of the helper text and the top edge of the Figma/Code tokens/Storybook cards. It must equal 16px and be visibly distinct (not cramped or touching).
+
+---
+
+## 9. Explicit non-goals
 
 Inspect **does not**:
 
@@ -107,7 +124,7 @@ Inspect **does not**:
 
 ---
 
-## 9. Release slices
+## 10. Release slices
 
 Functionality is delivered in shippable slices. Dependencies between slices are respected.
 
