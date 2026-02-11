@@ -481,7 +481,7 @@ export default function Inspect() {
 							<h2 id='run-heading' className='sr-only'>
 								Run and logs
 							</h2>
-							<div className='grid grid-cols-1 min-[900px]:grid-cols-[20rem_1fr] min-[900px]:max-h-[calc(100vh-12rem)] min-[900px]:min-h-0 gap-4'>
+							<div className='grid grid-cols-1 min-[900px]:grid-cols-[20rem_1fr] min-[900px]:grid-rows-[minmax(0,1fr)] min-[900px]:max-h-[calc(100vh-12rem)] min-[900px]:min-h-0 gap-4'>
 								<div className='space-y-4 min-[900px]:flex min-[900px]:flex-col min-[900px]:min-h-0 min-[900px]:space-y-0'>
 									<Card className='min-[900px]:flex-1 min-[900px]:min-h-0 min-[900px]:flex min-[900px]:flex-col min-[900px]:overflow-hidden'>
 										<CardHeader>
