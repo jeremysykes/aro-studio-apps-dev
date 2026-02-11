@@ -323,7 +323,7 @@ export default function Inspect() {
                     className="w-full rounded border px-3 py-2 text-sm"
                     value={config.storybookUrl}
                     onChange={(e) => setConfig((c) => ({ ...c, storybookUrl: e.target.value }))}
-                    placeholder="https://…/index.json"
+                    placeholder="Base URL (e.g. https://site.vercel.app/) or …/index.json"
                     aria-label="Storybook index URL"
                   />
                   <span className="text-sm text-muted-foreground">or workspace path to index</span>

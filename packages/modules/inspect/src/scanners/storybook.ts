@@ -11,13 +11,20 @@ function stripHierarchy(title: string): string {
   return parts[parts.length - 1]?.trim() ?? title;
 }
 
-export async function scanStorybookFromUrl(indexUrl: string): Promise<Component[]> {
-  const res = await fetch(indexUrl);
-  if (!res.ok) return [];
-  const data = (await res.json()) as {
-    entries?: Record<string, { type?: string; id: string; title?: string; name?: string; importPath?: string; argTypes?: unknown }>;
-    stories?: Record<string, { id: string; title?: string; name?: string; argTypes?: unknown }>;
-  };
+type StorybookIndexEntry = {
+  type?: string;
+  id: string;
+  title?: string;
+  name?: string;
+  importPath?: string;
+  argTypes?: unknown;
+};
+type StorybookIndexData = {
+  entries?: Record<string, StorybookIndexEntry>;
+  stories?: Record<string, StorybookIndexEntry>;
+};
+
+function componentsFromIndexData(data: StorybookIndexData): Component[] {
   const byComponent = new Map<string, { storyIds: string[]; argTypes: unknown }>();
   const entries = data.entries ?? data.stories ?? {};
   for (const [id, entry] of Object.entries(entries)) {
@@ -33,6 +40,51 @@ export async function scanStorybookFromUrl(indexUrl: string): Promise<Component[
     coverage: ['storybook'],
     isOrphan: false,
   }));
+}
+
+export async function scanStorybookFromUrl(indexUrl: string): Promise<Component[]> {
+  const res = await fetch(indexUrl);
+  if (!res.ok) return [];
+  const text = await res.text();
+
+  let data: StorybookIndexData;
+
+  if (text.trimStart().startsWith('<')) {
+    const u = new URL(indexUrl);
+    const base = u.origin + (u.pathname.replace(/\/$/, '') || '') + '/';
+    const candidates = ['index.json', 'stories.json'];
+    let found = false;
+    for (const candidate of candidates) {
+      const indexRes = await fetch(base + candidate);
+      if (!indexRes.ok) continue;
+      const indexText = await indexRes.text();
+      try {
+        const parsed = JSON.parse(indexText) as StorybookIndexData;
+        if (parsed.entries != null || parsed.stories != null) {
+          data = parsed;
+          found = true;
+          break;
+        }
+      } catch {
+        continue;
+      }
+    }
+    if (!found) {
+      throw new Error(
+        `Storybook URL returned HTML but index not found. Use the index URL, e.g. ${base}index.json`
+      );
+    }
+  } else {
+    try {
+      data = JSON.parse(text) as StorybookIndexData;
+    } catch {
+      throw new Error(
+        'Response is not valid JSON; use the Storybook index URL (e.g. .../index.json)'
+      );
+    }
+  }
+
+  return componentsFromIndexData(data);
 }
 
 export function scanStorybookFromPath(workspace: WorkspaceFacet, indexPath: string): Component[] {
