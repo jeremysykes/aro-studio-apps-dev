@@ -29,6 +29,14 @@ const defaultConfig: ScanConfig = {
 	storybookPath: '',
 };
 
+/** Extract Figma file key from a URL or return trimmed string if already a raw key. */
+function extractFigmaFileKey(input: string): string {
+	const trimmed = input.trim();
+	if (!trimmed) return '';
+	const match = trimmed.match(/figma\.com\/(?:design|file)\/([A-Za-z0-9_-]+)/);
+	return match ? match[1]! : trimmed;
+}
+
 function hasAtLeastOneSource(config: ScanConfig): boolean {
 	const hasFigma = config.figmaFileKeys.trim() && config.figmaPat.trim();
 	const hasCode = config.codePaths.trim().length > 0;
@@ -42,7 +50,11 @@ function buildScanInput(config: ScanConfig): unknown {
 	const input: Record<string, unknown> = {};
 	if (config.figmaFileKeys.trim() && config.figmaPat.trim()) {
 		input.figma = {
-			fileKeys: config.figmaFileKeys.split(/[\s,]+/).filter(Boolean),
+			fileKeys: config.figmaFileKeys
+				.split(/[\s,]+/)
+				.filter(Boolean)
+				.map((s) => extractFigmaFileKey(s.trim()))
+				.filter(Boolean),
 			pat: config.figmaPat.trim(),
 		};
 	}
@@ -71,6 +83,9 @@ export default function Inspect() {
 		Array<{ id: string; level: string; message: string }>
 	>([]);
 	const [report, setReport] = useState<InspectReport | null>(null);
+	const [reportLoadState, setReportLoadState] = useState<
+		'idle' | 'loading' | 'success' | 'error'
+	>('idle');
 	const [runningRunId, setRunningRunId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [reportTab, setReportTab] = useState<
@@ -130,21 +145,29 @@ export default function Inspect() {
 	useEffect(() => {
 		if (!selectedRunId || view !== 'report') {
 			setReport(null);
+			setReportLoadState('idle');
 			return;
 		}
 		let cancelled = false;
+		setReportLoadState('loading');
+		setReport(null);
 		window.aro.artifacts
 			.read(selectedRunId, 'report.json')
 			.then((content) => {
 				if (cancelled) return;
 				try {
 					setReport(JSON.parse(content) as InspectReport);
+					setReportLoadState('success');
 				} catch {
 					setReport(null);
+					setReportLoadState('error');
 				}
 			})
 			.catch(() => {
-				if (!cancelled) setReport(null);
+				if (!cancelled) {
+					setReport(null);
+					setReportLoadState('error');
+				}
 			});
 		return () => {
 			cancelled = true;
@@ -216,7 +239,32 @@ export default function Inspect() {
 		if (!selectedRunId) return;
 		setError(null);
 		try {
-			await window.aro.job.run(JOB_EXPORT, { runId: selectedRunId, format });
+			const { runId } = await window.aro.job.run(JOB_EXPORT, {
+				runId: selectedRunId,
+				format,
+			});
+			// Poll until export job completes
+			let run = await window.aro.runs.get(runId);
+			while (run?.status === 'running') {
+				await new Promise((r) => setTimeout(r, 100));
+				run = await window.aro.runs.get(runId);
+			}
+			if (run?.status === 'success') {
+				const ext = format === 'csv' ? 'csv' : 'md';
+				const content = await window.aro.artifacts.read(
+					runId,
+					`inspect-export.${ext}`,
+				);
+				const blob = new Blob([content], {
+					type: format === 'csv' ? 'text/csv' : 'text/markdown',
+				});
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = `inspect-report.${ext}`;
+				a.click();
+				URL.revokeObjectURL(url);
+			}
 			loadRuns();
 		} catch (e) {
 			setError(e instanceof Error ? e.message : 'Export failed');
@@ -283,7 +331,7 @@ export default function Inspect() {
 							variant={view === 'run' ? 'default' : 'outline'}
 							onClick={() => setView('run')}
 						>
-							Run
+							Logs
 						</Button>
 						<Button
 							type='button'
@@ -312,7 +360,7 @@ export default function Inspect() {
 									</CardHeader>
 									<CardContent className='space-y-2'>
 										<label className='block text-sm font-medium'>
-											File key(s){' '}
+											File key(s) or URL(s){' '}
 											<span className='text-muted-foreground'>
 												(comma-separated)
 											</span>
@@ -327,8 +375,8 @@ export default function Inspect() {
 													figmaFileKeys: e.target.value,
 												}))
 											}
-											placeholder='abc123def456'
-											aria-label='Figma file keys'
+											placeholder='abc123def456 or Figma URL'
+											aria-label='Figma file keys or URLs'
 										/>
 										<label className='block text-sm font-medium'>
 											Personal access token
@@ -487,221 +535,265 @@ export default function Inspect() {
 							<h2 id='report-heading' className='sr-only'>
 								Report
 							</h2>
-							<Card className='mb-4'>
-								<CardHeader>
-									<CardTitle>Run for report</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<ul className='list-none space-y-1'>
-										{runs
-											.filter((r) => r.status === 'success')
-											.map((run) => (
-												<li key={run.id}>
-													<Button
-														type='button'
-														variant={
-															selectedRunId === run.id ? 'default' : 'ghost'
-														}
-														className='w-full justify-start font-normal'
-														onClick={() => setSelectedRunId(run.id)}
-													>
-														{run.id.slice(0, 8)} —{' '}
-														{new Date(run.startedAt).toLocaleString()}
-													</Button>
-												</li>
-											))}
-									</ul>
-								</CardContent>
-							</Card>
-							{report && (
-								<>
-									<div
-										className='flex gap-2 mb-4'
-										role='tablist'
-										aria-label='Report tabs'
-									>
-										<Button
-											type='button'
-											variant={reportTab === 'health' ? 'default' : 'outline'}
-											onClick={() => setReportTab('health')}
-											role='tab'
-											aria-selected={reportTab === 'health'}
-										>
-											Health Dashboard
-										</Button>
-										<Button
-											type='button'
-											variant={reportTab === 'tokens' ? 'default' : 'outline'}
-											onClick={() => setReportTab('tokens')}
-											role='tab'
-											aria-selected={reportTab === 'tokens'}
-										>
-											Token Inventory
-										</Button>
-										<Button
-											type='button'
-											variant={
-												reportTab === 'components' ? 'default' : 'outline'
-											}
-											onClick={() => setReportTab('components')}
-											role='tab'
-											aria-selected={reportTab === 'components'}
-										>
-											Component Inventory
-										</Button>
-									</div>
-									{reportTab === 'health' && (
-										<Card>
-											<CardHeader>
-												<CardTitle>Health score</CardTitle>
-											</CardHeader>
-											<CardContent>
-												<p className='text-lg'>
-													Composite:{' '}
-													<strong>{report.healthScore.composite}</strong> out of
-													100
+							<div className='flex flex-col min-[900px]:flex-row min-[900px]:gap-6 min-[900px]:items-start'>
+								<aside
+									aria-label='Run selection'
+									className='min-[900px]:w-80 min-[900px]:shrink-0 min-[900px]:max-h-[calc(100vh-12rem)] min-[900px]:overflow-y-auto min-[900px]:border-r min-[900px]:pr-6 min-[900px]:border-muted'
+								>
+									<Card className='mb-4 min-[900px]:mb-0'>
+										<CardHeader>
+											<CardTitle>Runs</CardTitle>
+										</CardHeader>
+										<CardContent>
+											<ul className='list-none space-y-1'>
+												{runs
+													.filter((r) => r.status === 'success')
+													.map((run) => (
+														<li key={run.id}>
+															<Button
+																type='button'
+																variant={
+																	selectedRunId === run.id ? 'default' : 'ghost'
+																}
+																className='w-full justify-start font-normal'
+																onClick={() => setSelectedRunId(run.id)}
+															>
+																{run.id.slice(0, 8)} —{' '}
+																{new Date(run.startedAt).toLocaleString()}
+															</Button>
+														</li>
+													))}
+											</ul>
+										</CardContent>
+									</Card>
+								</aside>
+								<div className='min-[900px]:flex-1 min-[900px]:min-w-0'>
+									<Card>
+										<CardHeader>
+											<CardTitle>Reports</CardTitle>
+										</CardHeader>
+										<CardContent>
+											{reportLoadState === 'loading' && (
+												<p className='text-muted-foreground'>
+													Loading report…
 												</p>
-												<ul className='list-disc pl-6 mt-2 space-y-1'>
-													<li>
-														Token consistency:{' '}
-														{report.healthScore.tokenConsistency}
-													</li>
-													<li>
-														Component coverage:{' '}
-														{report.healthScore.componentCoverage}
-													</li>
-													<li>
-														Naming alignment:{' '}
-														{report.healthScore.namingAlignment}
-													</li>
-													<li>
-														Value parity: {report.healthScore.valueParity}
-													</li>
-												</ul>
-												<p className='mt-4 font-medium'>Findings by severity</p>
-												<ul className='list-disc pl-6'>
-													<li>
-														Critical:{' '}
-														{report.summary.findingsBySeverity?.critical ?? 0}
-													</li>
-													<li>
-														Warning:{' '}
-														{report.summary.findingsBySeverity?.warning ?? 0}
-													</li>
-													<li>
-														Info: {report.summary.findingsBySeverity?.info ?? 0}
-													</li>
-												</ul>
-												<div className='mt-4 flex gap-2'>
-													<Button
-														type='button'
-														variant='outline'
-														onClick={() => handleExport('csv')}
+											)}
+											{reportLoadState === 'error' && (
+												<p className='text-muted-foreground'>
+													Report not available for this run.
+												</p>
+											)}
+											{reportLoadState === 'success' && report && (
+												<>
+													<div
+														className='flex gap-2 mb-4'
+														role='tablist'
+														aria-label='Report tabs'
 													>
-														Export CSV
-													</Button>
-													<Button
-														type='button'
-														variant='outline'
-														onClick={() => handleExport('markdown')}
-													>
-														Export Markdown
-													</Button>
+												<Button
+													type='button'
+													variant={
+														reportTab === 'health' ? 'default' : 'outline'
+													}
+													onClick={() => setReportTab('health')}
+													role='tab'
+													aria-selected={reportTab === 'health'}
+												>
+													Health Dashboard
+												</Button>
+												<Button
+													type='button'
+													variant={
+														reportTab === 'tokens' ? 'default' : 'outline'
+													}
+													disabled={!report.tokens?.length}
+													onClick={() => setReportTab('tokens')}
+													role='tab'
+													aria-selected={reportTab === 'tokens'}
+												>
+													Token Inventory
+												</Button>
+												<Button
+													type='button'
+													variant={
+														reportTab === 'components' ? 'default' : 'outline'
+													}
+													disabled={!report.components?.length}
+													onClick={() => setReportTab('components')}
+													role='tab'
+													aria-selected={reportTab === 'components'}
+												>
+													Component Inventory
+												</Button>
+											</div>
+											{reportTab === 'health' && (
+												<div>
+													<p className='text-lg font-medium'>Health score</p>
+													<p className='mt-2'>
+														Composite:{' '}
+														<strong>{report.healthScore.composite}</strong>{' '}
+														out of 100
+													</p>
+													<ul className='list-disc pl-6 mt-2 space-y-1'>
+														<li>
+															Token consistency:{' '}
+															{report.healthScore.tokenConsistency}
+														</li>
+														<li>
+															Component coverage:{' '}
+															{report.healthScore.componentCoverage}
+														</li>
+														<li>
+															Naming alignment:{' '}
+															{report.healthScore.namingAlignment}
+														</li>
+														<li>
+															Value parity: {report.healthScore.valueParity}
+														</li>
+													</ul>
+													<p className='mt-4 font-medium'>
+														Findings by severity
+													</p>
+													<ul className='list-disc pl-6'>
+														<li>
+															Critical:{' '}
+															{report.summary.findingsBySeverity?.critical ?? 0}
+														</li>
+														<li>
+															Warning:{' '}
+															{report.summary.findingsBySeverity?.warning ?? 0}
+														</li>
+														<li>
+															Info:{' '}
+															{report.summary.findingsBySeverity?.info ?? 0}
+														</li>
+													</ul>
+													<div className='mt-4 flex gap-2'>
+														<Button
+															type='button'
+															variant='outline'
+															onClick={() => handleExport('csv')}
+														>
+															Export CSV
+														</Button>
+														<Button
+															type='button'
+															variant='outline'
+															onClick={() => handleExport('markdown')}
+														>
+															Export Markdown
+														</Button>
+													</div>
 												</div>
-											</CardContent>
-										</Card>
-									)}
-									{reportTab === 'tokens' && (
-										<Card>
-											<CardHeader>
-												<CardTitle>Token inventory</CardTitle>
-											</CardHeader>
-											<CardContent className='overflow-x-auto'>
-												<table className='w-full text-sm border-collapse'>
-													<thead>
-														<tr>
-															<th scope='col' className='text-left border p-2'>
-																Name
-															</th>
-															<th scope='col' className='text-left border p-2'>
-																Value
-															</th>
-															<th scope='col' className='text-left border p-2'>
-																Type
-															</th>
-															<th scope='col' className='text-left border p-2'>
-																Source
-															</th>
-														</tr>
-													</thead>
-													<tbody>
-														{report.tokens.map((t) => (
-															<tr key={t.name}>
-																<td className='border p-2'>{t.name}</td>
-																<td className='border p-2'>{t.value}</td>
-																<td className='border p-2'>{t.type}</td>
-																<td className='border p-2'>{t.source}</td>
-															</tr>
+											)}
+											{reportTab === 'tokens' && (
+												<div className='overflow-x-auto'>
+													<p className='font-medium mb-2'>Token inventory</p>
+													<table className='w-full text-sm border-collapse'>
+															<thead>
+																<tr>
+																	<th
+																		scope='col'
+																		className='text-left border p-2'
+																	>
+																		Name
+																	</th>
+																	<th
+																		scope='col'
+																		className='text-left border p-2'
+																	>
+																		Value
+																	</th>
+																	<th
+																		scope='col'
+																		className='text-left border p-2'
+																	>
+																		Type
+																	</th>
+																	<th
+																		scope='col'
+																		className='text-left border p-2'
+																	>
+																		Source
+																	</th>
+																</tr>
+															</thead>
+															<tbody>
+																{report.tokens.map((t) => (
+																	<tr key={t.name}>
+																		<td className='border p-2'>{t.name}</td>
+																		<td className='border p-2'>{t.value}</td>
+																		<td className='border p-2'>{t.type}</td>
+																		<td className='border p-2'>{t.source}</td>
+																	</tr>
+																))}
+															</tbody>
+														</table>
+												</div>
+											)}
+											{reportTab === 'components' && (
+												<div className='overflow-x-auto'>
+													<p className='font-medium mb-2'>Component inventory</p>
+													<table className='w-full text-sm border-collapse'>
+															<thead>
+																<tr>
+																	<th
+																		scope='col'
+																		className='text-left border p-2'
+																	>
+																		Name
+																	</th>
+																	<th
+																		scope='col'
+																		className='text-left border p-2'
+																	>
+																		Surfaces
+																	</th>
+																	<th
+																		scope='col'
+																		className='text-left border p-2'
+																	>
+																		Coverage
+																	</th>
+																	<th
+																		scope='col'
+																		className='text-left border p-2'
+																	>
+																		Orphan
+																	</th>
+																</tr>
+															</thead>
+															<tbody>
+																{report.components.map((c) => (
+																	<tr key={c.name}>
+																		<td className='border p-2'>{c.name}</td>
+																		<td className='border p-2'>
+																			{[
+																				c.surfaces.figma && 'Figma',
+																				c.surfaces.storybook && 'Storybook',
+																				c.surfaces.code && 'Code',
+																			]
+																				.filter(Boolean)
+																				.join(', ') || '—'}
+																		</td>
+																		<td className='border p-2'>
+																			{c.coverage.join(', ')}
+																		</td>
+																		<td className='border p-2'>
+																			{c.isOrphan ? 'Yes' : 'No'}
+																		</td>
+																	</tr>
 														))}
 													</tbody>
 												</table>
-											</CardContent>
-										</Card>
-									)}
-									{reportTab === 'components' && (
-										<Card>
-											<CardHeader>
-												<CardTitle>Component inventory</CardTitle>
-											</CardHeader>
-											<CardContent className='overflow-x-auto'>
-												<table className='w-full text-sm border-collapse'>
-													<thead>
-														<tr>
-															<th scope='col' className='text-left border p-2'>
-																Name
-															</th>
-															<th scope='col' className='text-left border p-2'>
-																Surfaces
-															</th>
-															<th scope='col' className='text-left border p-2'>
-																Coverage
-															</th>
-															<th scope='col' className='text-left border p-2'>
-																Orphan
-															</th>
-														</tr>
-													</thead>
-													<tbody>
-														{report.components.map((c) => (
-															<tr key={c.name}>
-																<td className='border p-2'>{c.name}</td>
-																<td className='border p-2'>
-																	{[
-																		c.surfaces.figma && 'Figma',
-																		c.surfaces.storybook && 'Storybook',
-																		c.surfaces.code && 'Code',
-																	]
-																		.filter(Boolean)
-																		.join(', ') || '—'}
-																</td>
-																<td className='border p-2'>
-																	{c.coverage.join(', ')}
-																</td>
-																<td className='border p-2'>
-																	{c.isOrphan ? 'Yes' : 'No'}
-																</td>
-															</tr>
-														))}
-													</tbody>
-												</table>
-											</CardContent>
-										</Card>
-									)}
+											</div>
+											)}
 								</>
-							)}
-							{selectedRunId && !report && (
-								<p className='text-muted-foreground'>Loading report…</p>
-							)}
+											)}
+										</CardContent>
+									</Card>
+								</div>
+							</div>
 						</section>
 					)}
 				</>
