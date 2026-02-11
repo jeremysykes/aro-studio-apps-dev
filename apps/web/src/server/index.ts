@@ -29,7 +29,7 @@ if (process.env.NODE_ENV !== 'production') {
 <html>
 <head><title>Aro Studio API</title></head>
 <body>
-  <p>This is the API server. Open the URL Vite prints (e.g. <a href="http://localhost:5173">http://localhost:5173</a>; port may be 5174 if 5173 is in use) for the web app.</p>
+  <p>This is the API server. Open <a href="http://localhost:5173">http://localhost:5173</a> for the web app.</p>
   <p>Vite proxies <code>/api</code> and <code>/ws</code> to this server.</p>
 </body>
 </html>`);

@@ -3,42 +3,39 @@
 How Core, Desktop, Web, and Modules fit together.
 
 ```mermaid
-flowchart TB
-    subgraph Hosts [Hosts]
-        subgraph Desktop [Desktop - Electron]
-            DesktopMain[Main Process]
-            DesktopRenderer[Renderer]
-            DesktopIPC[IPC Bridge]
-        end
-        subgraph Web [Web]
-            WebBackend[Node Server]
-            WebFrontend[Browser SPA]
-            WebAPI[HTTP plus WS API]
-        end
+flowchart LR
+    subgraph desktop [Desktop]
+        direction TB
+        DMain[Main Process]
+        DIPC[IPC Bridge]
+        DRenderer[Renderer]
+        DMain --> DIPC --> DRenderer
     end
 
-    subgraph Engine [Core Engine]
-        Core[createCore]
+    subgraph web [Web]
+        direction TB
+        WBackend[Node Server]
+        WAPI[HTTP/WS API]
+        WFrontend[Browser SPA]
+        WBackend --> WAPI --> WFrontend
     end
 
-    subgraph Modules [Modules]
-        ModuleInit[Module init]
-        ModuleUI[Module UI]
+    subgraph core [Core Engine]
+        createCore[createCore]
     end
 
-    DesktopMain -->|imports| Core
-    DesktopMain -->|loads| ModuleInit
-    DesktopRenderer -->|contextBridge| DesktopIPC
-    DesktopIPC --> DesktopMain
-    ModuleUI --> DesktopRenderer
+    subgraph modules [Modules]
+        Init[init]
+        MUI[Module UI]
+    end
 
-    WebBackend -->|imports| Core
-    WebBackend -->|loads| ModuleInit
-    WebFrontend -->|HTTP/WS| WebAPI
-    WebAPI --> WebBackend
-    ModuleUI --> WebFrontend
-
-    ModuleInit -->|registers jobs| Core
-    Core -->|provides| DesktopMain
-    Core -->|provides| WebBackend
+    DMain -->|imports| createCore
+    WBackend -->|imports| createCore
+    DMain -->|loads| Init
+    WBackend -->|loads| Init
+    Init -->|registers jobs| createCore
+    createCore --> DMain
+    createCore --> WBackend
+    MUI --> DRenderer
+    MUI --> WFrontend
 ```

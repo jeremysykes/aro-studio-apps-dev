@@ -7,47 +7,49 @@ Design-system application suite: Core (headless engine), Desktop (Electron host)
 Aro Studio is a modular application with a shared Core engine and pluggable Modules. Two hosts can run the same Core and Modules: **Desktop** (Electron) and **Web** (browser + Node backend).
 
 ```mermaid
-flowchart TB
-    subgraph Hosts [Hosts]
-        subgraph Desktop [Desktop - Electron]
-            DesktopMain[Main Process]
-            DesktopRenderer[Renderer]
-            DesktopIPC[IPC Bridge]
-        end
-        subgraph Web [Web]
-            WebBackend[Node Server]
-            WebFrontend[Browser SPA]
-            WebAPI[HTTP plus WS API]
-        end
+flowchart LR
+    subgraph desktop [Desktop]
+        direction TB
+        DMain[Main Process]
+        DIPC[IPC Bridge]
+        DRenderer[Renderer]
+        DMain --> DIPC --> DRenderer
     end
 
-    subgraph Engine [Core Engine]
-        Core[createCore]
+    subgraph web [Web]
+        direction TB
+        WBackend[Node Server]
+        WAPI[HTTP/WS API]
+        WFrontend[Browser SPA]
+        WBackend --> WAPI --> WFrontend
     end
 
-    subgraph Modules [Modules]
-        ModuleInit[Module init]
-        ModuleUI[Module UI]
+    subgraph core [Core Engine]
+        createCore[createCore]
     end
 
-    DesktopMain -->|imports| Core
-    DesktopMain -->|loads| ModuleInit
-    DesktopRenderer -->|contextBridge| DesktopIPC
-    DesktopIPC --> DesktopMain
-    ModuleUI --> DesktopRenderer
+    subgraph modules [Modules]
+        Init[init]
+        MUI[Module UI]
+    end
 
-    WebBackend -->|imports| Core
-    WebBackend -->|loads| ModuleInit
-    WebFrontend -->|HTTP/WS| WebAPI
-    WebAPI --> WebBackend
-    ModuleUI --> WebFrontend
-
-    ModuleInit -->|registers jobs| Core
-    Core -->|provides| DesktopMain
-    Core -->|provides| WebBackend
+    DMain -->|imports| createCore
+    WBackend -->|imports| createCore
+    DMain -->|loads| Init
+    WBackend -->|loads| Init
+    Init -->|registers jobs| createCore
+    createCore --> DMain
+    createCore --> WBackend
+    MUI --> DRenderer
+    MUI --> WFrontend
 ```
 
-**What the application offers:** A headless Core engine handles workspace management, jobs, runs, logs, artifacts, and validation. Hosts (Desktop or Web) load Core, initialize the active module, and expose the same intent-based API to the UI. Modules register jobs with Core and provide React UI that runs in the host’s renderer. You get workspace selection, job execution, live logs, and artifacts — same capabilities whether you use Desktop or Web.
+**What the application offers:**
+
+- **Core engine** — workspace management, jobs, runs, logs, artifacts, validation
+- **Hosts** (Desktop or Web) — load Core, initialize the active module, expose the same intent-based API to the UI
+- **Modules** — register jobs with Core, provide React UI in the host renderer
+- **User capabilities** — workspace selection, job execution, live logs, artifacts (same whether you use Desktop or Web)
 
 **Desktop vs Web — when to use which:**
 
