@@ -6,8 +6,10 @@ import tailwindcss from '@tailwindcss/vite';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientRoot = path.resolve(__dirname, 'src/client');
+const projectRoot = path.resolve(__dirname, '../..');
 
 export default defineConfig({
+  envDir: projectRoot,
   plugins: [react(), tailwindcss()],
   root: clientRoot,
   build: {

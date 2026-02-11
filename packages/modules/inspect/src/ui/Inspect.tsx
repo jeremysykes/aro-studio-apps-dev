@@ -29,6 +29,17 @@ const defaultConfig: ScanConfig = {
 	storybookPath: '',
 };
 
+function getInitialConfig(): ScanConfig {
+	const envToken =
+		typeof import.meta !== 'undefined' &&
+		(import.meta as { env?: Record<string, string | undefined> }).env
+			?.VITE_FIGMA_TOKEN;
+	return {
+		...defaultConfig,
+		figmaPat: typeof envToken === 'string' ? envToken : '',
+	};
+}
+
 /** Extract Figma file key from a URL or return trimmed string if already a raw key. */
 function extractFigmaFileKey(input: string): string {
 	const trimmed = input.trim();
@@ -74,7 +85,7 @@ function buildScanInput(config: ScanConfig): unknown {
 export default function Inspect() {
 	const [workspacePath, setWorkspacePath] = useState<string | null>(null);
 	const [view, setView] = useState<View>('setup');
-	const [config, setConfig] = useState<ScanConfig>(defaultConfig);
+	const [config, setConfig] = useState<ScanConfig>(getInitialConfig);
 	const [runs, setRuns] = useState<
 		Array<{ id: string; status: string; startedAt: number }>
 	>([]);
@@ -470,13 +481,13 @@ export default function Inspect() {
 							<h2 id='run-heading' className='sr-only'>
 								Run and logs
 							</h2>
-							<div className='grid grid-cols-1 min-[900px]:grid-cols-2 gap-4'>
-								<div className='space-y-4'>
-									<Card>
+							<div className='grid grid-cols-1 min-[900px]:grid-cols-[20rem_1fr] min-[900px]:max-h-[calc(100vh-12rem)] min-[900px]:min-h-0 gap-4'>
+								<div className='space-y-4 min-[900px]:flex min-[900px]:flex-col min-[900px]:min-h-0 min-[900px]:space-y-0'>
+									<Card className='min-[900px]:flex-1 min-[900px]:min-h-0 min-[900px]:flex min-[900px]:flex-col min-[900px]:overflow-hidden'>
 										<CardHeader>
 											<CardTitle>Runs</CardTitle>
 										</CardHeader>
-										<CardContent>
+										<CardContent className='min-[900px]:overflow-y-auto min-[900px]:min-h-0'>
 											<ul className='list-none space-y-1'>
 												{runs.map((run) => (
 													<li key={run.id}>
@@ -500,6 +511,7 @@ export default function Inspect() {
 										<Button
 											type='button'
 											variant='destructive'
+											className='min-[900px]:mt-4'
 											onClick={() => handleCancelRun(runningRunId)}
 										>
 											Abort scan
@@ -535,16 +547,16 @@ export default function Inspect() {
 							<h2 id='report-heading' className='sr-only'>
 								Report
 							</h2>
-							<div className='flex flex-col min-[900px]:flex-row min-[900px]:gap-6 min-[900px]:items-start'>
+							<div className='flex flex-col min-[900px]:flex-row min-[900px]:gap-4 min-[900px]:items-start'>
 								<aside
 									aria-label='Run selection'
-									className='min-[900px]:w-80 min-[900px]:shrink-0 min-[900px]:max-h-[calc(100vh-12rem)] min-[900px]:overflow-y-auto min-[900px]:border-r min-[900px]:pr-6 min-[900px]:border-muted'
+									className='min-[900px]:w-80 min-[900px]:shrink-0 min-[900px]:max-h-[calc(100vh-12rem)] min-[900px]:flex min-[900px]:flex-col'
 								>
-									<Card className='mb-4 min-[900px]:mb-0'>
+									<Card className='mb-4 min-[900px]:mb-0 min-[900px]:flex min-[900px]:min-h-0 min-[900px]:flex-col min-[900px]:overflow-hidden'>
 										<CardHeader>
 											<CardTitle>Runs</CardTitle>
 										</CardHeader>
-										<CardContent>
+										<CardContent className='min-[900px]:overflow-y-auto min-[900px]:min-h-0'>
 											<ul className='list-none space-y-1'>
 												{runs
 													.filter((r) => r.status === 'success')
