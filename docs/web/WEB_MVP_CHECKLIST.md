@@ -3,57 +3,57 @@ Web is MVP-complete when every item below passes. This checklist defines what "d
 
 ## Workspace
 
-- [ ] Backend provides a workspace to Core (from `ARO_WORKSPACE_ROOT` or `process.cwd()` for MVP)
-- [ ] Frontend can get current workspace via API (`GET /api/workspace/current`)
-- [ ] Workspace path is never exposed to the frontend as a raw path for direct access (only for display if needed)
+- [x] Backend provides a workspace to Core (from `ARO_WORKSPACE_ROOT` or `process.cwd()` for MVP)
+- [x] Frontend can get current workspace via API (`GET /api/workspace/current`)
+- [x] Workspace path is never exposed to the frontend as a raw path for direct access (only for display if needed)
 
 ## Core lifecycle
 
-- [ ] Core is created only in the backend (Node) when the server starts
-- [ ] `core.shutdown()` is called when the server exits
-- [ ] No Core code runs in the frontend (browser)
+- [x] Core is created only in the backend (Node) when the server starts
+- [x] `core.shutdown()` is called when the server exits
+- [x] No Core code runs in the frontend (browser)
 
 ## Jobs
 
-- [ ] At least one job is registered with Core (via active module's `init(core)`) so the UI can trigger it
-- [ ] User can trigger a job from the UI
-- [ ] User receives a runId after triggering a job
-- [ ] User can cancel a running job
-- [ ] Job execution and cancellation go through Core only (no business logic in Web)
+- [x] At least one job is registered with Core (via active module's `init(core)`) so the UI can trigger it
+- [x] User can trigger a job from the UI
+- [x] User receives a runId after triggering a job
+- [x] User can cancel a running job
+- [x] Job execution and cancellation go through Core only (no business logic in Web)
 
 ## Logs
 
-- [ ] User can view logs for a run (list)
-- [ ] User can subscribe to live log entries for a run (WebSocket)
-- [ ] Logs are displayed in the UI (e.g. in a list or panel)
-- [ ] Log display uses data from Core only (no fake or mock logs)
+- [x] User can view logs for a run (list)
+- [x] User can subscribe to live log entries for a run (WebSocket)
+- [x] Logs are displayed in the UI (e.g. in a list or panel)
+- [x] Log display uses data from Core only (no fake or mock logs)
 
 ## Artifacts
 
-- [ ] User can list artifacts for a run
-- [ ] User can view artifact content (read) for a run
-- [ ] Artifacts are displayed in the UI
-- [ ] Artifact paths and content come from Core only
+- [x] User can list artifacts for a run
+- [x] User can view artifact content (read) for a run
+- [x] Artifacts are displayed in the UI
+- [x] Artifact paths and content come from Core only
 
 ## API and frontend
 
-- [ ] All frontend ↔ backend communication goes through the HTTP/WS API
-- [ ] No direct Core access in the frontend
-- [ ] API surface matches WEB_PUBLIC_API.md (workspace, job, runs, logs, artifacts, app/active-module)
-- [ ] Types (Run, LogEntry, Artifact) are consistent between frontend and backend
+- [x] All frontend ↔ backend communication goes through the HTTP/WS API
+- [x] No direct Core access in the frontend
+- [x] API surface matches WEB_PUBLIC_API.md (workspace, job, runs, logs, artifacts, app/active-module)
+- [x] Types (Run, LogEntry, Artifact) are consistent between frontend and backend
 
 ## UI and stack
 
-- [ ] Frontend is built with React
-- [ ] Markup uses semantic HTML
-- [ ] TypeScript is used for both frontend and backend
-- [ ] Same module UI components as Desktop (hello-world, inspect)
+- [x] Frontend is built with React
+- [x] Markup uses semantic HTML
+- [x] TypeScript is used for both frontend and backend
+- [x] Same module UI components as Desktop (hello-world, inspect)
 
 ## Lifecycle
 
-- [ ] Server startup initializes Core with workspace from env
-- [ ] Server exit triggers Core shutdown before process exit
-- [ ] Web loads the active module after Core init (ARO_ACTIVE_MODULE, default hello-world) and uses module-registered job keys for the API; module UI is rendered in main content
+- [x] Server startup initializes Core with workspace from env
+- [x] Server exit triggers Core shutdown before process exit
+- [x] Web loads the active module after Core init (ARO_ACTIVE_MODULE, default hello-world) and uses module-registered job keys for the API; module UI is rendered in main content
 
 ## Definition of done
 

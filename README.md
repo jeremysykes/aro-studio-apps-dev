@@ -1,6 +1,6 @@
 # aro-studio-apps-dev
 
-Design-system application suite: Core (headless engine), Desktop (Electron host), Web (browser host), and Modules (feature modules). Built as a single repo with clear layering and dependency rules. Desktop and hello-world module MVPs are complete; Web MVP is in progress.
+Design-system application suite: Core (headless engine), Desktop (Electron host), Web (browser host), and Modules (feature modules). Built as a single repo with clear layering and dependency rules. Desktop, Web, and module MVPs are complete.
 
 ## How it works
 
@@ -62,7 +62,7 @@ Detail: [diagrams/application-flow.md](diagrams/application-flow.md) | [diagrams
 
 - **Desktop MVP:** Complete — workspace selection, jobs, runs, logs, artifacts, IPC, module loading. See [docs/desktop/DESKTOP_MVP_CHECKLIST.md](docs/desktop/DESKTOP_MVP_CHECKLIST.md).
 - **Module MVP:** hello-world and inspect modules — job registration, UI, logs and artifacts; no module-to-module imports or direct DB/filesystem access. See [docs/modules/MODULE_MVP_CHECKLIST.md](docs/modules/MODULE_MVP_CHECKLIST.md). Inspect: design-system diagnostic (tokens, components, health report); see [docs/modules/inspect/Design-spec.md](docs/modules/inspect/Design-spec.md).
-- **Web MVP:** In progress — browser UI + Node API; same Core and modules as Desktop. See [docs/web/WEB_MVP_CHECKLIST.md](docs/web/WEB_MVP_CHECKLIST.md).
+- **Web MVP:** Complete — browser UI + Node API; workspace from env, jobs, runs, logs, artifacts, WebSocket; same Core and modules as Desktop. See [docs/web/WEB_MVP_CHECKLIST.md](docs/web/WEB_MVP_CHECKLIST.md).
 - **Stack:** Core (Node, SQLite, Zod); Desktop (Electron, React, TypeScript, shadcn + Tailwind); Modules (React; use `@aro/desktop/components` for the shared design system).
 
 ## Run / build
