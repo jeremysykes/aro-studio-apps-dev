@@ -52,7 +52,6 @@ Desktop (`apps/desktop`) may use:
 - **class-variance-authority** (cva), **clsx**, **tailwind-merge** — Used by shadcn for component variants and className merging. Standard shadcn setup.
 - **@radix-ui/react-slot** — Radix primitive used by shadcn Button (composition/asChild). Provides accessible, unstyled behavior; styling via Tailwind.
 - **@radix-ui/react-tabs** — Radix primitive for accessible tabs. Used by shadcn Tabs for Setup/Logs/Reports navigation in Inspect. Provides keyboard navigation and ARIA semantics; styling via Tailwind.
-- **@radix-ui/react-tooltip** — Radix primitive for accessible tooltips. Required for truncation + hover-to-see-full-content UX (e.g. Inspect Runs column). shadcn Tooltip is built on it. No built-in alternative for accessible tooltips.
 
 Dev-only: **typescript** (type-checking), **@types/react**, **@types/react-dom** (type definitions). **electron-rebuild** — Rebuilds native modules (e.g. better-sqlite3 from Core) for Electron's Node ABI. Required because Electron bundles a specific Node version; native modules built for the system Node will fail. Run as postinstall.
 
@@ -74,7 +73,7 @@ Web (`apps/web`) may use:
 - **@aro/module-hello-world** — Default active module.
 - **@aro/module-inspect** — Inspect module (when `ARO_ACTIVE_MODULE=inspect`).
 - **@aro/desktop** (components subpath) — Shared design system; module UI uses shadcn components. Same as modules.
-- **tailwindcss**, **postcss**, **autoprefixer**, **tailwindcss-animate**, **class-variance-authority**, **clsx**, **tailwind-merge**, **@radix-ui/react-slot**, **@radix-ui/react-tooltip** — Design system; same as Desktop/client.
+- **tailwindcss**, **postcss**, **autoprefixer**, **tailwindcss-animate**, **class-variance-authority**, **clsx**, **tailwind-merge**, **@radix-ui/react-slot** — Design system; same as Desktop/client.
 
 Dev-only: **typescript**, **@types/react**, **@types/react-dom**, **@types/ws** (type definitions), **nodemon** (restart server when dist/server changes for hot-reload). Dev is run via the root orchestrator (`pnpm web`), which starts API then Vite after readiness; see `dev/dev-web.ts`.
 

@@ -123,7 +123,7 @@ export function SetupView({
 									storybookUrl: e.target.value,
 								}))
 							}
-							placeholder='Base URL (e.g. https://site.vercel.app/) or …/index.json'
+							placeholder='Base URL (e.g. https://site.vercel.app/index.json)'
 							aria-label='Storybook index URL'
 						/>
 						<span className='text-[11px] text-muted-foreground'>
@@ -149,7 +149,13 @@ export function SetupView({
 					</CardContent>
 				</Card>
 			</div>
-			<Button type='button' variant='outline' size='xs' disabled={!hasAtLeastOneSource} onClick={onRunScan}>
+			<Button
+				type='button'
+				variant='outline'
+				size='xs'
+				disabled={!hasAtLeastOneSource}
+				onClick={onRunScan}
+			>
 				Run Inspect
 			</Button>
 		</section>

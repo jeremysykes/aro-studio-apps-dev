@@ -20,21 +20,24 @@ function storybookStoryUrl(baseUrl: string, storyId: string): string {
 	return `${baseUrl}?path=/story/${storyId}`;
 }
 
-function getColumns(storybookBaseUrl: string | undefined): ReportTableColumn<Component>[] {
+function getColumns(
+	storybookBaseUrl: string | undefined,
+): ReportTableColumn<Component>[] {
 	return [
 		{
 			key: 'name',
 			header: 'Name',
 			render: (c) => {
-				const hasStorybook = c.surfaces.storybook ?? c.coverage.includes('storybook');
+				const hasStorybook =
+					c.surfaces.storybook ?? c.coverage.includes('storybook');
 				const storyId = c.storyIds?.[0];
 				if (storybookBaseUrl && hasStorybook && storyId) {
 					return (
 						<a
 							href={storybookStoryUrl(storybookBaseUrl, storyId)}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="text-primary hover:underline font-medium cursor-pointer"
+							target='_blank'
+							rel='noopener noreferrer'
+							className='text-[11px] text-primary hover:underline font-medium cursor-pointer'
 						>
 							{c.name}
 						</a>
@@ -89,7 +92,7 @@ export function ComponentInventoryTable({
 }: ComponentInventoryTableProps) {
 	return (
 		<ReportTable
-			title="Components"
+			title='Components'
 			columns={getColumns(storybookBaseUrl)}
 			rows={components}
 			getRowKey={(c) => c.name}

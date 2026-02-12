@@ -1,24 +1,20 @@
-import React, { type RefObject } from 'react';
+import React from 'react';
 import { Button, Card, CardContent, CardTitle } from '@aro/desktop/components';
-import { RunsListbox } from '../components/RunsListbox';
+import { RunsTable } from '../components/RunsTable';
 import {
 	TwoColumnLayout,
 	CARD_CLASS,
 	CARD_CONTENT_CLASS,
 	COLUMN_HEADER_CLASS,
 } from '../components/TwoColumnLayout';
-import { formatRunLabel, formatRunLabelFull } from '../lib/format';
 import type { RunItem, LogEntry } from '../types';
 
 export interface RunViewProps {
 	runs: RunItem[];
 	selectedRunId: string | null;
-	focusedRunId: string | null;
 	logs: LogEntry[];
 	runningRunId: string | null;
-	listboxRef: RefObject<HTMLDivElement | null>;
 	onSelectRun: (id: string) => void;
-	onFocusChange: (id: string) => void;
 	onCancelRun: (runId: string) => void;
 	onViewReports: () => void;
 }
@@ -26,12 +22,9 @@ export interface RunViewProps {
 export function RunView({
 	runs,
 	selectedRunId,
-	focusedRunId,
 	logs,
 	runningRunId,
-	listboxRef,
 	onSelectRun,
-	onFocusChange,
 	onCancelRun,
 	onViewReports,
 }: RunViewProps) {
@@ -47,20 +40,12 @@ export function RunView({
 						Runs
 					</CardTitle>
 				</div>
-				<CardContent className={`${CARD_CONTENT_CLASS} px-0`}>
-					<RunsListbox<RunItem>
-						items={runs}
-						selectedId={selectedRunId}
-						focusedId={focusedRunId}
-						onSelect={onSelectRun}
-						onFocusChange={onFocusChange}
-						optionIdPrefix='runs-log-option-'
-						getOptionLabel={(run) =>
-							formatRunLabel(run, { includeStatus: true })
-						}
-						getOptionTooltip={formatRunLabelFull}
-						listboxRef={listboxRef}
-						ariaLabel='Runs'
+				<CardContent className={`${CARD_CONTENT_CLASS} p-0`}>
+					<RunsTable
+						runs={runs}
+						selectedRunId={selectedRunId}
+						onSelectRun={onSelectRun}
+						showStatus
 					/>
 				</CardContent>
 			</Card>
@@ -80,7 +65,11 @@ export function RunView({
 
 	const main = (
 		<Card className={CARD_CLASS}>
-			<div className={`${COLUMN_HEADER_CLASS} justify-between gap-4`} role='region' aria-label='Logs'>
+			<div
+				className={`${COLUMN_HEADER_CLASS} justify-between gap-4`}
+				role='region'
+				aria-label='Logs'
+			>
 				<CardTitle className='mb-0 text-base font-medium text-muted-foreground'>
 					Logs
 				</CardTitle>

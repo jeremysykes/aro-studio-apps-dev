@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type {
 	View,
 	ScanConfig,
@@ -9,10 +9,7 @@ import type {
 	ReportLoadState,
 } from '../types';
 import { JOB_SCAN, JOB_EXPORT } from '../constants';
-import {
-	getInitialConfig,
-	buildScanInput,
-} from '../lib/config';
+import { getInitialConfig, buildScanInput } from '../lib/config';
 
 const RUNS_WITH_REPORT_LIMIT = 50;
 
@@ -24,19 +21,16 @@ export function useInspectState() {
 	const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
 	const [logs, setLogs] = useState<LogEntry[]>([]);
 	const [report, setReport] = useState<InspectReport | null>(null);
-	const [reportLoadState, setReportLoadState] = useState<ReportLoadState>('idle');
+	const [reportLoadState, setReportLoadState] =
+		useState<ReportLoadState>('idle');
 	const [runningRunId, setRunningRunId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [reportTab, setReportTab] = useState<ReportTab>('health');
 	const [runsWithReport, setRunsWithReport] = useState<string[]>([]);
 	const [runsWithReportLoading, setRunsWithReportLoading] = useState(false);
-	const [focusedRunId, setFocusedRunId] = useState<string | null>(null);
-	const listboxRef = useRef<HTMLDivElement>(null);
 
 	const handleSelectRun = useCallback((id: string) => {
 		setSelectedRunId(id);
-		setFocusedRunId(id);
-		listboxRef.current?.focus();
 	}, []);
 
 	const loadWorkspace = useCallback(async () => {
@@ -119,7 +113,6 @@ export function useInspectState() {
 		) {
 			const first = runsWithReport[0]!;
 			setSelectedRunId(first);
-			setFocusedRunId(first);
 		}
 	}, [selectedRunId, runsWithReport]);
 
@@ -216,7 +209,6 @@ export function useInspectState() {
 			const { runId } = await window.aro.job.run(JOB_SCAN, input);
 			setRunningRunId(runId);
 			setSelectedRunId(runId);
-			setFocusedRunId(runId);
 			setView('run');
 			loadRuns();
 		} catch (e) {
@@ -224,62 +216,73 @@ export function useInspectState() {
 		}
 	}, [config, loadRuns]);
 
-	const handleCancelRun = useCallback(async (runId: string) => {
-		setError(null);
-		try {
-			await window.aro.job.cancel(runId);
-			setRunningRunId(null);
-			loadRuns();
-		} catch (e) {
-			setError(e instanceof Error ? e.message : 'Failed to cancel');
-		}
-	}, [loadRuns]);
+	const handleCancelRun = useCallback(
+		async (runId: string) => {
+			setError(null);
+			try {
+				await window.aro.job.cancel(runId);
+				setRunningRunId(null);
+				loadRuns();
+			} catch (e) {
+				setError(e instanceof Error ? e.message : 'Failed to cancel');
+			}
+		},
+		[loadRuns],
+	);
 
-	const handleExport = useCallback(async (format: 'csv' | 'markdown' | 'pdf') => {
-		if (!selectedRunId) return;
-		setError(null);
-		try {
-			const artifacts = await window.aro.artifacts.list(selectedRunId);
-			if (!artifacts.some((a: { path: string }) => a.path === 'report.json')) {
-				setError('Report not available for this run. Cannot export.');
-				return;
-			}
-			const { runId } = await window.aro.job.run(JOB_EXPORT, {
-				runId: selectedRunId,
-				format,
-			});
-			let run = await window.aro.runs.get(runId);
-			while (run?.status === 'running') {
-				await new Promise((r) => setTimeout(r, 100));
-				run = await window.aro.runs.get(runId);
-			}
-			if (run?.status === 'success') {
-				const ext = format === 'csv' ? 'csv' : format === 'markdown' ? 'md' : 'pdf';
-				const artifactPath = format === 'pdf' ? 'inspect-export.pdf' : `inspect-export.${ext}`;
-				const content = await window.aro.artifacts.read(runId, artifactPath);
-				let blob: Blob;
-				if (format === 'pdf') {
-					const binary = atob(content);
-					const bytes = new Uint8Array(binary.length);
-					for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-					blob = new Blob([bytes], { type: 'application/pdf' });
-				} else {
-					blob = new Blob([content], {
-						type: format === 'csv' ? 'text/csv' : 'text/markdown',
-					});
+	const handleExport = useCallback(
+		async (format: 'csv' | 'markdown' | 'pdf') => {
+			if (!selectedRunId) return;
+			setError(null);
+			try {
+				const artifacts = await window.aro.artifacts.list(selectedRunId);
+				if (
+					!artifacts.some((a: { path: string }) => a.path === 'report.json')
+				) {
+					setError('Report not available for this run. Cannot export.');
+					return;
 				}
-				const url = URL.createObjectURL(blob);
-				const a = document.createElement('a');
-				a.href = url;
-				a.download = `inspect-report.${ext}`;
-				a.click();
-				URL.revokeObjectURL(url);
+				const { runId } = await window.aro.job.run(JOB_EXPORT, {
+					runId: selectedRunId,
+					format,
+				});
+				let run = await window.aro.runs.get(runId);
+				while (run?.status === 'running') {
+					await new Promise((r) => setTimeout(r, 100));
+					run = await window.aro.runs.get(runId);
+				}
+				if (run?.status === 'success') {
+					const ext =
+						format === 'csv' ? 'csv' : format === 'markdown' ? 'md' : 'pdf';
+					const artifactPath =
+						format === 'pdf' ? 'inspect-export.pdf' : `inspect-export.${ext}`;
+					const content = await window.aro.artifacts.read(runId, artifactPath);
+					let blob: Blob;
+					if (format === 'pdf') {
+						const binary = atob(content);
+						const bytes = new Uint8Array(binary.length);
+						for (let i = 0; i < binary.length; i++)
+							bytes[i] = binary.charCodeAt(i);
+						blob = new Blob([bytes], { type: 'application/pdf' });
+					} else {
+						blob = new Blob([content], {
+							type: format === 'csv' ? 'text/csv' : 'text/markdown',
+						});
+					}
+					const url = URL.createObjectURL(blob);
+					const a = document.createElement('a');
+					a.href = url;
+					a.download = `inspect-report.${ext}`;
+					a.click();
+					URL.revokeObjectURL(url);
+				}
+				loadRuns();
+			} catch (e) {
+				setError(e instanceof Error ? e.message : 'Export failed');
 			}
-			loadRuns();
-		} catch (e) {
-			setError(e instanceof Error ? e.message : 'Export failed');
-		}
-	}, [selectedRunId, loadRuns]);
+		},
+		[selectedRunId, loadRuns],
+	);
 
 	return {
 		workspacePath,
@@ -298,9 +301,6 @@ export function useInspectState() {
 		setReportTab,
 		runsWithReport,
 		runsWithReportLoading,
-		focusedRunId,
-		setFocusedRunId,
-		listboxRef,
 		handleSelectRun,
 		handleSelectWorkspace,
 		handleRunScan,

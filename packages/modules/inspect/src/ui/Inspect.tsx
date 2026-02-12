@@ -5,7 +5,6 @@ import {
 	TabsContent,
 	TabsList,
 	TabsTrigger,
-	TooltipProvider,
 } from '@aro/desktop/components';
 import { useInspectState } from './hooks/useInspectState';
 import { WorkspaceCard } from './components/WorkspaceCard';
@@ -40,9 +39,6 @@ export default function Inspect() {
 		setReportTab,
 		runsWithReport,
 		runsWithReportLoading,
-		focusedRunId,
-		setFocusedRunId,
-		listboxRef,
 		handleSelectRun,
 		handleSelectWorkspace,
 		handleRunScan,
@@ -52,8 +48,7 @@ export default function Inspect() {
 
 	return (
 		<main className='min-w-[900px] min-h-screen p-6 font-sans' role='main'>
-			<TooltipProvider delayDuration={300}>
-				<div className='flex flex-col min-[900px]:flex-row min-[900px]:items-start min-[900px]:justify-between gap-4 mb-3 pb-4 border-b border-[#E4E4E7]'>
+			<div className='flex flex-col min-[900px]:flex-row min-[900px]:items-start min-[900px]:justify-between gap-4 mb-3 pb-4 border-b border-[#E4E4E7]'>
 					<div className='flex flex-col gap-1 min-w-0'>
 						<h1 className='text-xl font-semibold'>Aro Inspect</h1>
 						<p className='text-sm text-muted-foreground'>
@@ -119,12 +114,9 @@ export default function Inspect() {
 								<RunView
 									runs={runs}
 									selectedRunId={selectedRunId}
-									focusedRunId={focusedRunId}
 									logs={logs}
 									runningRunId={runningRunId}
-									listboxRef={listboxRef}
 									onSelectRun={handleSelectRun}
-									onFocusChange={setFocusedRunId}
 									onCancelRun={handleCancelRun}
 									onViewReports={() => setView('report')}
 								/>
@@ -135,13 +127,10 @@ export default function Inspect() {
 									runsWithReport={runsWithReport}
 									runsWithReportLoading={runsWithReportLoading}
 									selectedRunId={selectedRunId}
-									focusedRunId={focusedRunId}
 									report={report}
 									reportLoadState={reportLoadState}
 									reportTab={reportTab}
-									listboxRef={listboxRef}
 									onSelectRun={handleSelectRun}
-									onFocusChange={setFocusedRunId}
 									onReportTabChange={setReportTab}
 									onExportCsv={() => handleExport('csv')}
 									onExportMarkdown={() => handleExport('markdown')}
@@ -153,7 +142,6 @@ export default function Inspect() {
 						</Tabs>
 					</>
 				)}
-			</TooltipProvider>
 		</main>
 	);
 }

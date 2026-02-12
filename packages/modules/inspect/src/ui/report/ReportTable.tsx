@@ -68,7 +68,7 @@ export function ReportTable<T>({
 	}, [filteredRows, sortKey, sortDir, columns]);
 
 	return (
-		<div className="overflow-x-auto">
+		<div className='overflow-x-auto'>
 			<Table>
 				<TableHeader>
 					<TableRow>
@@ -76,13 +76,13 @@ export function ReportTable<T>({
 							const sortable = col.sortable && col.sortValue;
 							const isSorted = sortKey === col.key;
 							return (
-								<TableHead key={col.key} scope="col">
+								<TableHead key={col.key} scope='col'>
 									{sortable ? (
 										<Button
-											type="button"
-											variant="ghost"
-											size="xs"
-											className="h-auto p-0 font-medium hover:underline"
+											type='button'
+											variant='ghost'
+											size='xs'
+											className='h-auto p-0 font-medium hover:underline'
 											onClick={() => handleSort(col.key)}
 											aria-label={`Sort by ${col.header}`}
 											aria-sort={
@@ -95,7 +95,7 @@ export function ReportTable<T>({
 										>
 											{col.header}
 											{isSorted && (
-												<span className="ml-1 text-muted-foreground">
+												<span className='ml-1 text-muted-foreground'>
 													{sortDir === 'asc' ? '↑' : '↓'}
 												</span>
 											)}
@@ -112,9 +112,9 @@ export function ReportTable<T>({
 					{sortedRows.map((row) => (
 						<TableRow key={getRowKey(row)}>
 							{columns.map((col) => (
-							<TableCell key={col.key} className="py-3">
-								{col.render(row)}
-							</TableCell>
+								<TableCell key={col.key} className='py-3 text-[11px]'>
+									{col.render(row)}
+								</TableCell>
 							))}
 						</TableRow>
 					))}
