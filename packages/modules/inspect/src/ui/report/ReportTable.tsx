@@ -68,8 +68,7 @@ export function ReportTable<T>({
 	}, [filteredRows, sortKey, sortDir, columns]);
 
 	return (
-		<div className='overflow-x-auto'>
-			<Table>
+		<Table>
 				<TableHeader>
 					<TableRow>
 						{columns.map((col) => {
@@ -120,6 +119,5 @@ export function ReportTable<T>({
 					))}
 				</TableBody>
 			</Table>
-		</div>
 	);
 }

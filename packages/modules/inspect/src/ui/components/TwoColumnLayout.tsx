@@ -6,7 +6,7 @@ const SIDEBAR_CLASS = 'min-[900px]:flex min-[900px]:flex-col min-[900px]:min-h-0
 const CARD_CLASS =
 	'min-[900px]:flex-1 min-[900px]:min-h-0 min-[900px]:flex min-[900px]:flex-col min-[900px]:overflow-hidden';
 const CARD_CONTENT_CLASS =
-	'min-[900px]:overflow-y-auto min-[900px]:min-h-0 min-w-0';
+	'min-[900px]:overflow-auto min-[900px]:min-h-0 min-w-0';
 const COLUMN_HEADER_CLASS =
 	'flex h-16 shrink-0 items-center border-b border-zinc-200 px-4';
 
