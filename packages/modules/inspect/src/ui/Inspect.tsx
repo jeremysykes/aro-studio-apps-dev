@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@aro/desktop/components';
 import {
 	Card,
@@ -51,6 +51,49 @@ function extractFigmaFileKey(input: string): string {
 	if (!trimmed) return '';
 	const match = trimmed.match(/figma\.com\/(?:design|file)\/([A-Za-z0-9_-]+)/);
 	return match ? match[1]! : trimmed;
+}
+
+function handleRunsListKeyDown(
+	e: React.KeyboardEvent,
+	items: Array<{ id: string }>,
+	focusedId: string | null,
+	onFocus: (id: string) => void,
+	onSelect: (id: string) => void,
+): void {
+	if (items.length === 0) return;
+	const idx = focusedId ? items.findIndex((r) => r.id === focusedId) : -1;
+	if (e.key === 'ArrowDown') {
+		e.preventDefault();
+		if (idx < items.length - 1) {
+			onFocus(items[idx + 1]!.id);
+		} else if (idx === -1) {
+			onFocus(items[0]!.id);
+		}
+	} else if (e.key === 'ArrowUp') {
+		e.preventDefault();
+		if (idx > 0) {
+			onFocus(items[idx - 1]!.id);
+		} else if (idx === -1) {
+			onFocus(items[items.length - 1]!.id);
+		}
+	} else if (e.key === 'Home') {
+		e.preventDefault();
+		onFocus(items[0]!.id);
+	} else if (e.key === 'End') {
+		e.preventDefault();
+		onFocus(items[items.length - 1]!.id);
+	} else if (e.key === 'Enter' || e.key === ' ') {
+		e.preventDefault();
+		const toSelect = idx >= 0 ? focusedId : items[0]!.id;
+		if (toSelect) {
+			onSelect(toSelect);
+		}
+	}
+}
+
+/** Prevent option buttons from taking focus; listbox owns focus per ARIA listbox pattern. */
+function preventOptionFocus(e: React.MouseEvent) {
+	e.preventDefault();
 }
 
 function hasAtLeastOneSource(config: ScanConfig): boolean {
@@ -115,6 +158,14 @@ export default function Inspect() {
 	>('health');
 	const [runsWithReport, setRunsWithReport] = useState<string[]>([]);
 	const [runsWithReportLoading, setRunsWithReportLoading] = useState(false);
+	const [focusedRunId, setFocusedRunId] = useState<string | null>(null);
+	const listboxRef = useRef<HTMLDivElement>(null);
+
+	const handleSelectRun = useCallback((id: string) => {
+		setSelectedRunId(id);
+		setFocusedRunId(id);
+		listboxRef.current?.focus();
+	}, []);
 
 	const loadWorkspace = useCallback(async () => {
 		try {
@@ -195,7 +246,9 @@ export default function Inspect() {
 			runsWithReport.length > 0 &&
 			!runsWithReport.includes(selectedRunId)
 		) {
-			setSelectedRunId(runsWithReport[0]!);
+			const first = runsWithReport[0]!;
+			setSelectedRunId(first);
+			setFocusedRunId(first);
 		}
 	}, [selectedRunId, runsWithReport]);
 
@@ -206,6 +259,7 @@ export default function Inspect() {
 			if (run.status === 'success') {
 				setView('report');
 				setSelectedRunId(run.id);
+				setFocusedRunId(run.id);
 			}
 		}
 	}, [runs, runningRunId]);
@@ -285,6 +339,7 @@ export default function Inspect() {
 			const { runId } = await window.aro.job.run(JOB_SCAN, input);
 			setRunningRunId(runId);
 			setSelectedRunId(runId);
+			setFocusedRunId(runId);
 			setView('run');
 			loadRuns();
 		} catch (e) {
@@ -549,34 +604,73 @@ export default function Inspect() {
 											<CardTitle>Runs</CardTitle>
 										</CardHeader>
 										<CardContent className='min-[900px]:overflow-y-auto min-[900px]:min-h-0 min-w-0'>
-											<ul className='list-none space-y-1 min-w-0'>
-												{runs.map((run) => {
-													const fullLabel = `${run.id} — ${run.status} — ${new Date(run.startedAt).toLocaleString()}`;
-													return (
-														<li key={run.id} className='min-w-0'>
-															<Tooltip>
-																<TooltipTrigger asChild>
-																	<Button
-																		type='button'
-																		variant={
-																			selectedRunId === run.id ? 'default' : 'ghost'
-																		}
-																		className='w-full min-w-0 justify-start overflow-hidden font-normal'
-																		onClick={() => setSelectedRunId(run.id)}
-																	>
-																		<span className='block min-w-0 truncate text-left'>
-																			{fullLabel}
-																		</span>
-																	</Button>
-																</TooltipTrigger>
-																<TooltipContent side='top'>
-																	<p>{fullLabel}</p>
-																</TooltipContent>
-															</Tooltip>
-														</li>
-													);
-												})}
-											</ul>
+											<div
+												ref={listboxRef}
+												role='listbox'
+												aria-label='Runs'
+												tabIndex={0}
+												aria-activedescendant={
+													focusedRunId ? `runs-log-option-${focusedRunId}` : undefined
+												}
+												className='min-w-0 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-zinc-400 rounded-md'
+												onFocus={() => {
+													if (runs.length === 0) return;
+													const inList = focusedRunId && runs.some((r) => r.id === focusedRunId);
+													if (!inList) {
+														setFocusedRunId(
+															selectedRunId && runs.some((r) => r.id === selectedRunId)
+																? selectedRunId
+																: runs[0]!.id,
+														);
+													}
+												}}
+												onKeyDown={(e) =>
+													handleRunsListKeyDown(
+														e,
+														runs,
+														focusedRunId,
+														setFocusedRunId,
+														handleSelectRun,
+													)
+												}
+											>
+												<ul className='list-none space-y-1 min-w-0'>
+													{runs.map((run) => {
+														const fullLabel = `${run.id} — ${run.status} — ${new Date(run.startedAt).toLocaleString()}`;
+														const isFocused = focusedRunId === run.id;
+														const isSelected = selectedRunId === run.id;
+														return (
+															<li
+																key={run.id}
+																id={`runs-log-option-${run.id}`}
+																role='option'
+																aria-selected={isSelected}
+																className={`min-w-0 rounded-md ${isFocused && !isSelected ? 'ring-1 ring-zinc-300 ring-inset' : ''}`}
+															>
+																<Tooltip>
+																	<TooltipTrigger asChild>
+																		<Button
+																			type='button'
+																			tabIndex={-1}
+																			variant={isSelected ? 'default' : 'ghost'}
+																			className='w-full min-w-0 justify-start overflow-hidden font-normal'
+																			onMouseDown={preventOptionFocus}
+																			onClick={() => handleSelectRun(run.id)}
+																		>
+																			<span className='block min-w-0 truncate text-left'>
+																				{fullLabel}
+																			</span>
+																		</Button>
+																	</TooltipTrigger>
+																	<TooltipContent side='top'>
+																		<p>{fullLabel}</p>
+																	</TooltipContent>
+																</Tooltip>
+															</li>
+														);
+													})}
+												</ul>
+											</div>
 										</CardContent>
 									</Card>
 									{runningRunId && (
@@ -629,28 +723,69 @@ export default function Inspect() {
 											<CardTitle>Runs</CardTitle>
 										</CardHeader>
 										<CardContent className='min-[900px]:overflow-y-auto min-[900px]:min-h-0 min-w-0'>
-											<ul className='list-none space-y-1 min-w-0'>
-												{runsWithReportLoading
-													? Array.from({ length: 6 }, (_, i) => (
-															<li key={i} className='min-w-0'>
-																<Skeleton className='h-10 w-full rounded-md' />
-															</li>
-														))
-													: runs
-															.filter((r) => runsWithReport.includes(r.id))
-															.map((run) => {
+											{runsWithReportLoading ? (
+												<ul className='list-none space-y-1 min-w-0'>
+													{Array.from({ length: 6 }, (_, i) => (
+														<li key={i} className='min-w-0'>
+															<Skeleton className='h-10 w-full rounded-md' />
+														</li>
+													))}
+												</ul>
+											) : (() => {
+												const reportRuns = runs.filter((r) => runsWithReport.includes(r.id));
+												return (
+													<div
+														ref={listboxRef}
+														role='listbox'
+														aria-label='Runs'
+														tabIndex={0}
+														aria-activedescendant={
+															focusedRunId ? `runs-report-option-${focusedRunId}` : undefined
+														}
+														className='min-w-0 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-zinc-400 rounded-md'
+														onFocus={() => {
+															if (reportRuns.length === 0) return;
+															const inList = focusedRunId && reportRuns.some((r) => r.id === focusedRunId);
+															if (!inList) {
+																setFocusedRunId(
+																	selectedRunId && reportRuns.some((r) => r.id === selectedRunId)
+																		? selectedRunId
+																		: reportRuns[0]!.id,
+																);
+															}
+														}}
+														onKeyDown={(e) =>
+															handleRunsListKeyDown(
+																e,
+																reportRuns,
+																focusedRunId,
+																setFocusedRunId,
+																handleSelectRun,
+															)
+														}
+													>
+														<ul className='list-none space-y-1 min-w-0'>
+															{reportRuns.map((run) => {
 																const fullLabel = `${run.id} — ${new Date(run.startedAt).toLocaleString()}`;
+																const isFocused = focusedRunId === run.id;
+																const isSelected = selectedRunId === run.id;
 																return (
-																	<li key={run.id} className='min-w-0'>
+																	<li
+																		key={run.id}
+																		id={`runs-report-option-${run.id}`}
+																		role='option'
+																		aria-selected={isSelected}
+																		className={`min-w-0 rounded-md ${isFocused && !isSelected ? 'ring-1 ring-zinc-300 ring-inset' : ''}`}
+																	>
 																		<Tooltip>
 																			<TooltipTrigger asChild>
 																				<Button
 																					type='button'
-																					variant={
-																						selectedRunId === run.id ? 'default' : 'ghost'
-																					}
+																					tabIndex={-1}
+																					variant={isSelected ? 'default' : 'ghost'}
 																					className='w-full min-w-0 justify-start overflow-hidden font-normal'
-																					onClick={() => setSelectedRunId(run.id)}
+																					onMouseDown={preventOptionFocus}
+																					onClick={() => handleSelectRun(run.id)}
 																				>
 																					<span className='block min-w-0 truncate text-left'>
 																						{fullLabel}
@@ -664,7 +799,10 @@ export default function Inspect() {
 																	</li>
 																);
 															})}
-											</ul>
+														</ul>
+													</div>
+												);
+											})()}
 										</CardContent>
 									</Card>
 								</aside>
