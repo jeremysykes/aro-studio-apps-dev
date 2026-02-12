@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, TooltipProvider } from '@aro/desktop/components';
+import { Alert, Button, TooltipProvider } from '@aro/desktop/components';
 import { useInspectState } from './hooks/useInspectState';
 import { WorkspaceCard } from './components/WorkspaceCard';
 import { SetupView } from './views/SetupView';
@@ -46,7 +46,12 @@ export default function Inspect() {
 	return (
 		<main className="min-w-[900px] min-h-screen p-6 font-sans" role="main">
 			<TooltipProvider delayDuration={300}>
-				<h1 className="text-2xl font-semibold mb-4">Aro Inspect</h1>
+				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
+					<h1 className="text-xl font-semibold">Aro Inspect</h1>
+					<p className="text-sm text-muted-foreground">
+						Design system inventory & health
+					</p>
+				</div>
 
 				<WorkspaceCard
 					workspacePath={workspacePath}
@@ -56,16 +61,13 @@ export default function Inspect() {
 				{workspacePath && (
 					<>
 						{error && (
-							<div
-								role="alert"
-								className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/30 p-4 text-red-800 dark:text-red-200 mb-4"
-							>
+							<Alert variant="destructive" className="mb-4">
 								{error}
-							</div>
+							</Alert>
 						)}
 
 						<nav
-							className="flex gap-2 mt-2 mb-2"
+							className="flex gap-2 mt-2 mb-3"
 							aria-label="Inspect views"
 						>
 							{VIEW_TABS.map((tab) => (
@@ -81,7 +83,7 @@ export default function Inspect() {
 						</nav>
 
 						{view === 'setup' && !hasAtLeastOneSource(config) && (
-							<p className="mb-2 text-sm text-muted-foreground">
+							<p className="mb-4 text-sm text-muted-foreground">
 								Configure at least one source (Figma, Code tokens, or Storybook)
 								to enable Run Inspect.
 							</p>

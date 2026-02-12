@@ -1,17 +1,14 @@
 import React, { type RefObject } from 'react';
-import {
-	Button,
-	Card,
-	CardContent,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-	Skeleton,
-} from '@aro/desktop/components';
+import { Button, Card, CardContent, CardFooter, CardTitle, Skeleton } from '@aro/desktop/components';
 import { RunsListbox } from '../components/RunsListbox';
-import { TwoColumnLayout, CARD_CLASS, CARD_CONTENT_CLASS } from '../components/TwoColumnLayout';
+import {
+	TwoColumnLayout,
+	CARD_CLASS,
+	CARD_CONTENT_CLASS,
+	COLUMN_HEADER_CLASS,
+} from '../components/TwoColumnLayout';
 import { ReportContent, REPORT_TABS } from '../report/ReportContent';
-import { formatRunLabel } from '../lib/format';
+import { formatRunLabel, formatRunLabelFull } from '../lib/format';
 import type { RunItem, InspectReport, ReportTab, ReportLoadState } from '../types';
 
 export interface ReportViewProps {
@@ -53,9 +50,11 @@ export function ReportView({
 
 	const sidebar = (
 		<Card className={CARD_CLASS}>
-			<CardHeader>
-				<CardTitle>Runs</CardTitle>
-			</CardHeader>
+			<div className={COLUMN_HEADER_CLASS} role="region" aria-label="Runs">
+				<CardTitle className="mb-0 text-base font-medium text-muted-foreground">
+					Runs
+				</CardTitle>
+			</div>
 			<CardContent className={CARD_CONTENT_CLASS}>
 				{runsWithReportLoading ? (
 					<ul className="list-none space-y-1 min-w-0">
@@ -74,6 +73,7 @@ export function ReportView({
 						onFocusChange={onFocusChange}
 						optionIdPrefix="runs-report-option-"
 						getOptionLabel={(run) => formatRunLabel(run)}
+						getOptionTooltip={formatRunLabelFull}
 						listboxRef={listboxRef}
 						ariaLabel="Runs"
 					/>
@@ -84,8 +84,14 @@ export function ReportView({
 
 	const main = (
 		<Card className={`${CARD_CLASS} flex flex-col`}>
-			<CardHeader className="shrink-0 flex flex-row items-center justify-between gap-4">
-				<CardTitle className="mb-0">Reports</CardTitle>
+			<div
+				className={`${COLUMN_HEADER_CLASS} justify-between gap-4`}
+				role="region"
+				aria-label="Reports"
+			>
+				<CardTitle className="mb-0 text-base font-medium text-muted-foreground">
+					Reports
+				</CardTitle>
 				<div
 					className="flex gap-2 shrink-0"
 					role="tablist"
@@ -105,9 +111,9 @@ export function ReportView({
 						</Button>
 					))}
 				</div>
-			</CardHeader>
+			</div>
 			<CardContent
-				className={`${CARD_CONTENT_CLASS} flex-1 min-h-0 overflow-y-auto`}
+				className={`${CARD_CONTENT_CLASS} flex-1 min-h-0 overflow-y-auto pt-6 px-6 pb-6`}
 			>
 				{reportLoadState === 'loading' && (
 					<p className="text-muted-foreground">Loading report…</p>
@@ -129,7 +135,7 @@ export function ReportView({
 				)}
 			</CardContent>
 			{reportLoadState === 'success' && report && reportTab === 'health' && (
-				<CardFooter className="shrink-0 flex items-center justify-end gap-2 py-4 px-6">
+				<CardFooter className="shrink-0 flex items-center justify-end gap-2 border-t border-zinc-200 py-3 px-4">
 					<Button
 						type="button"
 						variant="outline"

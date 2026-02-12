@@ -1,8 +1,13 @@
 import React, { type RefObject } from 'react';
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@aro/desktop/components';
+import { Button, Card, CardContent, CardTitle } from '@aro/desktop/components';
 import { RunsListbox } from '../components/RunsListbox';
-import { TwoColumnLayout, CARD_CLASS, CARD_CONTENT_CLASS } from '../components/TwoColumnLayout';
-import { formatRunLabel } from '../lib/format';
+import {
+	TwoColumnLayout,
+	CARD_CLASS,
+	CARD_CONTENT_CLASS,
+	COLUMN_HEADER_CLASS,
+} from '../components/TwoColumnLayout';
+import { formatRunLabel, formatRunLabelFull } from '../lib/format';
 import type { RunItem, LogEntry } from '../types';
 
 export interface RunViewProps {
@@ -31,9 +36,11 @@ export function RunView({
 	const sidebar = (
 		<div className="space-y-4 min-[900px]:flex min-[900px]:flex-col min-[900px]:min-h-0 min-[900px]:space-y-0">
 			<Card className={CARD_CLASS}>
-				<CardHeader>
-					<CardTitle>Runs</CardTitle>
-				</CardHeader>
+				<div className={COLUMN_HEADER_CLASS} role="region" aria-label="Runs">
+					<CardTitle className="mb-0 text-base font-medium text-muted-foreground">
+						Runs
+					</CardTitle>
+				</div>
 				<CardContent className={CARD_CONTENT_CLASS}>
 					<RunsListbox<RunItem>
 						items={runs}
@@ -43,6 +50,7 @@ export function RunView({
 						onFocusChange={onFocusChange}
 						optionIdPrefix="runs-log-option-"
 						getOptionLabel={(run) => formatRunLabel(run, { includeStatus: true })}
+						getOptionTooltip={formatRunLabelFull}
 						listboxRef={listboxRef}
 						ariaLabel="Runs"
 					/>
@@ -63,13 +71,15 @@ export function RunView({
 
 	const main = (
 		<Card className={CARD_CLASS}>
-			<CardHeader>
-				<CardTitle>Logs</CardTitle>
-			</CardHeader>
-			<CardContent className={CARD_CONTENT_CLASS}>
+			<div className={COLUMN_HEADER_CLASS} role="region" aria-label="Logs">
+				<CardTitle className="mb-0 text-base font-medium text-muted-foreground">
+					Logs
+				</CardTitle>
+			</div>
+			<CardContent className={`${CARD_CONTENT_CLASS} pt-6 px-6 pb-6`}>
 				{selectedRunId ? (
 					<ul
-						className="list-none space-y-1 font-mono text-sm"
+						className="list-none space-y-1 text-sm"
 						role="log"
 						aria-live="polite"
 					>

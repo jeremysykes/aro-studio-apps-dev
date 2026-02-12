@@ -1,4 +1,5 @@
 import React from 'react';
+import { Badge } from '@aro/desktop/components';
 import type { InspectReport } from '../types';
 
 export interface HealthDashboardProps {
@@ -6,26 +7,78 @@ export interface HealthDashboardProps {
 }
 
 export function HealthDashboard({ report }: HealthDashboardProps) {
+	const findings = report.summary.findingsBySeverity ?? {};
+	const critical = findings.critical ?? 0;
+	const warning = findings.warning ?? 0;
+	const info = findings.info ?? 0;
+
 	return (
-		<div>
-			<p className="text-lg font-medium">Health score</p>
-			<p className="mt-2">
-				Composite: <strong>{report.healthScore.composite}</strong> out of 100
-			</p>
-			<ul className="list-disc pl-6 mt-2 space-y-1">
-				<li>Token consistency: {report.healthScore.tokenConsistency}</li>
-				<li>Component coverage: {report.healthScore.componentCoverage}</li>
-				<li>Naming alignment: {report.healthScore.namingAlignment}</li>
-				<li>Value parity: {report.healthScore.valueParity}</li>
-			</ul>
-			<p className="mt-4 font-medium">Findings by severity</p>
-			<ul className="list-disc pl-6">
-				<li>
-					Critical: {report.summary.findingsBySeverity?.critical ?? 0}
-				</li>
-				<li>Warning: {report.summary.findingsBySeverity?.warning ?? 0}</li>
-				<li>Info: {report.summary.findingsBySeverity?.info ?? 0}</li>
-			</ul>
+		<div className="grid grid-cols-1 min-[900px]:grid-cols-2 gap-8 min-[900px]:items-stretch">
+			{/* Left: Health score — single focal point, centred in column */}
+			<div className="min-[900px]:flex min-[900px]:flex-col min-[900px]:justify-center min-[900px]:items-center min-[900px]:text-center min-[900px]:min-h-0">
+				<p className="text-sm font-medium text-muted-foreground">
+					Health score
+				</p>
+				<p className="mt-0.5 tabular-nums">
+					<span className="text-5xl font-semibold">
+						{report.healthScore.composite}
+					</span>
+					<span className="text-lg font-normal text-muted-foreground">
+						{' '}
+						/ 100
+					</span>
+				</p>
+				<p className="sr-only">
+					Composite health score: {report.healthScore.composite} out of 100
+				</p>
+			</div>
+
+			{/* Right: Score breakdown + severity, vertically centred */}
+			<div className="space-y-6 min-[900px]:flex min-[900px]:flex-col min-[900px]:justify-center min-[900px]:min-h-0">
+				<section aria-labelledby="score-breakdown-heading">
+					<h2
+						id="score-breakdown-heading"
+						className="text-sm font-medium text-muted-foreground"
+					>
+						Score breakdown
+					</h2>
+					<ul className="mt-2 list-disc space-y-0.5 pl-6" role="list">
+						<li>Token consistency: {report.healthScore.tokenConsistency}</li>
+						<li>Component coverage: {report.healthScore.componentCoverage}</li>
+						<li>Naming alignment: {report.healthScore.namingAlignment}</li>
+						<li>Value parity: {report.healthScore.valueParity}</li>
+					</ul>
+				</section>
+
+				<section aria-labelledby="findings-heading">
+					<h2
+						id="findings-heading"
+						className="text-sm font-medium text-muted-foreground"
+					>
+						Findings by severity
+					</h2>
+					<div className="mt-2 flex flex-wrap gap-2">
+						<Badge
+							className="rounded-full text-sm border-transparent bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
+							aria-label={`Critical: ${critical}`}
+						>
+							{critical} Critical
+						</Badge>
+						<Badge
+							className="rounded-full text-sm border-transparent bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+							aria-label={`Warning: ${warning}`}
+						>
+							{warning} Warning
+						</Badge>
+						<Badge
+							className="rounded-full text-sm border-transparent bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+							aria-label={`Info: ${info}`}
+						>
+							{info} Info
+						</Badge>
+					</div>
+				</section>
+			</div>
 		</div>
 	);
 }

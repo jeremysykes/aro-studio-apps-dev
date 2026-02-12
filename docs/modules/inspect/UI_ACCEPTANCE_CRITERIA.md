@@ -24,12 +24,13 @@ View-level acceptance criteria and accessibility checklist for the Inspect UI. I
 
 ### Report view
 
+- **Reports header** — Reports title and tabs are visually distinct from dashboard content (reduced weight, separator below); tabs read as navigation (active clearly indicated, inactive outline/ghost).
 - Three tabs: Health Dashboard, Token Inventory, Component Inventory.
 - Data is read from `artifacts.read(runId, 'report.json')` for the chosen run.
-- **Health Dashboard:** Composite score (0–100) and sub-scores (token consistency, component coverage, naming alignment, value parity); finding counts by severity (critical, warning, info). All scores available as text (not only visual).
+- **Health Dashboard:** Health score is the primary focal element (single hero number, left column); score breakdown and findings-by-severity form one supporting panel (right column). Composite score (0–100) and sub-scores (token consistency, component coverage, naming alignment, value parity); finding counts by severity (critical, warning, info). All scores available as text (not only visual). Severity badges are consistent and system-driven (same shape, padding, typography; restrained colour).
 - **Token Inventory:** Table with columns: token name, value, type, source(s), flags. Sortable and filterable.
 - **Component Inventory:** Table with columns: component name, surfaces present, coverage status, orphan flag. Sortable and filterable.
-- "Export report" allows exporting as JSON/CSV/markdown (via `inspect:export` or reading artifact).
+- **Export actions** — Anchored in card footer, right-aligned; secondary styling (outline/ghost). "Export report" allows exporting as JSON/CSV/markdown (via `inspect:export` or reading artifact).
 
 ---
 
@@ -42,6 +43,16 @@ View-level acceptance criteria and accessibility checklist for the Inspect UI. I
 - **Focus:** Visible focus indicators on all focusable elements; focus management consistent with Desktop shell; no focus trap except in modal/dialog with a clear exit (e.g. Escape, explicit Close).
 - **Design system:** Use `@aro/desktop/components` (shadcn + Tailwind); minimum window width 900px; sidebar + main content; tables use horizontal scroll when needed.
 - **Errors and loading:** Loading states and errors are announced (e.g. `role="alert"` for errors, `aria-busy` or visible loading text where appropriate).
+
+---
+
+## Professional polish
+
+- **Empty states:** Every list or content area without data shows clear, actionable guidance (e.g. "Select a run from the list to view its report").
+- **Loading:** Use design system Skeleton or visible loading text; avoid blank or flickering content.
+- **Errors:** Use design system Alert (destructive variant) for error display; no custom styled divs.
+- **Forms:** Use design system Input and Textarea; labels associated via `htmlFor`/`id`.
+- **Typography and spacing:** Consistent headings; 16px gaps per design tokens; no cramped layouts.
 
 ---
 

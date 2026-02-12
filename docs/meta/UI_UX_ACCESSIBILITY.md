@@ -11,6 +11,12 @@ This document is the single source of truth for UI/UX and accessibility expectat
 - **Screen readers:** Meaningful labels (e.g. `aria-label`, associated `<label>`); `role` and `aria-*` where they add clarity (e.g. `role="alert"` for errors). Do not expose Core handles, DB paths, or internal IDs as the primary label.
 - **Design system:** Use the shared design-system components (shadcn) for consistency and built-in a11y (Radix primitives). Custom components must meet the same standards.
 
+## Contrast and visibility
+
+- **Color contrast:** Text and interactive elements meet WCAG 2.1 Level AA contrast (4.5:1 for normal text; 3:1 for large text).
+- **Focus indicators:** All focusable elements have a visible focus ring (e.g. `focus-visible:ring-2`); never remove focus styles.
+- **Screen reader support:** Use `aria-label` for icon-only buttons; `aria-describedby` where helpful; avoid redundant announcements.
+
 ## UI/UX
 
 - **Hierarchy:** Clear visual and heading hierarchy; one main heading per view where appropriate.

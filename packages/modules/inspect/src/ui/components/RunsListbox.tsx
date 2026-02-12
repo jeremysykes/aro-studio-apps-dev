@@ -55,6 +55,7 @@ export interface RunsListboxProps<T extends RunsListboxItem> {
 	onFocusChange: (id: string) => void;
 	optionIdPrefix: string;
 	getOptionLabel: (item: T) => string;
+	getOptionTooltip?: (item: T) => string;
 	listboxRef: React.RefObject<HTMLDivElement | null>;
 	ariaLabel?: string;
 }
@@ -67,6 +68,7 @@ export function RunsListbox<T extends RunsListboxItem>({
 	onFocusChange,
 	optionIdPrefix,
 	getOptionLabel,
+	getOptionTooltip,
 	listboxRef,
 	ariaLabel = 'Runs',
 }: RunsListboxProps<T>) {
@@ -127,7 +129,7 @@ export function RunsListbox<T extends RunsListboxItem>({
 									</Button>
 								</TooltipTrigger>
 								<TooltipContent side="top">
-									<p>{label}</p>
+									<p>{getOptionTooltip ? getOptionTooltip(item) : label}</p>
 								</TooltipContent>
 							</Tooltip>
 						</li>

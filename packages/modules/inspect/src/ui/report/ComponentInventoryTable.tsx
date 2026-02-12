@@ -4,22 +4,47 @@ import { ReportTable, type ReportTableColumn } from './ReportTable';
 
 type Component = InspectReport['components'][number];
 
+function surfacesText(c: Component): string {
+	return (
+		[
+			c.surfaces.figma && 'Figma',
+			c.surfaces.storybook && 'Storybook',
+			c.surfaces.code && 'Code',
+		]
+			.filter(Boolean)
+			.join(', ') || '—'
+	);
+}
+
 const COLUMNS: ReportTableColumn<Component>[] = [
-	{ key: 'name', header: 'Name', render: (c) => c.name },
+	{
+		key: 'name',
+		header: 'Name',
+		render: (c) => c.name,
+		sortable: true,
+		sortValue: (c) => c.name,
+	},
 	{
 		key: 'surfaces',
 		header: 'Surfaces',
-		render: (c) =>
-			[
-				c.surfaces.figma && 'Figma',
-				c.surfaces.storybook && 'Storybook',
-				c.surfaces.code && 'Code',
-			]
-				.filter(Boolean)
-				.join(', ') || '—',
+		render: (c) => surfacesText(c),
+		sortable: true,
+		sortValue: (c) => surfacesText(c),
 	},
-	{ key: 'coverage', header: 'Coverage', render: (c) => c.coverage.join(', ') },
-	{ key: 'orphan', header: 'Orphan', render: (c) => (c.isOrphan ? 'Yes' : 'No') },
+	{
+		key: 'coverage',
+		header: 'Coverage',
+		render: (c) => c.coverage.join(', '),
+		sortable: true,
+		sortValue: (c) => c.coverage.join(', '),
+	},
+	{
+		key: 'orphan',
+		header: 'Orphan',
+		render: (c) => (c.isOrphan ? 'Yes' : 'No'),
+		sortable: true,
+		sortValue: (c) => (c.isOrphan ? 1 : 0),
+	},
 ];
 
 export interface ComponentInventoryTableProps {
@@ -35,6 +60,14 @@ export function ComponentInventoryTable({
 			columns={COLUMNS}
 			rows={components}
 			getRowKey={(c) => c.name}
+			getSearchableText={(c) =>
+				[
+					c.name,
+					surfacesText(c),
+					c.coverage.join(' '),
+					c.isOrphan ? 'orphan' : '',
+				].join(' ')
+			}
 		/>
 	);
 }

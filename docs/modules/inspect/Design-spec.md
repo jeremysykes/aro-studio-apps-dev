@@ -110,7 +110,37 @@ All report data is read from artifacts of the chosen run; no live mutation of so
 
 ---
 
-## 9. Explicit non-goals
+## 9. Professional UI/UX standards
+
+Inspect UI must meet industry-standard professional quality. Align with patterns used by professional design and developer tools (e.g. Figma, Linear, Vercel dashboards).
+
+### 9.1 Visual hierarchy
+
+- **Primary action** — One clear primary action per view (e.g. "Run Inspect" on Setup).
+- **Typography** — Clear heading hierarchy (h1 for module title, h2 for view sections); body text readable; monospace for logs and IDs.
+- **Spacing** — Consistent use of design tokens (e.g. `space-4` for 16px); no cramped layouts; adequate padding in cards and tables.
+
+### 9.2 Interaction patterns
+
+- **Loading states** — Skeletons or visible loading text for async data; no blank flicker.
+- **Empty states** — Clear, actionable guidance when no data (e.g. "Select a run from the list to view its logs").
+- **Error states** — Errors use `role="alert"`; use design system Alert component with destructive variant; message is actionable where possible.
+- **Feedback** — Disabled buttons when actions unavailable; loading/disabled state on primary action during scan.
+
+### 9.3 Consistency
+
+- **Design system only** — No custom elements; use Input, Textarea, Alert, Button, Badge, Card from `@aro/desktop/components`.
+- **Alignment** — Form labels left-aligned; content aligned with grid; tables use consistent cell padding.
+
+### 9.4 Health Dashboard layout
+
+- **Header chrome** — The Reports title and tabs are header chrome, not content: reduced visual weight (smaller or medium font, muted colour), with a visible separator (e.g. bottom border) between header and content so the dashboard content area clearly starts below.
+- **Two-column layout** — Health score (label + value) is the **single focal point** on the **left**, centred vertically and horizontally in its column. Score breakdown and findings-by-severity form one **supporting panel** on the **right**, optionally with a subtle background or border so they read as one unit; both sections stacked vertically and vertically centred in the column.
+- **Export actions** — Secondary and anchored in the card footer (right-aligned); outline or ghost variant so they do not compete with the health score.
+
+---
+
+## 10. Explicit non-goals
 
 Inspect **does not**:
 
@@ -124,7 +154,7 @@ Inspect **does not**:
 
 ---
 
-## 10. Release slices
+## 11. Release slices
 
 Functionality is delivered in shippable slices. Dependencies between slices are respected.
 

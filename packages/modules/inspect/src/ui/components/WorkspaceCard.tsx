@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@aro/desktop/components';
+import { Button, Card, CardContent } from '@aro/desktop/components';
 
 export interface WorkspaceCardProps {
 	workspacePath: string | null;
@@ -11,33 +11,39 @@ export function WorkspaceCard({
 	onSelectWorkspace,
 }: WorkspaceCardProps) {
 	return (
-		<Card className="mb-4">
-			<CardHeader>
-				<CardTitle>Workspace</CardTitle>
-			</CardHeader>
-			<CardContent>
+		<Card className="mb-3 py-2 px-4">
+			<CardContent className="p-0">
 				{!workspacePath ? (
-					<>
-						<p className="mb-2 text-muted-foreground">
+					<div className="flex flex-wrap items-center gap-2">
+						<p className="text-sm text-muted-foreground">
 							Select a workspace to configure sources and run Inspect.
-						</p>
-						<Button type="button" onClick={onSelectWorkspace}>
-							Select workspace
-						</Button>
-					</>
-				) : (
-					<>
-						<p className="mb-2 text-sm">
-							<strong>Path:</strong> {workspacePath}
 						</p>
 						<Button
 							type="button"
-							variant="outline"
+							variant="secondary"
+							size="sm"
+							onClick={onSelectWorkspace}
+						>
+							Select workspace
+						</Button>
+					</div>
+				) : (
+					<div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+						<span className="text-sm text-muted-foreground min-w-0 flex items-baseline gap-1">
+							<span className="shrink-0 font-medium text-foreground">Workspace —</span>
+							<span className="truncate" title={workspacePath}>
+								{workspacePath}
+							</span>
+						</span>
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
 							onClick={onSelectWorkspace}
 						>
 							Change workspace
 						</Button>
-					</>
+					</div>
 				)}
 			</CardContent>
 		</Card>

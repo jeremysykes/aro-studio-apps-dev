@@ -10,7 +10,7 @@ Technical execution contract for the **inspect** module. Authoritative for job d
 - **Module key:** `inspect`
 - **Dependency direction:** Per [ARCHITECTURE.md](../../ARCHITECTURE.md) and [MODULE_CONSTRAINTS.md](../MODULE_CONSTRAINTS.md):
   - May import Core types only (e.g. `JobContext`, `JobDefinition`, `AroCore`) for job registration in init.
-  - May import `@aro/desktop/components` for shared UI (Button, Card, Table, Tabs, Badge, Skeleton).
+  - May import `@aro/desktop/components` for shared UI (Button, Card, Table, Tabs, Badge, Skeleton, Input, Textarea, Alert).
   - Must not import other modules, `better-sqlite3`, Core internals, or use `fs`/`path` for domain data; all file access in jobs via `ctx.workspace`.
   - Renderer uses only `window.aro`; no Core handles in renderer.
 
