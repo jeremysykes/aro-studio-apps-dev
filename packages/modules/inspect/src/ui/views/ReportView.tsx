@@ -1,14 +1,16 @@
 import React, { type RefObject } from 'react';
 import {
+	Button,
 	Card,
 	CardContent,
+	CardFooter,
 	CardHeader,
 	CardTitle,
 	Skeleton,
 } from '@aro/desktop/components';
 import { RunsListbox } from '../components/RunsListbox';
 import { TwoColumnLayout, CARD_CLASS, CARD_CONTENT_CLASS } from '../components/TwoColumnLayout';
-import { ReportContent } from '../report/ReportContent';
+import { ReportContent, REPORT_TABS } from '../report/ReportContent';
 import { formatRunLabel } from '../lib/format';
 import type { RunItem, InspectReport, ReportTab, ReportLoadState } from '../types';
 
@@ -81,11 +83,32 @@ export function ReportView({
 	);
 
 	const main = (
-		<Card className={CARD_CLASS}>
-			<CardHeader>
-				<CardTitle>Reports</CardTitle>
+		<Card className={`${CARD_CLASS} flex flex-col`}>
+			<CardHeader className="shrink-0 flex flex-row items-center justify-between gap-4">
+				<CardTitle className="mb-0">Reports</CardTitle>
+				<div
+					className="flex gap-2 shrink-0"
+					role="tablist"
+					aria-label="Report tabs"
+				>
+					{REPORT_TABS.map((tab) => (
+						<Button
+							key={tab.id}
+							type="button"
+							variant={reportTab === tab.id ? 'secondary' : 'outline'}
+							disabled={report ? tab.getDisabled(report) : true}
+							onClick={() => onReportTabChange(tab.id)}
+							role="tab"
+							aria-selected={reportTab === tab.id}
+						>
+							{tab.label}
+						</Button>
+					))}
+				</div>
 			</CardHeader>
-			<CardContent className={CARD_CONTENT_CLASS}>
+			<CardContent
+				className={`${CARD_CONTENT_CLASS} flex-1 min-h-0 overflow-y-auto`}
+			>
 				{reportLoadState === 'loading' && (
 					<p className="text-muted-foreground">Loading report…</p>
 				)}
@@ -95,14 +118,7 @@ export function ReportView({
 					</p>
 				)}
 				{reportLoadState === 'success' && report && (
-					<ReportContent
-						report={report}
-						reportTab={reportTab}
-						onReportTabChange={onReportTabChange}
-						onExportCsv={onExportCsv}
-						onExportMarkdown={onExportMarkdown}
-						canExport={canExport}
-					/>
+					<ReportContent report={report} reportTab={reportTab} />
 				)}
 				{!selectedRunId && (
 					<p className="text-muted-foreground text-sm">
@@ -112,6 +128,26 @@ export function ReportView({
 					</p>
 				)}
 			</CardContent>
+			{reportLoadState === 'success' && report && reportTab === 'health' && (
+				<CardFooter className="shrink-0 flex items-center justify-end gap-2 py-4 px-6">
+					<Button
+						type="button"
+						variant="outline"
+						disabled={!canExport}
+						onClick={onExportCsv}
+					>
+						Export CSV
+					</Button>
+					<Button
+						type="button"
+						variant="outline"
+						disabled={!canExport}
+						onClick={onExportMarkdown}
+					>
+						Export Markdown
+					</Button>
+				</CardFooter>
+			)}
 		</Card>
 	);
 

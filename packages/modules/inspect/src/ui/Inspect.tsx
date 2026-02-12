@@ -11,7 +11,7 @@ import type { View } from './types';
 const VIEW_TABS: Array<{ id: View; label: string }> = [
 	{ id: 'setup', label: 'Setup' },
 	{ id: 'run', label: 'Logs' },
-	{ id: 'report', label: 'Report' },
+	{ id: 'report', label: 'Reports' },
 ];
 
 export default function Inspect() {
