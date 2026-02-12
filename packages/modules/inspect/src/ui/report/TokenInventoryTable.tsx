@@ -37,18 +37,20 @@ const COLUMNS: ReportTableColumn<Token>[] = [
 
 export interface TokenInventoryTableProps {
 	tokens: InspectReport['tokens'];
+	filter?: string;
 }
 
-export function TokenInventoryTable({ tokens }: TokenInventoryTableProps) {
+export function TokenInventoryTable({ tokens, filter }: TokenInventoryTableProps) {
 	return (
 		<ReportTable
-			title="Token inventory"
+			title="Tokens"
 			columns={COLUMNS}
 			rows={tokens}
 			getRowKey={(t) => t.name}
 			getSearchableText={(t) =>
 				[t.name, t.value, t.type, t.source].join(' ')
 			}
+			filter={filter}
 		/>
 	);
 }

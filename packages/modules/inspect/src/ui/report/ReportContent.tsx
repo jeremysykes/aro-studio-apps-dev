@@ -28,17 +28,18 @@ export const REPORT_TABS: Array<{
 export interface ReportContentProps {
 	report: InspectReport;
 	reportTab: ReportTab;
+	filter?: string;
 }
 
-export function ReportContent({ report, reportTab }: ReportContentProps) {
+export function ReportContent({ report, reportTab, filter = '' }: ReportContentProps) {
 	return (
 		<>
 			{reportTab === 'health' && <HealthDashboard report={report} />}
 			{reportTab === 'tokens' && (
-				<TokenInventoryTable tokens={report.tokens ?? []} />
+				<TokenInventoryTable tokens={report.tokens ?? []} filter={filter} />
 			)}
 			{reportTab === 'components' && (
-				<ComponentInventoryTable components={report.components ?? []} />
+				<ComponentInventoryTable components={report.components ?? []} filter={filter} />
 			)}
 		</>
 	);

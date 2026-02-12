@@ -56,10 +56,12 @@ const COLUMNS: ReportTableColumn<Component>[] = [
 
 export interface ComponentInventoryTableProps {
 	components: InspectReport['components'];
+	filter?: string;
 }
 
 export function ComponentInventoryTable({
 	components,
+	filter,
 }: ComponentInventoryTableProps) {
 	return (
 		<ReportTable
@@ -76,6 +78,7 @@ export function ComponentInventoryTable({
 					c.isOrphan ? 'orphan' : '',
 				].join(' ')
 			}
+			filter={filter}
 		/>
 	);
 }

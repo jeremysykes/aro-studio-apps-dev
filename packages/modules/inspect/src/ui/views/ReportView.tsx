@@ -1,10 +1,11 @@
-import React, { type RefObject } from 'react';
+import React, { useState, type RefObject } from 'react';
 import {
 	Button,
 	Card,
 	CardContent,
 	CardFooter,
 	CardTitle,
+	Input,
 	Skeleton,
 	Tabs,
 	TabsList,
@@ -56,7 +57,14 @@ export function ReportView({
 	onExportMarkdown,
 	canExport,
 }: ReportViewProps) {
+	const [filter, setFilter] = useState('');
 	const reportRuns = runs.filter((r) => runsWithReport.includes(r.id));
+	const showFilter = reportTab === 'tokens' || reportTab === 'components';
+
+	const handleTabChange = (tab: ReportTab) => {
+		setFilter('');
+		onReportTabChange(tab);
+	};
 
 	const sidebar = (
 		<Card className={CARD_CLASS}>
@@ -102,27 +110,38 @@ export function ReportView({
 			<CardTitle className="mb-0 text-base font-medium text-muted-foreground">
 				Reports
 			</CardTitle>
-			<Tabs
-				value={reportTab}
-				onValueChange={(value) => onReportTabChange(value as ReportTab)}
-				className="shrink-0"
-			>
-				<TabsList size="xs" aria-label="Report tabs">
-					{REPORT_TABS.map((tab) => (
-						<TabsTrigger
-							key={tab.id}
-							value={tab.id}
-							size="xs"
-							disabled={report ? tab.getDisabled(report) : true}
-						>
-							{tab.label}
-						</TabsTrigger>
-					))}
-				</TabsList>
-			</Tabs>
+			<div className="flex items-center gap-3 shrink-0">
+				<Tabs
+					value={reportTab}
+					onValueChange={(value) => handleTabChange(value as ReportTab)}
+				>
+					<TabsList size="xs" aria-label="Report tabs">
+						{REPORT_TABS.map((tab) => (
+							<TabsTrigger
+								key={tab.id}
+								value={tab.id}
+								size="xs"
+								disabled={report ? tab.getDisabled(report) : true}
+							>
+								{tab.label}
+							</TabsTrigger>
+						))}
+					</TabsList>
+				</Tabs>
+				{showFilter && (
+					<Input
+						type="search"
+						placeholder="Filter…"
+						value={filter}
+						onChange={(e) => setFilter(e.target.value)}
+						className="w-40"
+						aria-label={`Filter ${reportTab}`}
+					/>
+				)}
+			</div>
 			</div>
 			<CardContent
-				className={`${CARD_CONTENT_CLASS} flex-1 min-h-0 overflow-y-auto pt-6 px-6 pb-6`}
+				className={`${CARD_CONTENT_CLASS} flex-1 min-h-0 overflow-y-auto ${reportTab === 'health' ? 'p-6' : 'p-0'}`}
 			>
 				{reportLoadState === 'loading' && (
 					<p className="text-sm text-muted-foreground">Loading report…</p>
@@ -133,7 +152,7 @@ export function ReportView({
 					</p>
 				)}
 				{reportLoadState === 'success' && report && (
-					<ReportContent report={report} reportTab={reportTab} />
+					<ReportContent report={report} reportTab={reportTab} filter={filter} />
 				)}
 				{!selectedRunId && (
 					<p className="text-muted-foreground text-[11px]">

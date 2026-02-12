@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import {
 	Button,
-	Input,
 	Table,
 	TableBody,
 	TableCell,
@@ -24,6 +23,7 @@ export interface ReportTableProps<T> {
 	rows: T[];
 	getRowKey: (row: T) => string;
 	getSearchableText?: (row: T) => string;
+	filter?: string;
 }
 
 export function ReportTable<T>({
@@ -32,10 +32,10 @@ export function ReportTable<T>({
 	rows,
 	getRowKey,
 	getSearchableText,
+	filter = '',
 }: ReportTableProps<T>) {
 	const [sortKey, setSortKey] = useState<string | null>(null);
 	const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
-	const [filter, setFilter] = useState('');
 
 	const handleSort = (key: string) => {
 		const col = columns.find((c) => c.key === key);
@@ -67,23 +67,8 @@ export function ReportTable<T>({
 		});
 	}, [filteredRows, sortKey, sortDir, columns]);
 
-	const canFilter = Boolean(getSearchableText);
-
 	return (
-		<div className="overflow-x-auto space-y-2">
-			<div className="flex flex-wrap items-center gap-2">
-				<p className="text-sm font-medium">{title}</p>
-				{canFilter && (
-					<Input
-						type="search"
-						placeholder="Filter…"
-						value={filter}
-						onChange={(e) => setFilter(e.target.value)}
-						className="w-40"
-						aria-label={`Filter ${title.toLowerCase()}`}
-					/>
-				)}
-			</div>
+		<div className="overflow-x-auto">
 			<Table>
 				<TableHeader>
 					<TableRow>
