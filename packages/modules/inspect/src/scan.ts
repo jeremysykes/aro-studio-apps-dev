@@ -55,7 +55,8 @@ export async function runScan(
       const result = await scanFigma(
         config.figma.fileKeys,
         config.figma.pat,
-        ctx.abort
+        ctx.abort,
+        ctx.logger
       );
       figmaTokens = result.tokens;
       figmaComponentNames = result.componentNames;

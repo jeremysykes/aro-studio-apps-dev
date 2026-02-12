@@ -47,7 +47,7 @@ async function fetchWithBackoff(
   let delay = 1000;
   for (let i = 0; i <= retries; i++) {
     const res = await fetch(url, {
-      headers: { Authorization: `Bearer ${pat}` },
+      headers: { 'X-Figma-Token': pat },
     });
     if (res.status !== 429) return res;
     if (i === retries) return res;
@@ -57,6 +57,8 @@ async function fetchWithBackoff(
   return new Response();
 }
 
+export type FigmaLogger = (level: string, message: string) => void;
+
 export interface FigmaScanResult {
   tokens: Token[];
   componentNames: string[];
@@ -65,32 +67,41 @@ export interface FigmaScanResult {
 export async function scanFigma(
   fileKeys: string[],
   pat: string,
-  _abort?: AbortSignal
+  _abort?: AbortSignal,
+  logger?: FigmaLogger
 ): Promise<FigmaScanResult> {
+  const log = logger ?? (() => {});
   const tokens: Token[] = [];
   const componentNames = new Set<string>();
 
   for (const fileKey of fileKeys) {
+    log('info', `Scanning Figma file: ${fileKey}`);
+
+    // --- Variables (tokens) ---
     const varUrl = `${FIGMA_BASE}/files/${fileKey}/variables/local`;
     const varRes = await fetchWithBackoff(varUrl, pat);
     if (varRes.ok) {
+      type VarRecord = Record<
+        string,
+        {
+          name: string;
+          key: string;
+          resolvedType: string;
+          valuesByMode: Record<string, unknown>;
+          variableCollectionId?: string;
+        }
+      >;
+      type CollRecord = Record<string, { name: string; key?: string }>;
       const data = (await varRes.json()) as {
-        meta?: { variableCollections?: Record<string, { name: string }> };
-        variableCollections?: Record<string, { name: string; key: string }>;
-        variables?: Record<
-          string,
-          {
-            name: string;
-            key: string;
-            resolvedType: string;
-            valuesByMode: Record<string, unknown>;
-            variableCollectionId?: string;
-          }
-        >;
+        meta?: { variableCollections?: CollRecord; variables?: VarRecord };
+        variableCollections?: CollRecord;
+        variables?: VarRecord;
       };
       const collections = data.meta?.variableCollections ?? data.variableCollections ?? {};
-      const vars = data.variables ?? {};
-      for (const [id, v] of Object.entries(vars)) {
+      const vars = data.meta?.variables ?? data.variables ?? {};
+      const varCount = Object.keys(vars).length;
+      log('info', `Variables endpoint: ${varCount} variables found`);
+      for (const [_id, v] of Object.entries(vars)) {
         const collection = v.variableCollectionId ? collections[v.variableCollectionId] : null;
         const collectionName = collection?.name ?? 'default';
         const canonicalName = `${collectionName}.${v.name}`.replace(/\//g, '.');
@@ -109,19 +120,48 @@ export async function scanFigma(
           ),
         });
       }
+    } else {
+      log('warning', `Variables endpoint returned ${varRes.status}: ${varRes.statusText}`);
     }
 
-    const fileUrl = `${FIGMA_BASE}/files/${fileKey}?depth=4`;
+    // --- Published components (dedicated endpoint, not depth-limited) ---
+    const pubCompUrl = `${FIGMA_BASE}/files/${fileKey}/components`;
+    const pubCompRes = await fetchWithBackoff(pubCompUrl, pat);
+    if (pubCompRes.ok) {
+      const pubData = (await pubCompRes.json()) as {
+        meta?: { components?: Array<{ name: string; key: string; containing_frame?: { name: string } }> };
+      };
+      const pubComps = pubData.meta?.components ?? [];
+      log('info', `Published components endpoint: ${pubComps.length} components found`);
+      for (const comp of pubComps) {
+        if (comp.name) componentNames.add(comp.name);
+      }
+    } else {
+      log('warning', `Published components endpoint returned ${pubCompRes.status}: ${pubCompRes.statusText}`);
+    }
+
+    // --- File document tree (components & component sets) ---
+    // Use generous depth so deeply-nested components are captured by the tree walk.
+    // Published components are already covered by the dedicated endpoint above.
+    const fileUrl = `${FIGMA_BASE}/files/${fileKey}?depth=10`;
     const fileRes = await fetchWithBackoff(fileUrl, pat);
     if (fileRes.ok) {
       const fileData = (await fileRes.json()) as {
         document?: { children?: Array<{ type: string; name: string; children?: Array<{ type: string; name: string }> }> };
         components?: Record<string, { name: string; key: string }>;
+        componentSets?: Record<string, { name: string; key: string }>;
       };
       const comps = fileData.components ?? {};
+      const compsCount = Object.keys(comps).length;
       for (const comp of Object.values(comps)) {
         componentNames.add(comp.name);
       }
+      const compSets = fileData.componentSets ?? {};
+      const setsCount = Object.keys(compSets).length;
+      for (const compSet of Object.values(compSets)) {
+        componentNames.add(compSet.name);
+      }
+      log('info', `File endpoint: ${compsCount} components, ${setsCount} component sets in metadata`);
       function walkNodes(nodes: Array<{ type?: string; name?: string; children?: unknown[] }> | undefined): void {
         if (!nodes) return;
         for (const node of nodes) {
@@ -134,9 +174,13 @@ export async function scanFigma(
         }
       }
       walkNodes(fileData.document ? [fileData.document] : undefined);
+      log('info', `Total unique component names after tree walk: ${componentNames.size}`);
+    } else {
+      log('warning', `File endpoint returned ${fileRes.status}: ${fileRes.statusText}`);
     }
   }
 
+  log('info', `Figma scan complete: ${tokens.length} tokens, ${componentNames.size} components`);
   return {
     tokens,
     componentNames: Array.from(componentNames),
