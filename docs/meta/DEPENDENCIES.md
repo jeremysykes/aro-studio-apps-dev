@@ -95,5 +95,6 @@ Modules (`packages/modules/*`) may use:
 - **@aro/core** — Types only for init in the main process (e.g. `AroCore`). The module receives Core from Desktop when `init(core)` is called; the module must not import Core in renderer code so the renderer bundle stays free of native modules.
 - **react** / **react-dom** — Peer dependencies for module UI. Desktop supplies them when bundling the module's React component; the module does not list them as direct dependencies to avoid duplicate React in the renderer.
 - **@aro/desktop** (components subpath) — When a module uses the shared design system, it may depend on Desktop's exported UI components (e.g. `@aro/desktop/components`). Reason: shared design system; module UI uses shadcn components from Desktop. Replaces: ad-hoc inline styles and manual styling in the module.
+- **pdfkit** (inspect module only) — PDF generation for export. Reason: inspect module exports report as PDF with tables. No built-in Node option for PDF; required for "Export PDF" feature.
 
 New module dependencies require justification in this doc (name, reason, what it replaces) before addition.

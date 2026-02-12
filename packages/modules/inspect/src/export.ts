@@ -1,10 +1,15 @@
 /**
- * inspect:export — read report artifact for a run, export as CSV or markdown.
+ * inspect:export — read report artifact for a run, export as CSV, markdown, or PDF.
  */
 import type { JobContext } from '@aro/core';
 import type { ExportInput, InspectReport } from './types.js';
+import PDFDocument from 'pdfkit';
 
 const ARTIFACTS_PREFIX = '.aro/artifacts/';
+
+const ROW_HEIGHT = 18;
+const PAGE_MARGIN = 50;
+const BOTTOM_MARGIN = 50;
 
 function reportToCsv(report: InspectReport): string {
   const rows: string[] = [];
@@ -51,10 +56,96 @@ function reportToMarkdown(report: InspectReport): string {
   return lines.join('\n');
 }
 
+async function reportToPdf(report: InspectReport): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ margin: PAGE_MARGIN, size: 'A4' });
+    const chunks: Buffer[] = [];
+    doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+    doc.on('error', reject);
+
+    const pageWidth = doc.page.width - PAGE_MARGIN * 2;
+    const checkPageBreak = (needLines = 1) => {
+      if (doc.y + needLines * ROW_HEIGHT > doc.page.height - BOTTOM_MARGIN) {
+        doc.addPage();
+      }
+    };
+
+    doc.fontSize(20).text('Inspect Report', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(12).text(`Composite score: ${report.healthScore.composite}`);
+    doc.text(`Token consistency: ${report.healthScore.tokenConsistency}`);
+    doc.text(`Component coverage: ${report.healthScore.componentCoverage}`);
+    doc.moveDown();
+
+    const drawTable = (
+      headers: string[],
+      rows: string[][],
+      colWidths: number[],
+    ) => {
+      const startY = doc.y;
+      doc.font('Helvetica-Bold').fontSize(10);
+      doc.y = startY;
+      let x = PAGE_MARGIN;
+      headers.forEach((h, i) => {
+        doc.text(h, x, doc.y, { width: colWidths[i] });
+        x += colWidths[i];
+      });
+      doc.y += ROW_HEIGHT;
+      doc.moveTo(PAGE_MARGIN, doc.y).lineTo(PAGE_MARGIN + pageWidth, doc.y).stroke();
+      doc.font('Helvetica').fontSize(9);
+      for (const row of rows) {
+        checkPageBreak(1);
+        const rowY = doc.y;
+        x = PAGE_MARGIN;
+        row.forEach((cell, i) => {
+          doc.text(String(cell).slice(0, 60), x, rowY, { width: colWidths[i] - 4 });
+          x += colWidths[i];
+        });
+        doc.y = rowY + ROW_HEIGHT;
+      }
+      doc.moveDown(0.5);
+    };
+
+    doc.fontSize(14).text('Tokens', { continued: false });
+    doc.moveDown(0.5);
+    const tokenCols = [pageWidth * 0.25, pageWidth * 0.15, pageWidth * 0.35, pageWidth * 0.25];
+    drawTable(
+      ['Name', 'Type', 'Value', 'Source'],
+      report.tokens.slice(0, 100).map((t) => [t.name, t.type, t.value, t.source]),
+      tokenCols,
+    );
+    if (report.tokens.length > 100) {
+      doc.fontSize(9).text(`... and ${report.tokens.length - 100} more tokens`);
+      doc.moveDown(0.5);
+    }
+
+    doc.fontSize(14).text('Components', { continued: false });
+    doc.moveDown(0.5);
+    const compCols = [pageWidth * 0.25, pageWidth * 0.2, pageWidth * 0.35, pageWidth * 0.2];
+    drawTable(
+      ['Name', 'Category', 'Coverage', 'Orphan'],
+      report.components.map((c) => [
+        c.name,
+        c.category ?? 'Unknown',
+        c.coverage.join(', '),
+        c.isOrphan ? 'Yes' : 'No',
+      ]),
+      compCols,
+    );
+
+    doc.end();
+  });
+}
+
 export async function runExport(ctx: JobContext, input: unknown): Promise<void> {
   const { runId, format } = (input ?? {}) as ExportInput;
-  if (!runId || !format || (format !== 'csv' && format !== 'markdown')) {
-    ctx.logger('warning', 'inspect:export requires { runId, format: "csv" | "markdown" }');
+  if (
+    !runId ||
+    !format ||
+    (format !== 'csv' && format !== 'markdown' && format !== 'pdf')
+  ) {
+    ctx.logger('warning', 'inspect:export requires { runId, format: "csv" | "markdown" | "pdf" }');
     return;
   }
   const reportPath = `${ARTIFACTS_PREFIX}${runId}/report.json`;
@@ -76,8 +167,16 @@ export async function runExport(ctx: JobContext, input: unknown): Promise<void> 
     ctx.logger('warning', 'Invalid report JSON');
     return;
   }
-  const content = format === 'csv' ? reportToCsv(report) : reportToMarkdown(report);
-  const ext = format === 'csv' ? 'csv' : 'md';
-  ctx.artifactWriter({ path: `inspect-export.${ext}`, content });
+  if (format === 'pdf') {
+    const buffer = await reportToPdf(report);
+    ctx.artifactWriter({
+      path: 'inspect-export.pdf',
+      content: buffer.toString('base64'),
+    });
+  } else {
+    const content = format === 'csv' ? reportToCsv(report) : reportToMarkdown(report);
+    const ext = format === 'csv' ? 'csv' : 'md';
+    ctx.artifactWriter({ path: `inspect-export.${ext}`, content });
+  }
   ctx.logger('info', `Exported report as ${format}`);
 }

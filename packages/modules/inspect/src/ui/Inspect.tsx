@@ -145,6 +145,7 @@ export default function Inspect() {
 									onReportTabChange={setReportTab}
 									onExportCsv={() => handleExport('csv')}
 									onExportMarkdown={() => handleExport('markdown')}
+									onExportPdf={() => handleExport('pdf')}
 									canExport={runsWithReport.includes(selectedRunId ?? '')}
 									storybookUrl={config.storybookUrl}
 								/>

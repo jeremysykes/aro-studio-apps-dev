@@ -235,7 +235,7 @@ export function useInspectState() {
 		}
 	}, [loadRuns]);
 
-	const handleExport = useCallback(async (format: 'csv' | 'markdown') => {
+	const handleExport = useCallback(async (format: 'csv' | 'markdown' | 'pdf') => {
 		if (!selectedRunId) return;
 		setError(null);
 		try {
@@ -254,14 +254,20 @@ export function useInspectState() {
 				run = await window.aro.runs.get(runId);
 			}
 			if (run?.status === 'success') {
-				const ext = format === 'csv' ? 'csv' : 'md';
-				const content = await window.aro.artifacts.read(
-					runId,
-					`inspect-export.${ext}`,
-				);
-				const blob = new Blob([content], {
-					type: format === 'csv' ? 'text/csv' : 'text/markdown',
-				});
+				const ext = format === 'csv' ? 'csv' : format === 'markdown' ? 'md' : 'pdf';
+				const artifactPath = format === 'pdf' ? 'inspect-export.pdf' : `inspect-export.${ext}`;
+				const content = await window.aro.artifacts.read(runId, artifactPath);
+				let blob: Blob;
+				if (format === 'pdf') {
+					const binary = atob(content);
+					const bytes = new Uint8Array(binary.length);
+					for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+					blob = new Blob([bytes], { type: 'application/pdf' });
+				} else {
+					blob = new Blob([content], {
+						type: format === 'csv' ? 'text/csv' : 'text/markdown',
+					});
+				}
 				const url = URL.createObjectURL(blob);
 				const a = document.createElement('a');
 				a.href = url;

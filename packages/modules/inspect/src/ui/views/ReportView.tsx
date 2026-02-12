@@ -37,6 +37,7 @@ export interface ReportViewProps {
 	onReportTabChange: (tab: ReportTab) => void;
 	onExportCsv: () => void;
 	onExportMarkdown: () => void;
+	onExportPdf: () => void;
 	canExport: boolean;
 	storybookUrl?: string;
 }
@@ -56,6 +57,7 @@ export function ReportView({
 	onReportTabChange,
 	onExportCsv,
 	onExportMarkdown,
+	onExportPdf,
 	canExport,
 	storybookUrl,
 }: ReportViewProps) {
@@ -191,6 +193,15 @@ export function ReportView({
 						onClick={onExportMarkdown}
 					>
 						Export Markdown
+					</Button>
+					<Button
+						type="button"
+						variant="outline"
+						size="xs"
+						disabled={!canExport}
+						onClick={onExportPdf}
+					>
+						Export PDF
 					</Button>
 				</CardFooter>
 			)}

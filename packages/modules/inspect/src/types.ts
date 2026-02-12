@@ -80,7 +80,7 @@ export interface ScanInput {
 
 export interface ExportInput {
   runId: string;
-  format: 'csv' | 'markdown';
+  format: 'csv' | 'markdown' | 'pdf';
 }
 
 export type WorkspaceFacet = {
