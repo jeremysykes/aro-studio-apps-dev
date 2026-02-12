@@ -126,6 +126,7 @@ export default function Inspect() {
 									onSelectRun={handleSelectRun}
 									onFocusChange={setFocusedRunId}
 									onCancelRun={handleCancelRun}
+									onViewReports={() => setView('report')}
 								/>
 							</TabsContent>
 							<TabsContent value='report'>

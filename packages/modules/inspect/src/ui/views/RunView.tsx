@@ -20,6 +20,7 @@ export interface RunViewProps {
 	onSelectRun: (id: string) => void;
 	onFocusChange: (id: string) => void;
 	onCancelRun: (runId: string) => void;
+	onViewReports: () => void;
 }
 
 export function RunView({
@@ -32,7 +33,12 @@ export function RunView({
 	onSelectRun,
 	onFocusChange,
 	onCancelRun,
+	onViewReports,
 }: RunViewProps) {
+	const selectedRun = runs.find((r) => r.id === selectedRunId);
+	const isLoading = runningRunId != null && runningRunId === selectedRunId;
+	const canViewReports = selectedRun?.status === 'success';
+
 	const sidebar = (
 		<div className='space-y-4 min-[900px]:flex min-[900px]:flex-col min-[900px]:min-h-0 min-[900px]:space-y-0'>
 			<Card className={CARD_CLASS}>
@@ -74,10 +80,27 @@ export function RunView({
 
 	const main = (
 		<Card className={CARD_CLASS}>
-			<div className={COLUMN_HEADER_CLASS} role='region' aria-label='Logs'>
+			<div className={`${COLUMN_HEADER_CLASS} justify-between gap-4`} role='region' aria-label='Logs'>
 				<CardTitle className='mb-0 text-base font-medium text-muted-foreground'>
 					Logs
 				</CardTitle>
+				{selectedRunId && (
+					<Button
+						type='button'
+						variant='outline'
+						size='xs'
+						disabled={isLoading || !canViewReports}
+						onClick={onViewReports}
+					>
+						{isLoading && (
+							<span
+								className='mr-2 h-3 w-3 animate-spin rounded-full border-2 border-current border-t-transparent'
+								aria-hidden='true'
+							/>
+						)}
+						View Reports
+					</Button>
+				)}
 			</div>
 			<CardContent className={`${CARD_CONTENT_CLASS} pt-6 px-6 pb-6`}>
 				{selectedRunId ? (

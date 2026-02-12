@@ -127,11 +127,6 @@ export function useInspectState() {
 		const run = runs.find((r) => r.id === runningRunId);
 		if (run && run.status !== 'running') {
 			setRunningRunId(null);
-			if (run.status === 'success') {
-				setView('report');
-				setSelectedRunId(run.id);
-				setFocusedRunId(run.id);
-			}
 		}
 	}, [runs, runningRunId]);
 
