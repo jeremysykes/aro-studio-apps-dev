@@ -109,10 +109,22 @@ function parseStyleDictionary(content: string, filePath: string): Token[] {
   return out;
 }
 
+/** Recursively check if any nested object has DTCG $value or $type. */
+function hasDtcgStructure(obj: unknown): boolean {
+  if (obj === null || typeof obj !== 'object') return false;
+  const o = obj as Record<string, unknown>;
+  if ('$value' in o && o.$value !== undefined) return true;
+  if ('$type' in o && typeof o.$type === 'string') return true;
+  for (const v of Object.values(o)) {
+    if (hasDtcgStructure(v)) return true;
+  }
+  return false;
+}
+
 function isDtcg(content: string): boolean {
   try {
-    const data = JSON.parse(content) as Record<string, unknown>;
-    return typeof data?.$type === 'string' || typeof data?.$value !== 'undefined';
+    const data = JSON.parse(content);
+    return hasDtcgStructure(data);
   } catch {
     return false;
   }
@@ -148,4 +160,24 @@ export function scanCodeTokens(
     }
   }
   return all;
+}
+
+const INLINE_FILE_PATH = '(inline)';
+
+/** Parse token content from a string (DTCG or Style Dictionary). Use for inline pasted JSON. */
+export function parseTokensFromContent(
+  content: string,
+  format?: 'dtcg' | 'style-dictionary' | 'tokens-studio'
+): Token[] {
+  const filePath = INLINE_FILE_PATH;
+  if (format === 'style-dictionary') {
+    return parseStyleDictionary(content, filePath);
+  }
+  if (format === 'tokens-studio') {
+    return parseStyleDictionary(content, filePath);
+  }
+  if (isDtcg(content)) {
+    return parseDtcg(content, filePath);
+  }
+  return parseStyleDictionary(content, filePath);
 }

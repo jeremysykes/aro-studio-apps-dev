@@ -60,7 +60,11 @@ export interface InspectReport {
 
 export interface ScanInput {
   figma?: { fileKeys: string[]; pat?: string };
-  codeTokens?: { paths: string[]; format?: 'dtcg' | 'style-dictionary' | 'tokens-studio' };
+  codeTokens?: {
+    paths?: string[];
+    inline?: string;
+    format?: 'dtcg' | 'style-dictionary' | 'tokens-studio';
+  };
   storybook?: { indexUrl?: string; indexPath?: string };
   options?: {
     namingStrategy?: 'exact' | 'fuzzy' | 'prefix-strip';

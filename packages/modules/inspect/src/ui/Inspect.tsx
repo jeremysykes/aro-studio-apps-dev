@@ -5,6 +5,7 @@ import {
 	CardContent,
 	CardHeader,
 	CardTitle,
+	Skeleton,
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
@@ -73,10 +74,16 @@ function buildScanInput(config: ScanConfig): unknown {
 			pat: config.figmaPat.trim(),
 		};
 	}
-	if (config.codePaths.trim()) {
-		input.codeTokens = {
-			paths: config.codePaths.split(/[\n\s,]+/).filter(Boolean),
-		};
+	const codePathsTrimmed = config.codePaths.trim();
+	if (codePathsTrimmed) {
+		const firstChar = codePathsTrimmed[0];
+		if (firstChar === '{' || firstChar === '[') {
+			input.codeTokens = { inline: codePathsTrimmed };
+		} else {
+			input.codeTokens = {
+				paths: codePathsTrimmed.split(/[\n\s,]+/).filter(Boolean),
+			};
+		}
 	}
 	if (config.storybookUrl.trim()) {
 		input.storybook = { indexUrl: config.storybookUrl.trim() };
@@ -106,6 +113,8 @@ export default function Inspect() {
 	const [reportTab, setReportTab] = useState<
 		'health' | 'tokens' | 'components'
 	>('health');
+	const [runsWithReport, setRunsWithReport] = useState<string[]>([]);
+	const [runsWithReportLoading, setRunsWithReportLoading] = useState(false);
 
 	const loadWorkspace = useCallback(async () => {
 		try {
@@ -145,6 +154,50 @@ export default function Inspect() {
 		const id = setInterval(loadRuns, 2000);
 		return () => clearInterval(id);
 	}, [runningRunId, loadRuns]);
+
+	const RUNS_WITH_REPORT_LIMIT = 50;
+	useEffect(() => {
+		if (view !== 'report' || !workspacePath) {
+			setRunsWithReport([]);
+			setRunsWithReportLoading(false);
+			return;
+		}
+		const successfulRuns = runs
+			.filter((r) => r.status === 'success')
+			.slice(0, RUNS_WITH_REPORT_LIMIT);
+		if (successfulRuns.length === 0) {
+			setRunsWithReport([]);
+			setRunsWithReportLoading(false);
+			return;
+		}
+		setRunsWithReportLoading(true);
+		Promise.allSettled(
+			successfulRuns.map((r) => window.aro.artifacts.list(r.id)),
+		)
+			.then((results) => {
+				const ids: string[] = [];
+				results.forEach((result, i) => {
+					if (result.status === 'fulfilled') {
+						const artifacts = result.value as Array<{ path: string }>;
+						if (artifacts.some((a) => a.path === 'report.json')) {
+							ids.push(successfulRuns[i]!.id);
+						}
+					}
+				});
+				setRunsWithReport(ids);
+			})
+			.finally(() => setRunsWithReportLoading(false));
+	}, [view, workspacePath, runs]);
+
+	useEffect(() => {
+		if (
+			selectedRunId &&
+			runsWithReport.length > 0 &&
+			!runsWithReport.includes(selectedRunId)
+		) {
+			setSelectedRunId(runsWithReport[0]!);
+		}
+	}, [selectedRunId, runsWithReport]);
 
 	useEffect(() => {
 		const run = runs.find((r) => r.id === runningRunId);
@@ -254,6 +307,11 @@ export default function Inspect() {
 		if (!selectedRunId) return;
 		setError(null);
 		try {
+			const artifacts = await window.aro.artifacts.list(selectedRunId);
+			if (!artifacts.some((a: { path: string }) => a.path === 'report.json')) {
+				setError('Report not available for this run. Cannot export.');
+				return;
+			}
 			const { runId } = await window.aro.job.run(JOB_EXPORT, {
 				runId: selectedRunId,
 				format,
@@ -415,10 +473,8 @@ export default function Inspect() {
 									</CardHeader>
 									<CardContent>
 										<label className='block text-sm font-medium mb-1'>
-											Path(s) to token files{' '}
-											<span className='text-muted-foreground'>
-												(one per line or comma-separated)
-											</span>
+											Path(s) to token files (one per line or comma-separated), or
+											paste raw DTCG/Style Dictionary JSON
 										</label>
 										<textarea
 											className='w-full rounded border px-3 py-2 text-sm min-h-[80px]'
@@ -426,8 +482,8 @@ export default function Inspect() {
 											onChange={(e) =>
 												setConfig((c) => ({ ...c, codePaths: e.target.value }))
 											}
-											placeholder='tokens/tokens.json'
-											aria-label='Code token paths'
+											placeholder='tokens/tokens.json or paste JSON'
+											aria-label='Code token paths or inline JSON'
 										/>
 									</CardContent>
 								</Card>
@@ -574,34 +630,40 @@ export default function Inspect() {
 										</CardHeader>
 										<CardContent className='min-[900px]:overflow-y-auto min-[900px]:min-h-0 min-w-0'>
 											<ul className='list-none space-y-1 min-w-0'>
-												{runs
-													.filter((r) => r.status === 'success')
-													.map((run) => {
-														const fullLabel = `${run.id} — ${new Date(run.startedAt).toLocaleString()}`;
-														return (
-															<li key={run.id} className='min-w-0'>
-																<Tooltip>
-																	<TooltipTrigger asChild>
-																		<Button
-																			type='button'
-																			variant={
-																				selectedRunId === run.id ? 'default' : 'ghost'
-																			}
-																			className='w-full min-w-0 justify-start overflow-hidden font-normal'
-																			onClick={() => setSelectedRunId(run.id)}
-																		>
-																			<span className='block min-w-0 truncate text-left'>
-																				{fullLabel}
-																			</span>
-																		</Button>
-																	</TooltipTrigger>
-																	<TooltipContent side='top'>
-																		<p>{fullLabel}</p>
-																	</TooltipContent>
-																</Tooltip>
+												{runsWithReportLoading
+													? Array.from({ length: 6 }, (_, i) => (
+															<li key={i} className='min-w-0'>
+																<Skeleton className='h-10 w-full rounded-md' />
 															</li>
-														);
-													})}
+														))
+													: runs
+															.filter((r) => runsWithReport.includes(r.id))
+															.map((run) => {
+																const fullLabel = `${run.id} — ${new Date(run.startedAt).toLocaleString()}`;
+																return (
+																	<li key={run.id} className='min-w-0'>
+																		<Tooltip>
+																			<TooltipTrigger asChild>
+																				<Button
+																					type='button'
+																					variant={
+																						selectedRunId === run.id ? 'default' : 'ghost'
+																					}
+																					className='w-full min-w-0 justify-start overflow-hidden font-normal'
+																					onClick={() => setSelectedRunId(run.id)}
+																				>
+																					<span className='block min-w-0 truncate text-left'>
+																						{fullLabel}
+																					</span>
+																				</Button>
+																			</TooltipTrigger>
+																			<TooltipContent side='top'>
+																				<p>{fullLabel}</p>
+																			</TooltipContent>
+																		</Tooltip>
+																	</li>
+																);
+															})}
 											</ul>
 										</CardContent>
 									</Card>
@@ -711,6 +773,9 @@ export default function Inspect() {
 														<Button
 															type='button'
 															variant='outline'
+															disabled={
+																!runsWithReport.includes(selectedRunId ?? '')
+															}
 															onClick={() => handleExport('csv')}
 														>
 															Export CSV
@@ -718,6 +783,9 @@ export default function Inspect() {
 														<Button
 															type='button'
 															variant='outline'
+															disabled={
+																!runsWithReport.includes(selectedRunId ?? '')
+															}
 															onClick={() => handleExport('markdown')}
 														>
 															Export Markdown

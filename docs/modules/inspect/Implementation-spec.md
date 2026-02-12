@@ -10,7 +10,7 @@ Technical execution contract for the **inspect** module. Authoritative for job d
 - **Module key:** `inspect`
 - **Dependency direction:** Per [ARCHITECTURE.md](../../ARCHITECTURE.md) and [MODULE_CONSTRAINTS.md](../MODULE_CONSTRAINTS.md):
   - May import Core types only (e.g. `JobContext`, `JobDefinition`, `AroCore`) for job registration in init.
-  - May import `@aro/desktop/components` for shared UI (Button, Card, Table, Tabs, Badge).
+  - May import `@aro/desktop/components` for shared UI (Button, Card, Table, Tabs, Badge, Skeleton).
   - Must not import other modules, `better-sqlite3`, Core internals, or use `fs`/`path` for domain data; all file access in jobs via `ctx.workspace`.
   - Renderer uses only `window.aro`; no Core handles in renderer.
 
@@ -30,7 +30,7 @@ Init runs in main process; Desktop passes Core (or facade) into module `init`; m
 ### 2.2 inspect:scan
 
 - **Trigger:** `window.aro.job.run('inspect:scan', input)` with `ScanInput`.
-- **Input schema:** Figma (fileKeys, pat), codeTokens (paths, optional format), storybook (indexUrl or indexPath), options (namingStrategy, colorDistanceTolerance, fuzzyThreshold).
+- **Input schema:** Figma (fileKeys, pat), codeTokens (paths?, inline?, format?), storybook (indexUrl or indexPath), options (namingStrategy, colorDistanceTolerance, fuzzyThreshold). codeTokens.paths: file paths relative to workspace. codeTokens.inline: raw DTCG or Style Dictionary JSON. codeTokens.format: optional override ('dtcg' | 'style-dictionary' | 'tokens-studio').
 - **Context usage:** `ctx.logger` for phase/findings/errors; `ctx.workspace` for config and token file reads and config write; `ctx.artifactWriter` for report.json, tokens.json, components.json; `ctx.abort` checked before each phase; `ctx.progress` at 0, 0.25, 0.5, 0.75, 1.0.
 - **Execution order:** Read config from workspace or input → Phase 1 Figma → Phase 2 Code tokens → Phase 3 Storybook → Phase 4 Analysis → Phase 5 Write artifacts. On abort, write partial results with `incomplete: true`.
 
@@ -52,8 +52,8 @@ Init runs in main process; Desktop passes Core (or facade) into module `init`; m
 
 ### 3.2 Code token scanner
 
-- **Input:** Paths relative to workspace; all reads via `ctx.workspace.readText(path)`.
-- **Format detection:** `.tokens`/`.tokens.json` with `$type`/`$value` → DTCG v1; `$themes`/`$metadata` → Tokens Studio; else Style Dictionary. Overridable via input.
+- **Input:** Paths relative to workspace (or inline JSON via input); all reads via `ctx.workspace.readText(path)` or inline content.
+- **Format detection:** DTCG detection checks for nested `$value` or `$type` anywhere in the tree (root object need not have them; e.g. `{ "color": { "brand": { "primary": { "$value": "#2563EB" } } } }` is DTCG). `.tokens`/`.tokens.json` with `$type`/`$value` → DTCG v1; `$themes`/`$metadata` → Tokens Studio; else Style Dictionary. Overridable via input.
 - **Parsing:** DTCG v1: `$type`, `$value`, `$description`, alias resolution, group hierarchy → canonical name. Style Dictionary: CTI naming, value/type at leaf. Tokens Studio: themes/metadata structure.
 - **Output:** Normalized `Token[]` with source set to code-dtcg | code-style-dictionary | code-tokens-studio.
 

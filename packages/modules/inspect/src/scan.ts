@@ -8,7 +8,10 @@ import type {
   Token,
   Component,
 } from './types.js';
-import { scanCodeTokens } from './scanners/codeTokens.js';
+import {
+  scanCodeTokens,
+  parseTokensFromContent,
+} from './scanners/codeTokens.js';
 import { scanFigma } from './scanners/figma.js';
 import {
   scanStorybookFromUrl,
@@ -65,16 +68,28 @@ export async function runScan(
 
   if (ctx.abort.aborted) return null;
 
+  if (config.codeTokens?.inline) {
+    ctx.logger('info', 'Phase 2: Code tokens (inline)');
+    codeTokens = parseTokensFromContent(
+      config.codeTokens.inline,
+      config.codeTokens.format
+    );
+    sourcesScanned.push('code');
+  }
   if (config.codeTokens?.paths?.length) {
     ctx.logger('info', 'Phase 2: Code tokens');
-    codeTokens = scanCodeTokens(
+    const pathTokens = scanCodeTokens(
       ctx.workspace,
       config.codeTokens.paths,
       config.codeTokens.format
     );
-    sourcesScanned.push('code');
-    ctx.progress?.(0.5);
+    codeTokens = [...codeTokens, ...pathTokens];
+    if (!sourcesScanned.includes('code')) sourcesScanned.push('code');
   }
+  if ((config.codeTokens?.inline || config.codeTokens?.paths?.length) && codeTokens.length === 0) {
+    ctx.logger('warning', 'Code tokens configured but no tokens produced. Check paths or inline JSON format (DTCG or Style Dictionary).');
+  }
+  ctx.progress?.(0.5);
 
   if (ctx.abort.aborted) return null;
 

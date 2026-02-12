@@ -6,3 +6,4 @@ export {
 	TooltipContent,
 	TooltipProvider,
 } from './ui/tooltip';
+export { Skeleton } from './ui/skeleton';
