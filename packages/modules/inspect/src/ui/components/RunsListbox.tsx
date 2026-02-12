@@ -5,6 +5,7 @@ export interface RunsListboxItem {
 	id: string;
 }
 
+/** Selection follows focus: arrow keys update both focus and selection, so the right column updates immediately. */
 function handleRunsListKeyDown<T extends RunsListboxItem>(
 	e: React.KeyboardEvent,
 	items: T[],
@@ -14,32 +15,31 @@ function handleRunsListKeyDown<T extends RunsListboxItem>(
 ): void {
 	if (items.length === 0) return;
 	const idx = focusedId ? items.findIndex((r) => r.id === focusedId) : -1;
+	let nextId: string | null = null;
 	if (e.key === 'ArrowDown') {
 		e.preventDefault();
 		if (idx < items.length - 1) {
-			onFocus(items[idx + 1]!.id);
+			nextId = items[idx + 1]!.id;
 		} else if (idx === -1) {
-			onFocus(items[0]!.id);
+			nextId = items[0]!.id;
 		}
 	} else if (e.key === 'ArrowUp') {
 		e.preventDefault();
 		if (idx > 0) {
-			onFocus(items[idx - 1]!.id);
+			nextId = items[idx - 1]!.id;
 		} else if (idx === -1) {
-			onFocus(items[items.length - 1]!.id);
+			nextId = items[items.length - 1]!.id;
 		}
 	} else if (e.key === 'Home') {
 		e.preventDefault();
-		onFocus(items[0]!.id);
+		nextId = items[0]!.id;
 	} else if (e.key === 'End') {
 		e.preventDefault();
-		onFocus(items[items.length - 1]!.id);
-	} else if (e.key === 'Enter' || e.key === ' ') {
-		e.preventDefault();
-		const toSelect = idx >= 0 ? focusedId : items[0]!.id;
-		if (toSelect) {
-			onSelect(toSelect);
-		}
+		nextId = items[items.length - 1]!.id;
+	}
+	if (nextId) {
+		onFocus(nextId);
+		onSelect(nextId);
 	}
 }
 
