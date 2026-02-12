@@ -6,14 +6,13 @@ import type {
 	LogEntry,
 	InspectReport,
 	ReportTab,
+	ReportLoadState,
 } from '../types';
 import { JOB_SCAN, JOB_EXPORT } from '../constants';
 import {
 	getInitialConfig,
 	buildScanInput,
 } from '../lib/config';
-
-type ReportLoadState = 'idle' | 'loading' | 'success' | 'error';
 
 const RUNS_WITH_REPORT_LIMIT = 50;
 

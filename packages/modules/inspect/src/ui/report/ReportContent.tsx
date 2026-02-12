@@ -5,6 +5,24 @@ import { HealthDashboard } from './HealthDashboard';
 import { TokenInventoryTable } from './TokenInventoryTable';
 import { ComponentInventoryTable } from './ComponentInventoryTable';
 
+const REPORT_TABS: Array<{
+	id: ReportTab;
+	label: string;
+	getDisabled: (report: InspectReport) => boolean;
+}> = [
+	{ id: 'health', label: 'Health Dashboard', getDisabled: () => false },
+	{
+		id: 'tokens',
+		label: 'Token Inventory',
+		getDisabled: (r) => !r.tokens?.length,
+	},
+	{
+		id: 'components',
+		label: 'Component Inventory',
+		getDisabled: (r) => !r.components?.length,
+	},
+];
+
 export interface ReportContentProps {
 	report: InspectReport;
 	reportTab: ReportTab;
@@ -29,35 +47,19 @@ export function ReportContent({
 				role="tablist"
 				aria-label="Report tabs"
 			>
-				<Button
-					type="button"
-					variant={reportTab === 'health' ? 'default' : 'outline'}
-					onClick={() => onReportTabChange('health')}
-					role="tab"
-					aria-selected={reportTab === 'health'}
-				>
-					Health Dashboard
-				</Button>
-				<Button
-					type="button"
-					variant={reportTab === 'tokens' ? 'default' : 'outline'}
-					disabled={!report.tokens?.length}
-					onClick={() => onReportTabChange('tokens')}
-					role="tab"
-					aria-selected={reportTab === 'tokens'}
-				>
-					Token Inventory
-				</Button>
-				<Button
-					type="button"
-					variant={reportTab === 'components' ? 'default' : 'outline'}
-					disabled={!report.components?.length}
-					onClick={() => onReportTabChange('components')}
-					role="tab"
-					aria-selected={reportTab === 'components'}
-				>
-					Component Inventory
-				</Button>
+				{REPORT_TABS.map((tab) => (
+					<Button
+						key={tab.id}
+						type="button"
+						variant={reportTab === tab.id ? 'default' : 'outline'}
+						disabled={tab.getDisabled(report)}
+						onClick={() => onReportTabChange(tab.id)}
+						role="tab"
+						aria-selected={reportTab === tab.id}
+					>
+						{tab.label}
+					</Button>
+				))}
 			</div>
 			{reportTab === 'health' && (
 				<HealthDashboard

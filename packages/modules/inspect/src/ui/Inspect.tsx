@@ -6,6 +6,13 @@ import { SetupView } from './views/SetupView';
 import { RunView } from './views/RunView';
 import { ReportView } from './views/ReportView';
 import { hasAtLeastOneSource } from './lib/config';
+import type { View } from './types';
+
+const VIEW_TABS: Array<{ id: View; label: string }> = [
+	{ id: 'setup', label: 'Setup' },
+	{ id: 'run', label: 'Logs' },
+	{ id: 'report', label: 'Report' },
+];
 
 export default function Inspect() {
 	const state = useInspectState();
@@ -61,27 +68,16 @@ export default function Inspect() {
 							className="flex gap-2 mt-2 mb-2"
 							aria-label="Inspect views"
 						>
-							<Button
-								type="button"
-								variant={view === 'setup' ? 'default' : 'outline'}
-								onClick={() => setView('setup')}
-							>
-								Setup
-							</Button>
-							<Button
-								type="button"
-								variant={view === 'run' ? 'default' : 'outline'}
-								onClick={() => setView('run')}
-							>
-								Logs
-							</Button>
-							<Button
-								type="button"
-								variant={view === 'report' ? 'default' : 'outline'}
-								onClick={() => setView('report')}
-							>
-								Report
-							</Button>
+							{VIEW_TABS.map((tab) => (
+								<Button
+									key={tab.id}
+									type="button"
+									variant={view === tab.id ? 'default' : 'outline'}
+									onClick={() => setView(tab.id)}
+								>
+									{tab.label}
+								</Button>
+							))}
 						</nav>
 
 						{view === 'setup' && !hasAtLeastOneSource(config) && (
