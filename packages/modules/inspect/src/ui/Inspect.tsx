@@ -71,7 +71,7 @@ export default function Inspect() {
 							</Alert>
 						)}
 
-						{view === 'setup' && !hasAtLeastOneSource(config) && (
+						{view === 'setup' && (
 							<p className='mb-4 text-[11px] text-muted-foreground'>
 								Configure at least one source (Figma, Code tokens, or Storybook)
 								to enable Run Inspect.

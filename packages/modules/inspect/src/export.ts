@@ -21,7 +21,11 @@ function reportToCsv(report: InspectReport): string {
     rows.push(`Token,${escapeCsv(t.name)},${escapeCsv(t.value)},${escapeCsv(t.type)},${escapeCsv(t.source)}`);
   }
   for (const c of report.components) {
-    rows.push(`Component,${escapeCsv(c.name)},${escapeCsv(c.coverage.join(';'))},,${c.isOrphan}`);
+    const displayName =
+      c.coverage.includes('figma') && c.layerName
+        ? `${c.layerName}, ${c.name}`
+        : c.name;
+    rows.push(`Component,${escapeCsv(displayName)},${escapeCsv(c.coverage.join(';'))},,${c.isOrphan}`);
   }
   return rows.join('\n');
 }
@@ -51,7 +55,11 @@ function reportToMarkdown(report: InspectReport): string {
   lines.push('| Name | Coverage | Orphan |');
   lines.push('|------|----------|--------|');
   for (const c of report.components) {
-    lines.push(`| ${c.name} | ${c.coverage.join(', ')} | ${c.isOrphan} |`);
+    const displayName =
+      c.coverage.includes('figma') && c.layerName
+        ? `${c.layerName}, ${c.name}`
+        : c.name;
+    lines.push(`| ${displayName} | ${c.coverage.join(', ')} | ${c.isOrphan} |`);
   }
   return lines.join('\n');
 }
@@ -125,12 +133,18 @@ async function reportToPdf(report: InspectReport): Promise<Buffer> {
     const compCols = [pageWidth * 0.25, pageWidth * 0.2, pageWidth * 0.35, pageWidth * 0.2];
     drawTable(
       ['Name', 'Category', 'Coverage', 'Orphan'],
-      report.components.map((c) => [
-        c.name,
-        c.category ?? 'Unknown',
-        c.coverage.join(', '),
-        c.isOrphan ? 'Yes' : 'No',
-      ]),
+      report.components.map((c) => {
+        const displayName =
+          c.coverage.includes('figma') && c.layerName
+            ? `${c.layerName}, ${c.name}`
+            : c.name;
+        return [
+          displayName,
+          c.category ?? 'Unknown',
+          c.coverage.join(', '),
+          c.isOrphan ? 'Yes' : 'No',
+        ];
+      }),
       compCols,
     );
 

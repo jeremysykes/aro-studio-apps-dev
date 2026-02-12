@@ -2,7 +2,7 @@
  * Cross-reference tokens and components across surfaces; merge into unified lists.
  */
 import type { Token } from '../types.js';
-import type { Component } from '../types.js';
+import type { Component, FigmaComponent } from '../types.js';
 
 function tokensByName(tokens: Token[]): Map<string, Token[]> {
   const m = new Map<string, Token[]>();
@@ -45,27 +45,33 @@ export function crossReferenceTokens(tokenLists: { source: string; tokens: Token
 
 /** Merge components: set surfaces and coverage from scan results; mark orphans. */
 export function crossReferenceComponents(
-  figmaNames: string[],
+  figmaComponents: FigmaComponent[],
   storybookComponents: Component[]
 ): Component[] {
   const byName = new Map<string, Component>();
-  for (const name of figmaNames) {
-    byName.set(name, {
-      name,
+  function componentKey(c: { name: string; layerName?: string }): string {
+    return c.layerName ? `${c.layerName}/${c.name}` : c.name;
+  }
+  for (const fc of figmaComponents) {
+    const key = componentKey(fc);
+    byName.set(key, {
+      name: fc.name,
+      layerName: fc.layerName,
       surfaces: { figma: true, storybook: false, code: false },
       coverage: ['figma'],
       isOrphan: false,
     });
   }
   for (const c of storybookComponents) {
-    const existing = byName.get(c.name);
+    const key = componentKey(c);
+    const existing = byName.get(key);
     if (existing) {
       existing.surfaces.storybook = true;
       if (!existing.coverage.includes('storybook')) existing.coverage.push('storybook');
       if (c.category) existing.category = c.category;
       if (c.storyIds?.length) existing.storyIds = c.storyIds;
     } else {
-      byName.set(c.name, {
+      byName.set(key, {
         ...c,
         surfaces: { ...c.surfaces, storybook: true },
       });

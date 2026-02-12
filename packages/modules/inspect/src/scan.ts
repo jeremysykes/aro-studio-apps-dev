@@ -42,7 +42,7 @@ export async function runScan(
   const sourcesScanned: string[] = [];
   let codeTokens: Token[] = [];
   let figmaTokens: Token[] = [];
-  let figmaComponentNames: string[] = [];
+  let figmaComponents: Array<{ name: string; layerName?: string }> = [];
   let storybookComponents: Component[] = [];
 
   ctx.progress?.(0);
@@ -59,7 +59,7 @@ export async function runScan(
         ctx.logger
       );
       figmaTokens = result.tokens;
-      figmaComponentNames = result.componentNames;
+      figmaComponents = result.componentNames;
       sourcesScanned.push('figma');
     } catch (e) {
       ctx.logger('warning', `Figma scan failed: ${e}`);
@@ -121,7 +121,7 @@ export async function runScan(
   if (codeTokens.length) tokenLists.push({ source: codeTokens[0]?.source ?? 'code', tokens: codeTokens });
   const { merged: tokens, duplicateNames: dupNames, driftCandidates: drift } = crossReferenceTokens(tokenLists);
 
-  const components = crossReferenceComponents(figmaComponentNames, storybookComponents);
+  const components = crossReferenceComponents(figmaComponents, storybookComponents);
   const findings = generateFindings(tokens, components, dupNames, drift);
   const findingsBySev = findingsBySeverity(findings);
   const healthScore = computeHealthScore(

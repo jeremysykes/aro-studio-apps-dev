@@ -3,6 +3,7 @@
  * Sequential requests; exponential backoff on 429. Output Token[] and component names.
  */
 import type { Token } from '../types.js';
+import type { FigmaComponent } from '../types.js';
 
 const FIGMA_BASE = 'https://api.figma.com/v1';
 
@@ -61,7 +62,7 @@ export type FigmaLogger = (level: string, message: string) => void;
 
 export interface FigmaScanResult {
   tokens: Token[];
-  componentNames: string[];
+  componentNames: FigmaComponent[];
 }
 
 export async function scanFigma(
@@ -72,7 +73,19 @@ export async function scanFigma(
 ): Promise<FigmaScanResult> {
   const log = logger ?? (() => {});
   const tokens: Token[] = [];
-  const componentNames = new Set<string>();
+  const componentMap = new Map<string, FigmaComponent>();
+
+  /**
+   * Register a component. For component-set children (variants) we record the
+   * set name as `layerName` so the UI can display "Button, Primary" instead of
+   * just "Primary". Standalone components (not inside a set) have no layerName.
+   */
+  function addComponent(name: string, layerName?: string): void {
+    const key = layerName ? `${layerName}/${name}` : name;
+    if (!componentMap.has(key)) {
+      componentMap.set(key, { name, layerName });
+    }
+  }
 
   for (const fileKey of fileKeys) {
     log('info', `Scanning Figma file: ${fileKey}`);
@@ -125,24 +138,30 @@ export async function scanFigma(
     }
 
     // --- Published components (dedicated endpoint, not depth-limited) ---
+    // Used as fallback; the tree walk below is the primary source since it
+    // provides accurate parent–child (COMPONENT_SET → COMPONENT) relationships.
     const pubCompUrl = `${FIGMA_BASE}/files/${fileKey}/components`;
     const pubCompRes = await fetchWithBackoff(pubCompUrl, pat);
+    let pubCompNames: Array<{ name: string; frame?: string }> = [];
     if (pubCompRes.ok) {
       const pubData = (await pubCompRes.json()) as {
         meta?: { components?: Array<{ name: string; key: string; containing_frame?: { name: string } }> };
       };
       const pubComps = pubData.meta?.components ?? [];
       log('info', `Published components endpoint: ${pubComps.length} components found`);
-      for (const comp of pubComps) {
-        if (comp.name) componentNames.add(comp.name);
-      }
+      // Stash published names for later — we add them only if the tree walk
+      // doesn't cover them (e.g. when depth truncates the tree).
+      pubCompNames = pubComps
+        .filter((c) => c.name)
+        .map((c) => ({ name: c.name, frame: c.containing_frame?.name }));
     } else {
       log('warning', `Published components endpoint returned ${pubCompRes.status}: ${pubCompRes.statusText}`);
     }
 
     // --- File document tree (components & component sets) ---
-    // Use generous depth so deeply-nested components are captured by the tree walk.
-    // Published components are already covered by the dedicated endpoint above.
+    // The tree walk is the primary source for components because it correctly
+    // associates COMPONENT nodes with their parent COMPONENT_SET, giving us
+    // accurate layerName values for the display name prefix.
     const fileUrl = `${FIGMA_BASE}/files/${fileKey}?depth=10`;
     const fileRes = await fetchWithBackoff(fileUrl, pat);
     if (fileRes.ok) {
@@ -153,36 +172,81 @@ export async function scanFigma(
       };
       const comps = fileData.components ?? {};
       const compsCount = Object.keys(comps).length;
-      for (const comp of Object.values(comps)) {
-        componentNames.add(comp.name);
-      }
       const compSets = fileData.componentSets ?? {};
       const setsCount = Object.keys(compSets).length;
-      for (const compSet of Object.values(compSets)) {
-        componentNames.add(compSet.name);
-      }
       log('info', `File endpoint: ${compsCount} components, ${setsCount} component sets in metadata`);
-      function walkNodes(nodes: Array<{ type?: string; name?: string; children?: unknown[] }> | undefined): void {
+
+      /**
+       * Walk the document tree to discover components.
+       *
+       * Figma structure (from this file):
+       *   DOCUMENT
+       *     └─ CANVAS "Button"   (page)
+       *         └─ COMPONENT_SET "Primary"   (variant group)
+       *             └─ COMPONENT "Type=Primary, State=Default"  (variant)
+       *         └─ COMPONENT_SET "Secondary"
+       *         ...
+       *     └─ CANVAS "Card"     (page)
+       *         └─ COMPONENT_SET "Card"
+       *             └─ COMPONENT "Primary"
+       *
+       * We track the nearest ancestor FRAME / SECTION / CANVAS name as the
+       * `layerName` context. When we hit a COMPONENT_SET, we register it with
+       * that ancestor name as the prefix so the report shows
+       * "Button, Primary" rather than just "Primary".
+       *
+       * Individual COMPONENT variants inside a set are NOT registered — the
+       * COMPONENT_SET itself is the reportable unit.
+       */
+      function walkNodes(
+        nodes: Array<{ type?: string; name?: string; children?: unknown[] }> | undefined,
+        ancestorName?: string
+      ): void {
         if (!nodes) return;
         for (const node of nodes) {
-          if (node.type === 'COMPONENT' || node.type === 'COMPONENT_SET') {
-            if (node.name) componentNames.add(node.name);
-          }
-          if (Array.isArray(node.children)) {
-            walkNodes(node.children as Array<{ type?: string; name?: string; children?: unknown[] }>);
+          if (node.type === 'COMPONENT_SET') {
+            // Register the set as a component, using the nearest ancestor
+            // (page / frame / section) name as the layerName prefix.
+            if (node.name) {
+              addComponent(node.name, ancestorName);
+            }
+            // Don't recurse — variants inside the set are states of this
+            // component, not separate components.
+          } else if (node.type === 'COMPONENT') {
+            // Standalone component (not inside a COMPONENT_SET).
+            // Use the ancestor name as the layerName prefix.
+            if (node.name) {
+              addComponent(node.name, ancestorName);
+            }
+          } else if (Array.isArray(node.children)) {
+            // For CANVAS (pages), FRAME, SECTION, GROUP — propagate their
+            // name as the new ancestor context for children.
+            const nextAncestor =
+              (node.type === 'CANVAS' || node.type === 'FRAME' || node.type === 'SECTION')
+                ? (node.name ?? ancestorName)
+                : ancestorName;
+            walkNodes(
+              node.children as Array<{ type?: string; name?: string; children?: unknown[] }>,
+              nextAncestor
+            );
           }
         }
       }
       walkNodes(fileData.document ? [fileData.document] : undefined);
-      log('info', `Total unique component names after tree walk: ${componentNames.size}`);
+      log('info', `Total unique components after tree walk: ${componentMap.size}`);
     } else {
       log('warning', `File endpoint returned ${fileRes.status}: ${fileRes.statusText}`);
+
+      // File endpoint failed — fall back to published components endpoint data.
+      for (const pc of pubCompNames) {
+        addComponent(pc.name, pc.frame);
+      }
     }
   }
 
-  log('info', `Figma scan complete: ${tokens.length} tokens, ${componentNames.size} components`);
+  log('info', `Figma scan complete: ${tokens.length} tokens, ${componentMap.size} components`);
   return {
     tokens,
-    componentNames: Array.from(componentNames),
+    componentNames: Array.from(componentMap.values()),
   };
 }

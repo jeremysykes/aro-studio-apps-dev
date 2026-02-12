@@ -28,6 +28,10 @@ function getColumns(
 			key: 'name',
 			header: 'Name',
 			render: (c) => {
+				const displayName =
+					c.coverage.includes('figma') && c.layerName
+						? `${c.layerName}, ${c.name}`
+						: c.name;
 				const hasStorybook =
 					c.surfaces.storybook ?? c.coverage.includes('storybook');
 				const storyId = c.storyIds?.[0];
@@ -39,14 +43,17 @@ function getColumns(
 							rel='noopener noreferrer'
 							className='text-[11px] text-primary hover:underline font-medium cursor-pointer'
 						>
-							{c.name}
+							{displayName}
 						</a>
 					);
 				}
-				return c.name;
+				return displayName;
 			},
 			sortable: true,
-			sortValue: (c) => c.name,
+			sortValue: (c) =>
+				c.coverage.includes('figma') && c.layerName
+					? `${c.layerName}, ${c.name}`
+					: c.name,
 		},
 		{
 			key: 'category',
@@ -95,10 +102,13 @@ export function ComponentInventoryTable({
 			title='Components'
 			columns={getColumns(storybookBaseUrl)}
 			rows={components}
-			getRowKey={(c) => c.name}
+			getRowKey={(c) =>
+				c.layerName ? `${c.layerName}/${c.name}` : c.name
+			}
 			getSearchableText={(c) =>
 				[
 					c.name,
+					c.layerName ?? '',
 					c.category ?? 'unknown',
 					surfacesText(c),
 					c.coverage.join(' '),

@@ -22,6 +22,8 @@ export interface Component {
   isOrphan: boolean;
   /** Storybook story IDs (e.g. atoms-button--default) when surfaces.storybook */
   storyIds?: string[];
+  /** Parent/layer name from Figma (e.g. "Button" for variant "Type=Primary, State=Disabled") when coverage includes figma */
+  layerName?: string;
 }
 
 export type FindingSeverity = 'critical' | 'warning' | 'info';
@@ -61,6 +63,11 @@ export interface InspectReport {
   incomplete?: boolean;
   /** Base URL for Storybook (e.g. https://site-aro-studio.vercel.app/) when scanned via indexUrl */
   storybookBaseUrl?: string;
+}
+
+export interface FigmaComponent {
+  name: string;
+  layerName?: string;
 }
 
 export interface ScanInput {
