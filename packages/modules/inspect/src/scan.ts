@@ -131,6 +131,11 @@ export async function runScan(
     drift
   );
 
+  const storybookBaseUrl =
+    config.storybook?.indexUrl != null
+      ? new URL(config.storybook.indexUrl).origin + '/'
+      : undefined;
+
   const report: InspectReport = {
     version: 1,
     timestamp: Date.now(),
@@ -145,6 +150,7 @@ export async function runScan(
       findingsBySeverity: findingsBySev,
     },
     incomplete: ctx.abort.aborted,
+    storybookBaseUrl,
   };
 
   return report;

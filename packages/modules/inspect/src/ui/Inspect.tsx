@@ -146,6 +146,7 @@ export default function Inspect() {
 									onExportCsv={() => handleExport('csv')}
 									onExportMarkdown={() => handleExport('markdown')}
 									canExport={runsWithReport.includes(selectedRunId ?? '')}
+									storybookUrl={config.storybookUrl}
 								/>
 							</TabsContent>
 						</Tabs>

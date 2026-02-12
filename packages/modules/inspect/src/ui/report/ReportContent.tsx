@@ -29,9 +29,10 @@ export interface ReportContentProps {
 	report: InspectReport;
 	reportTab: ReportTab;
 	filter?: string;
+	storybookBaseUrl?: string;
 }
 
-export function ReportContent({ report, reportTab, filter = '' }: ReportContentProps) {
+export function ReportContent({ report, reportTab, filter = '', storybookBaseUrl }: ReportContentProps) {
 	return (
 		<>
 			{reportTab === 'health' && <HealthDashboard report={report} />}
@@ -39,7 +40,11 @@ export function ReportContent({ report, reportTab, filter = '' }: ReportContentP
 				<TokenInventoryTable tokens={report.tokens ?? []} filter={filter} />
 			)}
 			{reportTab === 'components' && (
-				<ComponentInventoryTable components={report.components ?? []} filter={filter} />
+				<ComponentInventoryTable
+					components={report.components ?? []}
+					filter={filter}
+					storybookBaseUrl={storybookBaseUrl ?? report.storybookBaseUrl}
+				/>
 			)}
 		</>
 	);

@@ -20,6 +20,8 @@ export interface Component {
   surfaces: { figma?: boolean; storybook?: boolean; code?: boolean };
   coverage: string[];
   isOrphan: boolean;
+  /** Storybook story IDs (e.g. atoms-button--default) when surfaces.storybook */
+  storyIds?: string[];
 }
 
 export type FindingSeverity = 'critical' | 'warning' | 'info';
@@ -57,6 +59,8 @@ export interface InspectReport {
     findingsBySeverity: Record<FindingSeverity, number>;
   };
   incomplete?: boolean;
+  /** Base URL for Storybook (e.g. https://site-aro-studio.vercel.app/) when scanned via indexUrl */
+  storybookBaseUrl?: string;
 }
 
 export interface ScanInput {

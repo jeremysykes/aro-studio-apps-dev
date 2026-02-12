@@ -51,12 +51,13 @@ function componentsFromIndexData(data: StorybookIndexData): Component[] {
       byComponent.set(componentName, { storyIds: [entry.id ?? id], argTypes: entry.argTypes ?? {}, category });
     }
   }
-  return Array.from(byComponent.entries()).map(([name, { category }]) => ({
+  return Array.from(byComponent.entries()).map(([name, { category, storyIds }]) => ({
     name,
     category,
     surfaces: { figma: false, storybook: true, code: false },
     coverage: ['storybook'],
     isOrphan: false,
+    storyIds,
   }));
 }
 
@@ -131,11 +132,12 @@ export function scanStorybookFromPath(workspace: WorkspaceFacet, indexPath: stri
       byComponent.set(componentName, { storyIds: [entry.id], category });
     }
   }
-  return Array.from(byComponent.entries()).map(([name, { category }]) => ({
+  return Array.from(byComponent.entries()).map(([name, { category, storyIds }]) => ({
     name,
     category,
     surfaces: { figma: false, storybook: true, code: false },
     coverage: ['storybook'],
     isOrphan: false,
+    storyIds,
   }));
 }

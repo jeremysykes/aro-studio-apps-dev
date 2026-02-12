@@ -2,7 +2,7 @@ import path from 'path';
 import { config as loadDotenv } from 'dotenv';
 loadDotenv({ path: path.resolve(__dirname, '../../../../.env') });
 
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, shell } from 'electron';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import { registerIpcHandlers } from './ipc.js';
@@ -28,6 +28,11 @@ function createWindow(): void {
   });
 
   mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
 
   mainWindow.webContents.once('did-finish-load', async () => {
     const lastPath = await getLastWorkspacePath();

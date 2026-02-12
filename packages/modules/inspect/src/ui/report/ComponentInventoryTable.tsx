@@ -16,57 +16,81 @@ function surfacesText(c: Component): string {
 	);
 }
 
-const COLUMNS: ReportTableColumn<Component>[] = [
-	{
-		key: 'name',
-		header: 'Name',
-		render: (c) => c.name,
-		sortable: true,
-		sortValue: (c) => c.name,
-	},
-	{
-		key: 'category',
-		header: 'Category',
-		render: (c) => c.category ?? 'Unknown',
-		sortable: true,
-		sortValue: (c) => c.category ?? '',
-	},
-	{
-		key: 'surfaces',
-		header: 'Surfaces',
-		render: (c) => surfacesText(c),
-		sortable: true,
-		sortValue: (c) => surfacesText(c),
-	},
-	{
-		key: 'coverage',
-		header: 'Coverage',
-		render: (c) => c.coverage.join(', '),
-		sortable: true,
-		sortValue: (c) => c.coverage.join(', '),
-	},
-	{
-		key: 'orphan',
-		header: 'Orphan',
-		render: (c) => (c.isOrphan ? 'Yes' : 'No'),
-		sortable: true,
-		sortValue: (c) => (c.isOrphan ? 1 : 0),
-	},
-];
+function storybookStoryUrl(baseUrl: string, storyId: string): string {
+	return `${baseUrl}?path=/story/${storyId}`;
+}
+
+function getColumns(storybookBaseUrl: string | undefined): ReportTableColumn<Component>[] {
+	return [
+		{
+			key: 'name',
+			header: 'Name',
+			render: (c) => {
+				const hasStorybook = c.surfaces.storybook ?? c.coverage.includes('storybook');
+				const storyId = c.storyIds?.[0];
+				if (storybookBaseUrl && hasStorybook && storyId) {
+					return (
+						<a
+							href={storybookStoryUrl(storybookBaseUrl, storyId)}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="text-primary hover:underline font-medium cursor-pointer"
+						>
+							{c.name}
+						</a>
+					);
+				}
+				return c.name;
+			},
+			sortable: true,
+			sortValue: (c) => c.name,
+		},
+		{
+			key: 'category',
+			header: 'Category',
+			render: (c) => c.category ?? 'Unknown',
+			sortable: true,
+			sortValue: (c) => c.category ?? '',
+		},
+		{
+			key: 'surfaces',
+			header: 'Surfaces',
+			render: (c) => surfacesText(c),
+			sortable: true,
+			sortValue: (c) => surfacesText(c),
+		},
+		{
+			key: 'coverage',
+			header: 'Coverage',
+			render: (c) => c.coverage.join(', '),
+			sortable: true,
+			sortValue: (c) => c.coverage.join(', '),
+		},
+		{
+			key: 'orphan',
+			header: 'Orphan',
+			render: (c) => (c.isOrphan ? 'Yes' : 'No'),
+			sortable: true,
+			sortValue: (c) => (c.isOrphan ? 1 : 0),
+		},
+	];
+}
 
 export interface ComponentInventoryTableProps {
 	components: InspectReport['components'];
 	filter?: string;
+	storybookBaseUrl?: string;
 }
 
 export function ComponentInventoryTable({
 	components,
 	filter,
+	storybookBaseUrl,
 }: ComponentInventoryTableProps) {
 	return (
 		<ReportTable
 			title="Components"
-			columns={COLUMNS}
+			columns={getColumns(storybookBaseUrl)}
 			rows={components}
 			getRowKey={(c) => c.name}
 			getSearchableText={(c) =>

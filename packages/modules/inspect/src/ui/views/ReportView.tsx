@@ -38,6 +38,7 @@ export interface ReportViewProps {
 	onExportCsv: () => void;
 	onExportMarkdown: () => void;
 	canExport: boolean;
+	storybookUrl?: string;
 }
 
 export function ReportView({
@@ -56,7 +57,11 @@ export function ReportView({
 	onExportCsv,
 	onExportMarkdown,
 	canExport,
+	storybookUrl,
 }: ReportViewProps) {
+	const storybookBaseUrl =
+		report?.storybookBaseUrl ??
+		(storybookUrl?.trim() ? `${new URL(storybookUrl.trim()).origin}/` : undefined);
 	const [filter, setFilter] = useState('');
 	const reportRuns = runs.filter((r) => runsWithReport.includes(r.id));
 	const showFilter = reportTab === 'tokens' || reportTab === 'components';
@@ -152,7 +157,12 @@ export function ReportView({
 					</p>
 				)}
 				{reportLoadState === 'success' && report && (
-					<ReportContent report={report} reportTab={reportTab} filter={filter} />
+					<ReportContent
+						report={report}
+						reportTab={reportTab}
+						filter={filter}
+						storybookBaseUrl={storybookBaseUrl}
+					/>
 				)}
 				{!selectedRunId && (
 					<p className="text-muted-foreground text-[11px]">
