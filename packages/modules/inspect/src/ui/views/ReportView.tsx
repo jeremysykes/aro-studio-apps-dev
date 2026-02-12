@@ -104,6 +104,13 @@ export function ReportView({
 						canExport={canExport}
 					/>
 				)}
+				{!selectedRunId && (
+					<p className="text-muted-foreground text-sm">
+						Select a run from the list to view its report. Each run includes a
+						health dashboard, token inventory, and component inventory. Runs
+						with a completed scan will show the full report here.
+					</p>
+				)}
 			</CardContent>
 		</Card>
 	);

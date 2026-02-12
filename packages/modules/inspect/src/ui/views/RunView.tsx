@@ -61,26 +61,33 @@ export function RunView({
 		</div>
 	);
 
-	const main = selectedRunId ? (
+	const main = (
 		<Card className={CARD_CLASS}>
 			<CardHeader>
 				<CardTitle>Logs</CardTitle>
 			</CardHeader>
 			<CardContent className={CARD_CONTENT_CLASS}>
-				<ul
-					className="list-none space-y-1 font-mono text-sm"
-					role="log"
-					aria-live="polite"
-				>
-					{logs.map((entry) => (
-						<li key={entry.id}>
-							[{entry.level}] {entry.message}
-						</li>
-					))}
-				</ul>
+				{selectedRunId ? (
+					<ul
+						className="list-none space-y-1 font-mono text-sm"
+						role="log"
+						aria-live="polite"
+					>
+						{logs.map((entry) => (
+							<li key={entry.id}>
+								[{entry.level}] {entry.message}
+							</li>
+						))}
+					</ul>
+				) : (
+					<p className="text-muted-foreground text-sm">
+						Select a run from the list to view its logs. After you run Inspect,
+						completed runs appear here; choose one to see the log output.
+					</p>
+				)}
 			</CardContent>
 		</Card>
-	) : null;
+	);
 
 	return (
 		<section aria-labelledby="run-heading">
