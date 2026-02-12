@@ -11,9 +11,16 @@ function stripHierarchy(title: string): string {
   return parts[parts.length - 1]?.trim() ?? title;
 }
 
-function extractCategory(title: string): string | undefined {
+function extractCategory(title: string, id?: string): string | undefined {
   const parts = title.split('/');
-  return parts.length > 1 ? parts[0]?.trim() : undefined;
+  if (parts.length > 1) return parts[0]?.trim();
+  // Fallback: derive from id (e.g. "atoms-button--default" -> "Atoms")
+  if (id) {
+    const prefix = id.split('--')[0];
+    const first = prefix?.split('-')[0];
+    if (first) return first.charAt(0).toUpperCase() + first.slice(1);
+  }
+  return undefined;
 }
 
 type StorybookIndexEntry = {
@@ -35,10 +42,11 @@ function componentsFromIndexData(data: StorybookIndexData): Component[] {
   for (const [id, entry] of Object.entries(entries)) {
     const title = entry.title ?? entry.name ?? id;
     const componentName = stripHierarchy(title);
-    const category = extractCategory(title);
+    const category = extractCategory(title, entry.id ?? id);
     const existing = byComponent.get(componentName);
     if (existing) {
       existing.storyIds.push(entry.id ?? id);
+      if (!existing.category && category) existing.category = category;
     } else {
       byComponent.set(componentName, { storyIds: [entry.id ?? id], argTypes: entry.argTypes ?? {}, category });
     }
@@ -114,10 +122,11 @@ export function scanStorybookFromPath(workspace: WorkspaceFacet, indexPath: stri
   for (const entry of Object.values(entries)) {
     const title = entry.title ?? entry.name ?? entry.id;
     const componentName = stripHierarchy(title);
-    const category = extractCategory(title);
+    const category = extractCategory(title, entry.id);
     const existing = byComponent.get(componentName);
     if (existing) {
       existing.storyIds.push(entry.id);
+      if (!existing.category && category) existing.category = category;
     } else {
       byComponent.set(componentName, { storyIds: [entry.id], category });
     }
