@@ -1,5 +1,12 @@
 import React from 'react';
-import { Alert, Button, TooltipProvider } from '@aro/desktop/components';
+import {
+	Alert,
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
+	TooltipProvider,
+} from '@aro/desktop/components';
 import { useInspectState } from './hooks/useInspectState';
 import { WorkspaceCard } from './components/WorkspaceCard';
 import { SetupView } from './views/SetupView';
@@ -88,58 +95,59 @@ export default function Inspect() {
 							</p>
 						)}
 
-						<nav className='flex gap-2 mt-2 mb-3' aria-label='Inspect views'>
-							{VIEW_TABS.map((tab) => (
-								<Button
-									key={tab.id}
-									type='button'
-									variant={view === tab.id ? 'default' : 'outline'}
-									onClick={() => setView(tab.id)}
-								>
-									{tab.label}
-								</Button>
-							))}
-						</nav>
-						{view === 'setup' && (
-							<SetupView
-								config={config}
-								onConfigChange={setConfig}
-								onRunScan={handleRunScan}
-								hasAtLeastOneSource={hasAtLeastOneSource(config)}
-							/>
-						)}
-						{view === 'run' && (
-							<RunView
-								runs={runs}
-								selectedRunId={selectedRunId}
-								focusedRunId={focusedRunId}
-								logs={logs}
-								runningRunId={runningRunId}
-								listboxRef={listboxRef}
-								onSelectRun={handleSelectRun}
-								onFocusChange={setFocusedRunId}
-								onCancelRun={handleCancelRun}
-							/>
-						)}
-						{view === 'report' && (
-							<ReportView
-								runs={runs}
-								runsWithReport={runsWithReport}
-								runsWithReportLoading={runsWithReportLoading}
-								selectedRunId={selectedRunId}
-								focusedRunId={focusedRunId}
-								report={report}
-								reportLoadState={reportLoadState}
-								reportTab={reportTab}
-								listboxRef={listboxRef}
-								onSelectRun={handleSelectRun}
-								onFocusChange={setFocusedRunId}
-								onReportTabChange={setReportTab}
-								onExportCsv={() => handleExport('csv')}
-								onExportMarkdown={() => handleExport('markdown')}
-								canExport={runsWithReport.includes(selectedRunId ?? '')}
-							/>
-						)}
+						<Tabs
+							value={view}
+							onValueChange={(value) => setView(value as View)}
+							className='mt-2'
+						>
+							<TabsList size='xs' className='mb-3' aria-label='Inspect views'>
+								{VIEW_TABS.map((tab) => (
+									<TabsTrigger key={tab.id} value={tab.id} size='xs'>
+										{tab.label}
+									</TabsTrigger>
+								))}
+							</TabsList>
+							<TabsContent value='setup'>
+								<SetupView
+									config={config}
+									onConfigChange={setConfig}
+									onRunScan={handleRunScan}
+									hasAtLeastOneSource={hasAtLeastOneSource(config)}
+								/>
+							</TabsContent>
+							<TabsContent value='run'>
+								<RunView
+									runs={runs}
+									selectedRunId={selectedRunId}
+									focusedRunId={focusedRunId}
+									logs={logs}
+									runningRunId={runningRunId}
+									listboxRef={listboxRef}
+									onSelectRun={handleSelectRun}
+									onFocusChange={setFocusedRunId}
+									onCancelRun={handleCancelRun}
+								/>
+							</TabsContent>
+							<TabsContent value='report'>
+								<ReportView
+									runs={runs}
+									runsWithReport={runsWithReport}
+									runsWithReportLoading={runsWithReportLoading}
+									selectedRunId={selectedRunId}
+									focusedRunId={focusedRunId}
+									report={report}
+									reportLoadState={reportLoadState}
+									reportTab={reportTab}
+									listboxRef={listboxRef}
+									onSelectRun={handleSelectRun}
+									onFocusChange={setFocusedRunId}
+									onReportTabChange={setReportTab}
+									onExportCsv={() => handleExport('csv')}
+									onExportMarkdown={() => handleExport('markdown')}
+									canExport={runsWithReport.includes(selectedRunId ?? '')}
+								/>
+							</TabsContent>
+						</Tabs>
 					</>
 				)}
 			</TooltipProvider>

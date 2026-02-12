@@ -11,6 +11,7 @@ export {
 	TooltipProvider,
 } from './ui/tooltip';
 export { Skeleton } from './ui/skeleton';
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 export {
 	Table,
 	TableHeader,

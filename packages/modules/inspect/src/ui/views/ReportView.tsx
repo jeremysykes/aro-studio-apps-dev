@@ -55,7 +55,7 @@ export function ReportView({
 					Runs
 				</CardTitle>
 			</div>
-			<CardContent className={CARD_CONTENT_CLASS}>
+			<CardContent className={`${CARD_CONTENT_CLASS} px-0`}>
 				{runsWithReportLoading ? (
 					<ul className="list-none space-y-1 min-w-0">
 						{Array.from({ length: 6 }, (_, i) => (
@@ -102,6 +102,7 @@ export function ReportView({
 							key={tab.id}
 							type="button"
 							variant={reportTab === tab.id ? 'secondary' : 'outline'}
+							size="xs"
 							disabled={report ? tab.getDisabled(report) : true}
 							onClick={() => onReportTabChange(tab.id)}
 							role="tab"
@@ -139,6 +140,7 @@ export function ReportView({
 					<Button
 						type="button"
 						variant="outline"
+						size="xs"
 						disabled={!canExport}
 						onClick={onExportCsv}
 					>
@@ -147,6 +149,7 @@ export function ReportView({
 					<Button
 						type="button"
 						variant="outline"
+						size="xs"
 						disabled={!canExport}
 						onClick={onExportMarkdown}
 					>

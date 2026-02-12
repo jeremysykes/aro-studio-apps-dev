@@ -21,7 +21,7 @@ export function WorkspaceCard({
 						<Button
 							type='button'
 							variant='secondary'
-							size='sm'
+							size='xs'
 							onClick={onSelectWorkspace}
 						>
 							Select workspace
@@ -30,14 +30,14 @@ export function WorkspaceCard({
 				) : (
 					<div className='flex flex-wrap items-center gap-x-4 gap-y-2'>
 						<span className='text-sm text-muted-foreground min-w-0 flex items-baseline gap-1'>
-							<span className='truncate text-[10px]' title={workspacePath}>
+							<span className='truncate text-[11px]' title={workspacePath}>
 								{workspacePath}
 							</span>
 						</span>
 						<Button
 							type='button'
 							variant='ghost'
-							size='sm'
+							size='xs'
 							onClick={onSelectWorkspace}
 						>
 							Set workspace

@@ -96,7 +96,7 @@ export function ReportTable<T>({
 										<Button
 											type="button"
 											variant="ghost"
-											size="sm"
+											size="xs"
 											className="h-auto p-0 font-medium hover:underline"
 											onClick={() => handleSort(col.key)}
 											aria-label={`Sort by ${col.header}`}

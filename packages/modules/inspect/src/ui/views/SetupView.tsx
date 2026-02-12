@@ -149,7 +149,7 @@ export function SetupView({
 					</CardContent>
 				</Card>
 			</div>
-			<Button type='button' disabled={!hasAtLeastOneSource} onClick={onRunScan}>
+			<Button type='button' size='xs' disabled={!hasAtLeastOneSource} onClick={onRunScan}>
 				Run Inspect
 			</Button>
 		</section>

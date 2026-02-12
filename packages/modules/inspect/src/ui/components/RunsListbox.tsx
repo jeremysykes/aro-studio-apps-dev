@@ -124,7 +124,8 @@ export function RunsListbox<T extends RunsListboxItem>({
 										type='button'
 										tabIndex={-1}
 										variant={isSelected ? 'default' : 'ghost'}
-										className='w-full min-w-0 justify-start overflow-hidden font-normal'
+										size='xs'
+										className='w-full min-w-0 justify-start overflow-hidden font-normal rounded-none'
 										onMouseDown={preventOptionFocus}
 										onClick={() => onSelect(item.id)}
 									>

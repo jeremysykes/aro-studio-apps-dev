@@ -41,7 +41,7 @@ export function RunView({
 						Runs
 					</CardTitle>
 				</div>
-				<CardContent className={CARD_CONTENT_CLASS}>
+				<CardContent className={`${CARD_CONTENT_CLASS} px-0`}>
 					<RunsListbox<RunItem>
 						items={runs}
 						selectedId={selectedRunId}
@@ -62,6 +62,7 @@ export function RunView({
 				<Button
 					type='button'
 					variant='destructive'
+					size='xs'
 					className='min-[900px]:mt-4'
 					onClick={() => onCancelRun(runningRunId)}
 				>
