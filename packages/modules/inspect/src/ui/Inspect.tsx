@@ -44,16 +44,16 @@ export default function Inspect() {
 	} = state;
 
 	return (
-		<main className="min-w-[900px] min-h-screen p-6 font-sans" role="main">
+		<main className='min-w-[900px] min-h-screen p-6 font-sans' role='main'>
 			<TooltipProvider delayDuration={300}>
-				<div className="flex flex-col min-[900px]:flex-row min-[900px]:items-start min-[900px]:justify-between gap-4 mb-3">
-					<div className="flex flex-col gap-1 min-w-0">
-						<h1 className="text-xl font-semibold">Aro Inspect</h1>
-						<p className="text-sm text-muted-foreground">
+				<div className='flex flex-col min-[900px]:flex-row min-[900px]:items-start min-[900px]:justify-between gap-4 mb-3 pb-4 border-b border-[#E4E4E7]'>
+					<div className='flex flex-col gap-1 min-w-0'>
+						<h1 className='text-xl font-semibold'>Aro Inspect</h1>
+						<p className='text-sm text-muted-foreground'>
 							Design system inventory & health
 						</p>
 					</div>
-					<div className="min-w-0 min-[900px]:shrink-0">
+					<div className='min-w-0 min-[900px]:shrink-0'>
 						<WorkspaceCard
 							workspacePath={workspacePath}
 							onSelectWorkspace={handleSelectWorkspace}
@@ -64,19 +64,35 @@ export default function Inspect() {
 				{workspacePath && (
 					<>
 						{error && (
-							<Alert variant="destructive" className="mb-4">
+							<Alert variant='destructive' className='mb-4'>
 								{error}
 							</Alert>
 						)}
 
-						<nav
-							className="flex gap-2 mt-2 mb-3"
-							aria-label="Inspect views"
-						>
+						{view === 'setup' && !hasAtLeastOneSource(config) && (
+							<p className='mb-4 text-[11px] text-muted-foreground'>
+								Configure at least one source (Figma, Code tokens, or Storybook)
+								to enable Run Inspect.
+							</p>
+						)}
+						{view === 'run' && (
+							<p className='mb-4 text-[11px] text-muted-foreground'>
+								Run Inspect from the Setup tab, then select a run here to view
+								logs and progress.
+							</p>
+						)}
+						{view === 'report' && (
+							<p className='mb-4 text-[11px] text-muted-foreground'>
+								Select a completed run to view its health report, or export to
+								CSV or Markdown.
+							</p>
+						)}
+
+						<nav className='flex gap-2 mt-2 mb-3' aria-label='Inspect views'>
 							{VIEW_TABS.map((tab) => (
 								<Button
 									key={tab.id}
-									type="button"
+									type='button'
 									variant={view === tab.id ? 'default' : 'outline'}
 									onClick={() => setView(tab.id)}
 								>
@@ -84,13 +100,6 @@ export default function Inspect() {
 								</Button>
 							))}
 						</nav>
-
-						{view === 'setup' && !hasAtLeastOneSource(config) && (
-							<p className="mb-4 text-sm text-muted-foreground">
-								Configure at least one source (Figma, Code tokens, or Storybook)
-								to enable Run Inspect.
-							</p>
-						)}
 						{view === 'setup' && (
 							<SetupView
 								config={config}

@@ -175,7 +175,7 @@ export default function HelloWorld() {
 								variant='outline'
 								onClick={handleSelectWorkspace}
 							>
-								Change workspace
+								Set workspace
 							</Button>
 						</div>
 					)}

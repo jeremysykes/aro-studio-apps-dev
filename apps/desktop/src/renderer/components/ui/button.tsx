@@ -10,7 +10,7 @@ const buttonVariants = cva(
       variant: {
         default: 'bg-zinc-900 text-zinc-50 hover:bg-zinc-800 focus-visible:ring-zinc-900',
         destructive: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600',
-        outline: 'border border-zinc-200 bg-white hover:bg-zinc-100 focus-visible:ring-zinc-400',
+        outline: 'border border-[rgba(228,228,231,1)] bg-white hover:bg-zinc-100 focus-visible:ring-zinc-400',
         secondary: 'bg-zinc-100 text-zinc-900 hover:bg-zinc-200 focus-visible:ring-zinc-400',
         ghost: 'hover:bg-zinc-100 focus-visible:ring-zinc-400',
         link: 'text-zinc-900 underline-offset-4 hover:underline focus-visible:ring-zinc-400',

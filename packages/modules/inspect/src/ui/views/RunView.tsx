@@ -34,10 +34,10 @@ export function RunView({
 	onCancelRun,
 }: RunViewProps) {
 	const sidebar = (
-		<div className="space-y-4 min-[900px]:flex min-[900px]:flex-col min-[900px]:min-h-0 min-[900px]:space-y-0">
+		<div className='space-y-4 min-[900px]:flex min-[900px]:flex-col min-[900px]:min-h-0 min-[900px]:space-y-0'>
 			<Card className={CARD_CLASS}>
-				<div className={COLUMN_HEADER_CLASS} role="region" aria-label="Runs">
-					<CardTitle className="mb-0 text-base font-medium text-muted-foreground">
+				<div className={COLUMN_HEADER_CLASS} role='region' aria-label='Runs'>
+					<CardTitle className='mb-0 text-base font-medium text-muted-foreground'>
 						Runs
 					</CardTitle>
 				</div>
@@ -48,19 +48,21 @@ export function RunView({
 						focusedId={focusedRunId}
 						onSelect={onSelectRun}
 						onFocusChange={onFocusChange}
-						optionIdPrefix="runs-log-option-"
-						getOptionLabel={(run) => formatRunLabel(run, { includeStatus: true })}
+						optionIdPrefix='runs-log-option-'
+						getOptionLabel={(run) =>
+							formatRunLabel(run, { includeStatus: true })
+						}
 						getOptionTooltip={formatRunLabelFull}
 						listboxRef={listboxRef}
-						ariaLabel="Runs"
+						ariaLabel='Runs'
 					/>
 				</CardContent>
 			</Card>
 			{runningRunId && (
 				<Button
-					type="button"
-					variant="destructive"
-					className="min-[900px]:mt-4"
+					type='button'
+					variant='destructive'
+					className='min-[900px]:mt-4'
 					onClick={() => onCancelRun(runningRunId)}
 				>
 					Abort scan
@@ -71,17 +73,17 @@ export function RunView({
 
 	const main = (
 		<Card className={CARD_CLASS}>
-			<div className={COLUMN_HEADER_CLASS} role="region" aria-label="Logs">
-				<CardTitle className="mb-0 text-base font-medium text-muted-foreground">
+			<div className={COLUMN_HEADER_CLASS} role='region' aria-label='Logs'>
+				<CardTitle className='mb-0 text-base font-medium text-muted-foreground'>
 					Logs
 				</CardTitle>
 			</div>
 			<CardContent className={`${CARD_CONTENT_CLASS} pt-6 px-6 pb-6`}>
 				{selectedRunId ? (
 					<ul
-						className="list-none space-y-1 text-sm"
-						role="log"
-						aria-live="polite"
+						className='list-none space-y-1 text-[11px]'
+						role='log'
+						aria-live='polite'
 					>
 						{logs.map((entry) => (
 							<li key={entry.id}>
@@ -90,7 +92,7 @@ export function RunView({
 						))}
 					</ul>
 				) : (
-					<p className="text-muted-foreground text-sm">
+					<p className='text-muted-foreground text-[11px]'>
 						Select a run from the list to view its logs. After you run Inspect,
 						completed runs appear here; choose one to see the log output.
 					</p>
@@ -100,8 +102,8 @@ export function RunView({
 	);
 
 	return (
-		<section aria-labelledby="run-heading">
-			<h2 id="run-heading" className="sr-only">
+		<section aria-labelledby='run-heading'>
+			<h2 id='run-heading' className='sr-only'>
 				Run and logs
 			</h2>
 			<TwoColumnLayout sidebar={sidebar} main={main} />

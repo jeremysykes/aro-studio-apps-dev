@@ -72,7 +72,7 @@ export function ReportTable<T>({
 	return (
 		<div className="overflow-x-auto space-y-2">
 			<div className="flex flex-wrap items-center gap-2">
-				<p className="font-medium">{title}</p>
+				<p className="text-sm font-medium">{title}</p>
 				{canFilter && (
 					<Input
 						type="search"

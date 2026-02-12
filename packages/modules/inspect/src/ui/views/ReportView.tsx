@@ -116,10 +116,10 @@ export function ReportView({
 				className={`${CARD_CONTENT_CLASS} flex-1 min-h-0 overflow-y-auto pt-6 px-6 pb-6`}
 			>
 				{reportLoadState === 'loading' && (
-					<p className="text-muted-foreground">Loading report…</p>
+					<p className="text-sm text-muted-foreground">Loading report…</p>
 				)}
 				{reportLoadState === 'error' && (
-					<p className="text-muted-foreground">
+					<p className="text-sm text-muted-foreground">
 						Report not available for this run.
 					</p>
 				)}
@@ -127,7 +127,7 @@ export function ReportView({
 					<ReportContent report={report} reportTab={reportTab} />
 				)}
 				{!selectedRunId && (
-					<p className="text-muted-foreground text-sm">
+					<p className="text-muted-foreground text-[11px]">
 						Select a run from the list to view its report. Each run includes a
 						health dashboard, token inventory, and component inventory. Runs
 						with a completed scan will show the full report here.
