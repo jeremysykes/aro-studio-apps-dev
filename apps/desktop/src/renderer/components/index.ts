@@ -11,3 +11,13 @@ export {
 	TooltipProvider,
 } from './ui/tooltip';
 export { Skeleton } from './ui/skeleton';
+export {
+	Table,
+	TableHeader,
+	TableBody,
+	TableFooter,
+	TableHead,
+	TableRow,
+	TableCell,
+	TableCaption,
+} from './ui/table';

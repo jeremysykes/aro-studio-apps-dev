@@ -1,8 +1,14 @@
 import React, { useState, useMemo } from 'react';
-import { Button, Input } from '@aro/desktop/components';
-
-const TH_CLASS = 'text-left border p-2';
-const TD_CLASS = 'border p-2';
+import {
+	Button,
+	Input,
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@aro/desktop/components';
 
 export interface ReportTableColumn<T> {
 	key: string;
@@ -78,14 +84,14 @@ export function ReportTable<T>({
 					/>
 				)}
 			</div>
-			<table className="w-full text-sm border-collapse">
-				<thead>
-					<tr>
+			<Table>
+				<TableHeader>
+					<TableRow>
 						{columns.map((col) => {
 							const sortable = col.sortable && col.sortValue;
 							const isSorted = sortKey === col.key;
 							return (
-								<th key={col.key} scope="col" className={TH_CLASS}>
+								<TableHead key={col.key} scope="col">
 									{sortable ? (
 										<Button
 											type="button"
@@ -112,23 +118,23 @@ export function ReportTable<T>({
 									) : (
 										col.header
 									)}
-								</th>
+								</TableHead>
 							);
 						})}
-					</tr>
-				</thead>
-				<tbody>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
 					{sortedRows.map((row) => (
-						<tr key={getRowKey(row)}>
+						<TableRow key={getRowKey(row)}>
 							{columns.map((col) => (
-								<td key={col.key} className={TD_CLASS}>
+								<TableCell key={col.key}>
 									{col.render(row)}
-								</td>
+								</TableCell>
 							))}
-						</tr>
+						</TableRow>
 					))}
-				</tbody>
-			</table>
+				</TableBody>
+			</Table>
 		</div>
 	);
 }
