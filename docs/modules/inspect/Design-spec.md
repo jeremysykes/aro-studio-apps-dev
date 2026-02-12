@@ -135,7 +135,8 @@ Inspect UI must meet industry-standard professional quality. Align with patterns
 ### 9.4 Health Dashboard layout
 
 - **Header chrome** — The Reports title and tabs are header chrome, not content: reduced visual weight (smaller or medium font, muted colour), with a visible separator (e.g. bottom border) between header and content so the dashboard content area clearly starts below.
-- **Two-column layout** — Health score (label + value) is the **single focal point** on the **left**, centred vertically and horizontally in its column. Score breakdown and findings-by-severity form one **supporting panel** on the **right**, optionally with a subtle background or border so they read as one unit; both sections stacked vertically and vertically centred in the column.
+- **Two-column layout** — Health score (label + value) is the **single focal point** on the **left**, centred horizontally in its column. Score breakdown and findings-by-severity form one **supporting panel** on the **right**; both sections stacked vertically. At 900px+, the **top** of the left (health score) and right (breakdown + severity) content areas align so content bands share a common top baseline.
+- **Information hierarchy** — (1) Composite health score is primary; (2) score breakdown list is secondary; (3) findings-by-severity badges are tertiary. Visual weight and placement must reflect this order; severity badges remain visually secondary (restrained styling).
 - **Export actions** — Secondary and anchored in the card footer (right-aligned); outline or ghost variant so they do not compete with the health score.
 
 ---

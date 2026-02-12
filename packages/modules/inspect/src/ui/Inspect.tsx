@@ -46,17 +46,20 @@ export default function Inspect() {
 	return (
 		<main className="min-w-[900px] min-h-screen p-6 font-sans" role="main">
 			<TooltipProvider delayDuration={300}>
-				<div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-3">
-					<h1 className="text-xl font-semibold">Aro Inspect</h1>
-					<p className="text-sm text-muted-foreground">
-						Design system inventory & health
-					</p>
+				<div className="flex flex-col min-[900px]:flex-row min-[900px]:items-start min-[900px]:justify-between gap-4 mb-3">
+					<div className="flex flex-col gap-1 min-w-0">
+						<h1 className="text-xl font-semibold">Aro Inspect</h1>
+						<p className="text-sm text-muted-foreground">
+							Design system inventory & health
+						</p>
+					</div>
+					<div className="min-w-0 min-[900px]:shrink-0">
+						<WorkspaceCard
+							workspacePath={workspacePath}
+							onSelectWorkspace={handleSelectWorkspace}
+						/>
+					</div>
 				</div>
-
-				<WorkspaceCard
-					workspacePath={workspacePath}
-					onSelectWorkspace={handleSelectWorkspace}
-				/>
 
 				{workspacePath && (
 					<>
