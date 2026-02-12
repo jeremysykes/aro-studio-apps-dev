@@ -1,5 +1,15 @@
 import React, { type RefObject } from 'react';
-import { Button, Card, CardContent, CardFooter, CardTitle, Skeleton } from '@aro/desktop/components';
+import {
+	Button,
+	Card,
+	CardContent,
+	CardFooter,
+	CardTitle,
+	Skeleton,
+	Tabs,
+	TabsList,
+	TabsTrigger,
+} from '@aro/desktop/components';
 import { RunsListbox } from '../components/RunsListbox';
 import {
 	TwoColumnLayout,
@@ -89,29 +99,27 @@ export function ReportView({
 				role="region"
 				aria-label="Reports"
 			>
-				<CardTitle className="mb-0 text-base font-medium text-muted-foreground">
-					Reports
-				</CardTitle>
-				<div
-					className="flex gap-2 shrink-0"
-					role="tablist"
-					aria-label="Report tabs"
-				>
+			<CardTitle className="mb-0 text-base font-medium text-muted-foreground">
+				Reports
+			</CardTitle>
+			<Tabs
+				value={reportTab}
+				onValueChange={(value) => onReportTabChange(value as ReportTab)}
+				className="shrink-0"
+			>
+				<TabsList size="xs" aria-label="Report tabs">
 					{REPORT_TABS.map((tab) => (
-						<Button
+						<TabsTrigger
 							key={tab.id}
-							type="button"
-							variant={reportTab === tab.id ? 'secondary' : 'outline'}
+							value={tab.id}
 							size="xs"
 							disabled={report ? tab.getDisabled(report) : true}
-							onClick={() => onReportTabChange(tab.id)}
-							role="tab"
-							aria-selected={reportTab === tab.id}
 						>
 							{tab.label}
-						</Button>
+						</TabsTrigger>
 					))}
-				</div>
+				</TabsList>
+			</Tabs>
 			</div>
 			<CardContent
 				className={`${CARD_CONTENT_CLASS} flex-1 min-h-0 overflow-y-auto pt-6 px-6 pb-6`}
