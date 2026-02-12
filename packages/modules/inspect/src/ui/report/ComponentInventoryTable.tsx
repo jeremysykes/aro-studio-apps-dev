@@ -25,6 +25,13 @@ const COLUMNS: ReportTableColumn<Component>[] = [
 		sortValue: (c) => c.name,
 	},
 	{
+		key: 'category',
+		header: 'Category',
+		render: (c) => c.category ?? 'Unknown',
+		sortable: true,
+		sortValue: (c) => c.category ?? '',
+	},
+	{
 		key: 'surfaces',
 		header: 'Surfaces',
 		render: (c) => surfacesText(c),
@@ -56,13 +63,14 @@ export function ComponentInventoryTable({
 }: ComponentInventoryTableProps) {
 	return (
 		<ReportTable
-			title="Component inventory"
+			title="Components"
 			columns={COLUMNS}
 			rows={components}
 			getRowKey={(c) => c.name}
 			getSearchableText={(c) =>
 				[
 					c.name,
+					c.category ?? 'unknown',
 					surfacesText(c),
 					c.coverage.join(' '),
 					c.isOrphan ? 'orphan' : '',

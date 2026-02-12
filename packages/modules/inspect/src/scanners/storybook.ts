@@ -11,6 +11,11 @@ function stripHierarchy(title: string): string {
   return parts[parts.length - 1]?.trim() ?? title;
 }
 
+function extractCategory(title: string): string | undefined {
+  const parts = title.split('/');
+  return parts.length > 1 ? parts[0]?.trim() : undefined;
+}
+
 type StorybookIndexEntry = {
   type?: string;
   id: string;
@@ -25,17 +30,22 @@ type StorybookIndexData = {
 };
 
 function componentsFromIndexData(data: StorybookIndexData): Component[] {
-  const byComponent = new Map<string, { storyIds: string[]; argTypes: unknown }>();
+  const byComponent = new Map<string, { storyIds: string[]; argTypes: unknown; category?: string }>();
   const entries = data.entries ?? data.stories ?? {};
   for (const [id, entry] of Object.entries(entries)) {
     const title = entry.title ?? entry.name ?? id;
     const componentName = stripHierarchy(title);
-    const existing = byComponent.get(componentName) ?? { storyIds: [], argTypes: entry.argTypes ?? {} };
-    existing.storyIds.push(entry.id ?? id);
-    byComponent.set(componentName, existing);
+    const category = extractCategory(title);
+    const existing = byComponent.get(componentName);
+    if (existing) {
+      existing.storyIds.push(entry.id ?? id);
+    } else {
+      byComponent.set(componentName, { storyIds: [entry.id ?? id], argTypes: entry.argTypes ?? {}, category });
+    }
   }
-  return Array.from(byComponent.entries()).map(([name, { storyIds }]) => ({
+  return Array.from(byComponent.entries()).map(([name, { category }]) => ({
     name,
+    category,
     surfaces: { figma: false, storybook: true, code: false },
     coverage: ['storybook'],
     isOrphan: false,
@@ -99,17 +109,22 @@ export function scanStorybookFromPath(workspace: WorkspaceFacet, indexPath: stri
   } catch {
     return [];
   }
-  const byComponent = new Map<string, string[]>();
+  const byComponent = new Map<string, { storyIds: string[]; category?: string }>();
   const entries = data.entries ?? data.stories ?? {};
   for (const entry of Object.values(entries)) {
     const title = entry.title ?? entry.name ?? entry.id;
     const componentName = stripHierarchy(title);
-    const list = byComponent.get(componentName) ?? [];
-    list.push(entry.id);
-    byComponent.set(componentName, list);
+    const category = extractCategory(title);
+    const existing = byComponent.get(componentName);
+    if (existing) {
+      existing.storyIds.push(entry.id);
+    } else {
+      byComponent.set(componentName, { storyIds: [entry.id], category });
+    }
   }
-  return Array.from(byComponent.keys()).map((name) => ({
+  return Array.from(byComponent.entries()).map(([name, { category }]) => ({
     name,
+    category,
     surfaces: { figma: false, storybook: true, code: false },
     coverage: ['storybook'],
     isOrphan: false,

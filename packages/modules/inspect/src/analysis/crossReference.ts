@@ -62,6 +62,8 @@ export function crossReferenceComponents(
     if (existing) {
       existing.surfaces.storybook = true;
       if (!existing.coverage.includes('storybook')) existing.coverage.push('storybook');
+      // Preserve category from Storybook if available
+      if (c.category) existing.category = c.category;
     } else {
       byName.set(c.name, {
         ...c,

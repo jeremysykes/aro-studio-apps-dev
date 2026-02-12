@@ -167,6 +167,17 @@ export function useInspectState() {
 		};
 	}, [selectedRunId, view]);
 
+	// Navigate back to dashboard if current tab has no data for the loaded report
+	useEffect(() => {
+		if (reportLoadState !== 'success' || !report) return;
+		const tabHasNoData =
+			(reportTab === 'tokens' && !report.tokens?.length) ||
+			(reportTab === 'components' && !report.components?.length);
+		if (tabHasNoData) {
+			setReportTab('health');
+		}
+	}, [report, reportLoadState, reportTab]);
+
 	useEffect(() => {
 		if (!selectedRunId) {
 			setLogs([]);

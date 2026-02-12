@@ -16,6 +16,7 @@ export interface Token {
 
 export interface Component {
   name: string;
+  category?: string;
   surfaces: { figma?: boolean; storybook?: boolean; code?: boolean };
   coverage: string[];
   isOrphan: boolean;
