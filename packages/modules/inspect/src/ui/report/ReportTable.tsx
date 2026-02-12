@@ -127,9 +127,9 @@ export function ReportTable<T>({
 					{sortedRows.map((row) => (
 						<TableRow key={getRowKey(row)}>
 							{columns.map((col) => (
-								<TableCell key={col.key}>
-									{col.render(row)}
-								</TableCell>
+							<TableCell key={col.key} className="py-3">
+								{col.render(row)}
+							</TableCell>
 							))}
 						</TableRow>
 					))}
