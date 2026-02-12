@@ -111,7 +111,7 @@ export async function scanFigma(
       }
     }
 
-    const fileUrl = `${FIGMA_BASE}/files/${fileKey}`;
+    const fileUrl = `${FIGMA_BASE}/files/${fileKey}?depth=4`;
     const fileRes = await fetchWithBackoff(fileUrl, pat);
     if (fileRes.ok) {
       const fileData = (await fileRes.json()) as {
@@ -128,10 +128,12 @@ export async function scanFigma(
           if (node.type === 'COMPONENT' || node.type === 'COMPONENT_SET') {
             if (node.name) componentNames.add(node.name);
           }
-          walkNodes(node.children as Array<{ type?: string; name?: string; children?: unknown[] }> | undefined);
+          if (Array.isArray(node.children)) {
+            walkNodes(node.children as Array<{ type?: string; name?: string; children?: unknown[] }>);
+          }
         }
       }
-      walkNodes(fileData.document?.children);
+      walkNodes(fileData.document ? [fileData.document] : undefined);
     }
   }
 

@@ -1,1048 +1,137 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Button } from '@aro/desktop/components';
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-	Skeleton,
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from '@aro/desktop/components';
-import type { InspectReport } from './types';
-
-const JOB_SCAN = 'inspect:scan';
-const JOB_EXPORT = 'inspect:export';
-
-type View = 'setup' | 'run' | 'report';
-
-interface ScanConfig {
-	figmaFileKeys: string;
-	figmaPat: string;
-	codePaths: string;
-	storybookUrl: string;
-	storybookPath: string;
-}
-
-const defaultConfig: ScanConfig = {
-	figmaFileKeys: '',
-	figmaPat: '',
-	codePaths: '',
-	storybookUrl: '',
-	storybookPath: '',
-};
-
-function getInitialConfig(): ScanConfig {
-	const envToken =
-		typeof import.meta !== 'undefined' &&
-		(import.meta as { env?: Record<string, string | undefined> }).env
-			?.VITE_FIGMA_TOKEN;
-	return {
-		...defaultConfig,
-		figmaPat: typeof envToken === 'string' ? envToken : '',
-	};
-}
-
-/** Extract Figma file key from a URL or return trimmed string if already a raw key. */
-function extractFigmaFileKey(input: string): string {
-	const trimmed = input.trim();
-	if (!trimmed) return '';
-	const match = trimmed.match(/figma\.com\/(?:design|file)\/([A-Za-z0-9_-]+)/);
-	return match ? match[1]! : trimmed;
-}
-
-function handleRunsListKeyDown(
-	e: React.KeyboardEvent,
-	items: Array<{ id: string }>,
-	focusedId: string | null,
-	onFocus: (id: string) => void,
-	onSelect: (id: string) => void,
-): void {
-	if (items.length === 0) return;
-	const idx = focusedId ? items.findIndex((r) => r.id === focusedId) : -1;
-	if (e.key === 'ArrowDown') {
-		e.preventDefault();
-		if (idx < items.length - 1) {
-			onFocus(items[idx + 1]!.id);
-		} else if (idx === -1) {
-			onFocus(items[0]!.id);
-		}
-	} else if (e.key === 'ArrowUp') {
-		e.preventDefault();
-		if (idx > 0) {
-			onFocus(items[idx - 1]!.id);
-		} else if (idx === -1) {
-			onFocus(items[items.length - 1]!.id);
-		}
-	} else if (e.key === 'Home') {
-		e.preventDefault();
-		onFocus(items[0]!.id);
-	} else if (e.key === 'End') {
-		e.preventDefault();
-		onFocus(items[items.length - 1]!.id);
-	} else if (e.key === 'Enter' || e.key === ' ') {
-		e.preventDefault();
-		const toSelect = idx >= 0 ? focusedId : items[0]!.id;
-		if (toSelect) {
-			onSelect(toSelect);
-		}
-	}
-}
-
-/** Prevent option buttons from taking focus; listbox owns focus per ARIA listbox pattern. */
-function preventOptionFocus(e: React.MouseEvent) {
-	e.preventDefault();
-}
-
-function hasAtLeastOneSource(config: ScanConfig): boolean {
-	const hasFigma = config.figmaFileKeys.trim() && config.figmaPat.trim();
-	const hasCode = config.codePaths.trim().length > 0;
-	const hasStorybook =
-		config.storybookUrl.trim().length > 0 ||
-		config.storybookPath.trim().length > 0;
-	return hasFigma || hasCode || hasStorybook;
-}
-
-function buildScanInput(config: ScanConfig): unknown {
-	const input: Record<string, unknown> = {};
-	if (config.figmaFileKeys.trim() && config.figmaPat.trim()) {
-		input.figma = {
-			fileKeys: config.figmaFileKeys
-				.split(/[\s,]+/)
-				.filter(Boolean)
-				.map((s) => extractFigmaFileKey(s.trim()))
-				.filter(Boolean),
-			pat: config.figmaPat.trim(),
-		};
-	}
-	const codePathsTrimmed = config.codePaths.trim();
-	if (codePathsTrimmed) {
-		const firstChar = codePathsTrimmed[0];
-		if (firstChar === '{' || firstChar === '[') {
-			input.codeTokens = { inline: codePathsTrimmed };
-		} else {
-			input.codeTokens = {
-				paths: codePathsTrimmed.split(/[\n\s,]+/).filter(Boolean),
-			};
-		}
-	}
-	if (config.storybookUrl.trim()) {
-		input.storybook = { indexUrl: config.storybookUrl.trim() };
-	} else if (config.storybookPath.trim()) {
-		input.storybook = { indexPath: config.storybookPath.trim() };
-	}
-	return input;
-}
+import React from 'react';
+import { Button, TooltipProvider } from '@aro/desktop/components';
+import { useInspectState } from './hooks/useInspectState';
+import { WorkspaceCard } from './components/WorkspaceCard';
+import { SetupView } from './views/SetupView';
+import { RunView } from './views/RunView';
+import { ReportView } from './views/ReportView';
+import { hasAtLeastOneSource } from './lib/config';
 
 export default function Inspect() {
-	const [workspacePath, setWorkspacePath] = useState<string | null>(null);
-	const [view, setView] = useState<View>('setup');
-	const [config, setConfig] = useState<ScanConfig>(getInitialConfig);
-	const [runs, setRuns] = useState<
-		Array<{ id: string; status: string; startedAt: number }>
-	>([]);
-	const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
-	const [logs, setLogs] = useState<
-		Array<{ id: string; level: string; message: string }>
-	>([]);
-	const [report, setReport] = useState<InspectReport | null>(null);
-	const [reportLoadState, setReportLoadState] = useState<
-		'idle' | 'loading' | 'success' | 'error'
-	>('idle');
-	const [runningRunId, setRunningRunId] = useState<string | null>(null);
-	const [error, setError] = useState<string | null>(null);
-	const [reportTab, setReportTab] = useState<
-		'health' | 'tokens' | 'components'
-	>('health');
-	const [runsWithReport, setRunsWithReport] = useState<string[]>([]);
-	const [runsWithReportLoading, setRunsWithReportLoading] = useState(false);
-	const [focusedRunId, setFocusedRunId] = useState<string | null>(null);
-	const listboxRef = useRef<HTMLDivElement>(null);
-
-	const handleSelectRun = useCallback((id: string) => {
-		setSelectedRunId(id);
-		setFocusedRunId(id);
-		listboxRef.current?.focus();
-	}, []);
-
-	const loadWorkspace = useCallback(async () => {
-		try {
-			const current = await window.aro.workspace.getCurrent();
-			setWorkspacePath(current?.path ?? null);
-		} catch {
-			setWorkspacePath(null);
-		}
-	}, []);
-
-	useEffect(() => {
-		loadWorkspace();
-		const unsub = window.aro.workspace.onChanged(
-			(data: { path: string } | null) => {
-				setWorkspacePath(data?.path ?? null);
-			},
-		);
-		return unsub;
-	}, [loadWorkspace]);
-
-	const loadRuns = useCallback(async () => {
-		if (!workspacePath) return;
-		try {
-			const list = await window.aro.runs.list();
-			setRuns(list);
-		} catch {
-			setRuns([]);
-		}
-	}, [workspacePath]);
-
-	useEffect(() => {
-		loadRuns();
-	}, [loadRuns]);
-
-	useEffect(() => {
-		if (runningRunId == null) return;
-		const id = setInterval(loadRuns, 2000);
-		return () => clearInterval(id);
-	}, [runningRunId, loadRuns]);
-
-	const RUNS_WITH_REPORT_LIMIT = 50;
-	useEffect(() => {
-		if (view !== 'report' || !workspacePath) {
-			setRunsWithReport([]);
-			setRunsWithReportLoading(false);
-			return;
-		}
-		const successfulRuns = runs
-			.filter((r) => r.status === 'success')
-			.slice(0, RUNS_WITH_REPORT_LIMIT);
-		if (successfulRuns.length === 0) {
-			setRunsWithReport([]);
-			setRunsWithReportLoading(false);
-			return;
-		}
-		setRunsWithReportLoading(true);
-		Promise.allSettled(
-			successfulRuns.map((r) => window.aro.artifacts.list(r.id)),
-		)
-			.then((results) => {
-				const ids: string[] = [];
-				results.forEach((result, i) => {
-					if (result.status === 'fulfilled') {
-						const artifacts = result.value as Array<{ path: string }>;
-						if (artifacts.some((a) => a.path === 'report.json')) {
-							ids.push(successfulRuns[i]!.id);
-						}
-					}
-				});
-				setRunsWithReport(ids);
-			})
-			.finally(() => setRunsWithReportLoading(false));
-	}, [view, workspacePath, runs]);
-
-	useEffect(() => {
-		if (
-			selectedRunId &&
-			runsWithReport.length > 0 &&
-			!runsWithReport.includes(selectedRunId)
-		) {
-			const first = runsWithReport[0]!;
-			setSelectedRunId(first);
-			setFocusedRunId(first);
-		}
-	}, [selectedRunId, runsWithReport]);
-
-	useEffect(() => {
-		const run = runs.find((r) => r.id === runningRunId);
-		if (run && run.status !== 'running') {
-			setRunningRunId(null);
-			if (run.status === 'success') {
-				setView('report');
-				setSelectedRunId(run.id);
-				setFocusedRunId(run.id);
-			}
-		}
-	}, [runs, runningRunId]);
-
-	useEffect(() => {
-		if (!selectedRunId || view !== 'report') {
-			setReport(null);
-			setReportLoadState('idle');
-			return;
-		}
-		let cancelled = false;
-		setReportLoadState('loading');
-		setReport(null);
-		window.aro.artifacts
-			.read(selectedRunId, 'report.json')
-			.then((content) => {
-				if (cancelled) return;
-				try {
-					setReport(JSON.parse(content) as InspectReport);
-					setReportLoadState('success');
-				} catch {
-					setReport(null);
-					setReportLoadState('error');
-				}
-			})
-			.catch(() => {
-				if (!cancelled) {
-					setReport(null);
-					setReportLoadState('error');
-				}
-			});
-		return () => {
-			cancelled = true;
-		};
-	}, [selectedRunId, view]);
-
-	useEffect(() => {
-		if (!selectedRunId) {
-			setLogs([]);
-			return;
-		}
-		let unsub: (() => void) | null = null;
-		const load = async () => {
-			try {
-				const logList = await window.aro.logs.list(selectedRunId);
-				setLogs(logList);
-				unsub = await window.aro.logs.subscribe(
-					selectedRunId,
-					(entry: { id: string; level: string; message: string }) => {
-						setLogs((prev) => [...prev, entry]);
-					},
-				);
-			} catch {
-				setLogs([]);
-			}
-		};
-		load();
-		return () => {
-			unsub?.();
-		};
-	}, [selectedRunId]);
-
-	const handleSelectWorkspace = async () => {
-		setError(null);
-		try {
-			const result = await window.aro.workspace.select();
-			if (result) setWorkspacePath(result.path);
-		} catch (e) {
-			setError(e instanceof Error ? e.message : 'Failed to select workspace');
-		}
-	};
-
-	const handleRunScan = async () => {
-		setError(null);
-		try {
-			const input = buildScanInput(config);
-			const { runId } = await window.aro.job.run(JOB_SCAN, input);
-			setRunningRunId(runId);
-			setSelectedRunId(runId);
-			setFocusedRunId(runId);
-			setView('run');
-			loadRuns();
-		} catch (e) {
-			setError(e instanceof Error ? e.message : 'Failed to run scan');
-		}
-	};
-
-	const handleCancelRun = async (runId: string) => {
-		setError(null);
-		try {
-			await window.aro.job.cancel(runId);
-			setRunningRunId(null);
-			loadRuns();
-		} catch (e) {
-			setError(e instanceof Error ? e.message : 'Failed to cancel');
-		}
-	};
-
-	const handleExport = async (format: 'csv' | 'markdown') => {
-		if (!selectedRunId) return;
-		setError(null);
-		try {
-			const artifacts = await window.aro.artifacts.list(selectedRunId);
-			if (!artifacts.some((a: { path: string }) => a.path === 'report.json')) {
-				setError('Report not available for this run. Cannot export.');
-				return;
-			}
-			const { runId } = await window.aro.job.run(JOB_EXPORT, {
-				runId: selectedRunId,
-				format,
-			});
-			// Poll until export job completes
-			let run = await window.aro.runs.get(runId);
-			while (run?.status === 'running') {
-				await new Promise((r) => setTimeout(r, 100));
-				run = await window.aro.runs.get(runId);
-			}
-			if (run?.status === 'success') {
-				const ext = format === 'csv' ? 'csv' : 'md';
-				const content = await window.aro.artifacts.read(
-					runId,
-					`inspect-export.${ext}`,
-				);
-				const blob = new Blob([content], {
-					type: format === 'csv' ? 'text/csv' : 'text/markdown',
-				});
-				const url = URL.createObjectURL(blob);
-				const a = document.createElement('a');
-				a.href = url;
-				a.download = `inspect-report.${ext}`;
-				a.click();
-				URL.revokeObjectURL(url);
-			}
-			loadRuns();
-		} catch (e) {
-			setError(e instanceof Error ? e.message : 'Export failed');
-		}
-	};
+	const state = useInspectState();
+	const {
+		workspacePath,
+		view,
+		setView,
+		config,
+		setConfig,
+		runs,
+		selectedRunId,
+		logs,
+		report,
+		reportLoadState,
+		runningRunId,
+		error,
+		reportTab,
+		setReportTab,
+		runsWithReport,
+		runsWithReportLoading,
+		focusedRunId,
+		setFocusedRunId,
+		listboxRef,
+		handleSelectRun,
+		handleSelectWorkspace,
+		handleRunScan,
+		handleCancelRun,
+		handleExport,
+	} = state;
 
 	return (
-		<main className='min-w-[900px] min-h-screen p-6 font-sans' role='main'>
+		<main className="min-w-[900px] min-h-screen p-6 font-sans" role="main">
 			<TooltipProvider delayDuration={300}>
-			<h1 className='text-2xl font-semibold mb-4'>Aro Inspect</h1>
+				<h1 className="text-2xl font-semibold mb-4">Aro Inspect</h1>
 
-			{!workspacePath ? (
-				<Card className='mb-4'>
-					<CardHeader>
-						<CardTitle>Workspace</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<p className='mb-2 text-muted-foreground'>
-							Select a workspace to configure sources and run Inspect.
-						</p>
-						<Button type='button' onClick={handleSelectWorkspace}>
-							Select workspace
-						</Button>
-					</CardContent>
-				</Card>
-			) : (
-				<>
-					<Card className='mb-4'>
-						<CardHeader>
-							<CardTitle>Workspace</CardTitle>
-						</CardHeader>
-						<CardContent>
-							<p className='mb-2 text-sm'>
-								<strong>Path:</strong> {workspacePath}
-							</p>
-							<Button
-								type='button'
-								variant='outline'
-								onClick={handleSelectWorkspace}
+				<WorkspaceCard
+					workspacePath={workspacePath}
+					onSelectWorkspace={handleSelectWorkspace}
+				/>
+
+				{workspacePath && (
+					<>
+						{error && (
+							<div
+								role="alert"
+								className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/30 p-4 text-red-800 dark:text-red-200 mb-4"
 							>
-								Change workspace
-							</Button>
-						</CardContent>
-					</Card>
-
-					{error && (
-						<div
-							role='alert'
-							className='rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/30 p-4 text-red-800 dark:text-red-200 mb-4'
-						>
-							{error}
-						</div>
-					)}
-
-					<nav className='flex gap-2 mt-2 mb-2' aria-label='Inspect views'>
-						<Button
-							type='button'
-							variant={view === 'setup' ? 'default' : 'outline'}
-							onClick={() => setView('setup')}
-						>
-							Setup
-						</Button>
-						<Button
-							type='button'
-							variant={view === 'run' ? 'default' : 'outline'}
-							onClick={() => setView('run')}
-						>
-							Logs
-						</Button>
-						<Button
-							type='button'
-							variant={view === 'report' ? 'default' : 'outline'}
-							onClick={() => setView('report')}
-						>
-							Report
-						</Button>
-					</nav>
-
-					{view === 'setup' && !hasAtLeastOneSource(config) && (
-						<p className='mb-2 text-sm text-muted-foreground'>
-							Configure at least one source (Figma, Code tokens, or Storybook)
-							to enable Run Inspect.
-						</p>
-					)}
-					{view === 'setup' && (
-						<section aria-labelledby='setup-heading'>
-							<h2 id='setup-heading' className='sr-only'>
-								Setup sources
-							</h2>
-							<div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
-								<Card>
-									<CardHeader>
-										<CardTitle>Figma</CardTitle>
-									</CardHeader>
-									<CardContent className='space-y-2'>
-										<label className='block text-sm font-medium'>
-											File key(s) or URL(s){' '}
-											<span className='text-muted-foreground'>
-												(comma-separated)
-											</span>
-										</label>
-										<input
-											type='text'
-											className='w-full rounded border px-3 py-2 text-sm'
-											value={config.figmaFileKeys}
-											onChange={(e) =>
-												setConfig((c) => ({
-													...c,
-													figmaFileKeys: e.target.value,
-												}))
-											}
-											placeholder='abc123def456 or Figma URL'
-											aria-label='Figma file keys or URLs'
-										/>
-										<label className='block text-sm font-medium'>
-											Personal access token
-										</label>
-										<input
-											type='password'
-											className='w-full rounded border px-3 py-2 text-sm'
-											value={config.figmaPat}
-											onChange={(e) =>
-												setConfig((c) => ({ ...c, figmaPat: e.target.value }))
-											}
-											placeholder='figd_…'
-											aria-label='Figma PAT'
-										/>
-									</CardContent>
-								</Card>
-								<Card>
-									<CardHeader>
-										<CardTitle>Code tokens</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<label className='block text-sm font-medium mb-1'>
-											Path(s) to token files (one per line or comma-separated), or
-											paste raw DTCG/Style Dictionary JSON
-										</label>
-										<textarea
-											className='w-full rounded border px-3 py-2 text-sm min-h-[80px]'
-											value={config.codePaths}
-											onChange={(e) =>
-												setConfig((c) => ({ ...c, codePaths: e.target.value }))
-											}
-											placeholder='tokens/tokens.json or paste JSON'
-											aria-label='Code token paths or inline JSON'
-										/>
-									</CardContent>
-								</Card>
-								<Card>
-									<CardHeader>
-										<CardTitle>Storybook</CardTitle>
-									</CardHeader>
-									<CardContent className='space-y-2'>
-										<label className='block text-sm font-medium'>
-											Index URL
-										</label>
-										<input
-											type='url'
-											className='w-full rounded border px-3 py-2 text-sm'
-											value={config.storybookUrl}
-											onChange={(e) =>
-												setConfig((c) => ({
-													...c,
-													storybookUrl: e.target.value,
-												}))
-											}
-											placeholder='Base URL (e.g. https://site.vercel.app/) or …/index.json'
-											aria-label='Storybook index URL'
-										/>
-										<span className='text-sm text-muted-foreground'>
-											or workspace path to index
-										</span>
-										<input
-											type='text'
-											className='w-full rounded border px-3 py-2 text-sm'
-											value={config.storybookPath}
-											onChange={(e) =>
-												setConfig((c) => ({
-													...c,
-													storybookPath: e.target.value,
-												}))
-											}
-											placeholder='storybook-static/index.json'
-											aria-label='Storybook index path'
-										/>
-									</CardContent>
-								</Card>
+								{error}
 							</div>
+						)}
+
+						<nav
+							className="flex gap-2 mt-2 mb-2"
+							aria-label="Inspect views"
+						>
 							<Button
-								type='button'
-								disabled={!hasAtLeastOneSource(config)}
-								onClick={handleRunScan}
+								type="button"
+								variant={view === 'setup' ? 'default' : 'outline'}
+								onClick={() => setView('setup')}
 							>
-								Run Inspect
+								Setup
 							</Button>
-						</section>
-					)}
-
-					{view === 'run' && (
-						<section aria-labelledby='run-heading'>
-							<h2 id='run-heading' className='sr-only'>
-								Run and logs
-							</h2>
-							<div className='grid grid-cols-1 min-[900px]:grid-cols-[20rem_1fr] min-[900px]:grid-rows-[minmax(0,1fr)] min-[900px]:max-h-[calc(100vh-12rem)] min-[900px]:min-h-0 gap-4'>
-								<div className='space-y-4 min-[900px]:flex min-[900px]:flex-col min-[900px]:min-h-0 min-[900px]:space-y-0'>
-									<Card className='min-[900px]:flex-1 min-[900px]:min-h-0 min-[900px]:flex min-[900px]:flex-col min-[900px]:overflow-hidden'>
-										<CardHeader>
-											<CardTitle>Runs</CardTitle>
-										</CardHeader>
-										<CardContent className='min-[900px]:overflow-y-auto min-[900px]:min-h-0 min-w-0'>
-											<div
-												ref={listboxRef}
-												role='listbox'
-												aria-label='Runs'
-												tabIndex={0}
-												aria-activedescendant={
-													focusedRunId ? `runs-log-option-${focusedRunId}` : undefined
-												}
-												className='min-w-0 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-zinc-400 rounded-md'
-												onFocus={() => {
-													if (runs.length === 0) return;
-													const inList = focusedRunId && runs.some((r) => r.id === focusedRunId);
-													if (!inList) {
-														setFocusedRunId(
-															selectedRunId && runs.some((r) => r.id === selectedRunId)
-																? selectedRunId
-																: runs[0]!.id,
-														);
-													}
-												}}
-												onKeyDown={(e) =>
-													handleRunsListKeyDown(
-														e,
-														runs,
-														focusedRunId,
-														setFocusedRunId,
-														handleSelectRun,
-													)
-												}
-											>
-												<ul className='list-none space-y-1 min-w-0'>
-													{runs.map((run) => {
-														const fullLabel = `${run.id} — ${run.status} — ${new Date(run.startedAt).toLocaleString()}`;
-														const isFocused = focusedRunId === run.id;
-														const isSelected = selectedRunId === run.id;
-														return (
-															<li
-																key={run.id}
-																id={`runs-log-option-${run.id}`}
-																role='option'
-																aria-selected={isSelected}
-																className={`min-w-0 rounded-md ${isFocused && !isSelected ? 'ring-1 ring-zinc-300 ring-inset' : ''}`}
-															>
-																<Tooltip>
-																	<TooltipTrigger asChild>
-																		<Button
-																			type='button'
-																			tabIndex={-1}
-																			variant={isSelected ? 'default' : 'ghost'}
-																			className='w-full min-w-0 justify-start overflow-hidden font-normal'
-																			onMouseDown={preventOptionFocus}
-																			onClick={() => handleSelectRun(run.id)}
-																		>
-																			<span className='block min-w-0 truncate text-left'>
-																				{fullLabel}
-																			</span>
-																		</Button>
-																	</TooltipTrigger>
-																	<TooltipContent side='top'>
-																		<p>{fullLabel}</p>
-																	</TooltipContent>
-																</Tooltip>
-															</li>
-														);
-													})}
-												</ul>
-											</div>
-										</CardContent>
-									</Card>
-									{runningRunId && (
-										<Button
-											type='button'
-											variant='destructive'
-											className='min-[900px]:mt-4'
-											onClick={() => handleCancelRun(runningRunId)}
-										>
-											Abort scan
-										</Button>
-									)}
-								</div>
-								{selectedRunId && (
-									<Card>
-										<CardHeader>
-											<CardTitle>Logs</CardTitle>
-										</CardHeader>
-										<CardContent>
-											<ul
-												className='list-none space-y-1 font-mono text-sm'
-												role='log'
-												aria-live='polite'
-											>
-												{logs.map((entry) => (
-													<li key={entry.id}>
-														[{entry.level}] {entry.message}
-													</li>
-												))}
-											</ul>
-										</CardContent>
-									</Card>
-								)}
-							</div>
-						</section>
-					)}
-
-					{view === 'report' && (
-						<section aria-labelledby='report-heading'>
-							<h2 id='report-heading' className='sr-only'>
+							<Button
+								type="button"
+								variant={view === 'run' ? 'default' : 'outline'}
+								onClick={() => setView('run')}
+							>
+								Logs
+							</Button>
+							<Button
+								type="button"
+								variant={view === 'report' ? 'default' : 'outline'}
+								onClick={() => setView('report')}
+							>
 								Report
-							</h2>
-							<div className='flex flex-col min-[900px]:flex-row min-[900px]:gap-4 min-[900px]:items-start'>
-								<aside
-									aria-label='Run selection'
-									className='min-[900px]:w-80 min-[900px]:shrink-0 min-[900px]:max-h-[calc(100vh-12rem)] min-[900px]:flex min-[900px]:flex-col'
-								>
-									<Card className='mb-4 min-[900px]:mb-0 min-[900px]:flex min-[900px]:min-h-0 min-[900px]:flex-col min-[900px]:overflow-hidden'>
-										<CardHeader>
-											<CardTitle>Runs</CardTitle>
-										</CardHeader>
-										<CardContent className='min-[900px]:overflow-y-auto min-[900px]:min-h-0 min-w-0'>
-											{runsWithReportLoading ? (
-												<ul className='list-none space-y-1 min-w-0'>
-													{Array.from({ length: 6 }, (_, i) => (
-														<li key={i} className='min-w-0'>
-															<Skeleton className='h-10 w-full rounded-md' />
-														</li>
-													))}
-												</ul>
-											) : (() => {
-												const reportRuns = runs.filter((r) => runsWithReport.includes(r.id));
-												return (
-													<div
-														ref={listboxRef}
-														role='listbox'
-														aria-label='Runs'
-														tabIndex={0}
-														aria-activedescendant={
-															focusedRunId ? `runs-report-option-${focusedRunId}` : undefined
-														}
-														className='min-w-0 outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-zinc-400 rounded-md'
-														onFocus={() => {
-															if (reportRuns.length === 0) return;
-															const inList = focusedRunId && reportRuns.some((r) => r.id === focusedRunId);
-															if (!inList) {
-																setFocusedRunId(
-																	selectedRunId && reportRuns.some((r) => r.id === selectedRunId)
-																		? selectedRunId
-																		: reportRuns[0]!.id,
-																);
-															}
-														}}
-														onKeyDown={(e) =>
-															handleRunsListKeyDown(
-																e,
-																reportRuns,
-																focusedRunId,
-																setFocusedRunId,
-																handleSelectRun,
-															)
-														}
-													>
-														<ul className='list-none space-y-1 min-w-0'>
-															{reportRuns.map((run) => {
-																const fullLabel = `${run.id} — ${new Date(run.startedAt).toLocaleString()}`;
-																const isFocused = focusedRunId === run.id;
-																const isSelected = selectedRunId === run.id;
-																return (
-																	<li
-																		key={run.id}
-																		id={`runs-report-option-${run.id}`}
-																		role='option'
-																		aria-selected={isSelected}
-																		className={`min-w-0 rounded-md ${isFocused && !isSelected ? 'ring-1 ring-zinc-300 ring-inset' : ''}`}
-																	>
-																		<Tooltip>
-																			<TooltipTrigger asChild>
-																				<Button
-																					type='button'
-																					tabIndex={-1}
-																					variant={isSelected ? 'default' : 'ghost'}
-																					className='w-full min-w-0 justify-start overflow-hidden font-normal'
-																					onMouseDown={preventOptionFocus}
-																					onClick={() => handleSelectRun(run.id)}
-																				>
-																					<span className='block min-w-0 truncate text-left'>
-																						{fullLabel}
-																					</span>
-																				</Button>
-																			</TooltipTrigger>
-																			<TooltipContent side='top'>
-																				<p>{fullLabel}</p>
-																			</TooltipContent>
-																		</Tooltip>
-																	</li>
-																);
-															})}
-														</ul>
-													</div>
-												);
-											})()}
-										</CardContent>
-									</Card>
-								</aside>
-								<div className='min-[900px]:flex-1 min-[900px]:min-w-0'>
-									<Card>
-										<CardHeader>
-											<CardTitle>Reports</CardTitle>
-										</CardHeader>
-										<CardContent>
-											{reportLoadState === 'loading' && (
-												<p className='text-muted-foreground'>
-													Loading report…
-												</p>
-											)}
-											{reportLoadState === 'error' && (
-												<p className='text-muted-foreground'>
-													Report not available for this run.
-												</p>
-											)}
-											{reportLoadState === 'success' && report && (
-												<>
-													<div
-														className='flex gap-2 mb-4'
-														role='tablist'
-														aria-label='Report tabs'
-													>
-												<Button
-													type='button'
-													variant={
-														reportTab === 'health' ? 'default' : 'outline'
-													}
-													onClick={() => setReportTab('health')}
-													role='tab'
-													aria-selected={reportTab === 'health'}
-												>
-													Health Dashboard
-												</Button>
-												<Button
-													type='button'
-													variant={
-														reportTab === 'tokens' ? 'default' : 'outline'
-													}
-													disabled={!report.tokens?.length}
-													onClick={() => setReportTab('tokens')}
-													role='tab'
-													aria-selected={reportTab === 'tokens'}
-												>
-													Token Inventory
-												</Button>
-												<Button
-													type='button'
-													variant={
-														reportTab === 'components' ? 'default' : 'outline'
-													}
-													disabled={!report.components?.length}
-													onClick={() => setReportTab('components')}
-													role='tab'
-													aria-selected={reportTab === 'components'}
-												>
-													Component Inventory
-												</Button>
-											</div>
-											{reportTab === 'health' && (
-												<div>
-													<p className='text-lg font-medium'>Health score</p>
-													<p className='mt-2'>
-														Composite:{' '}
-														<strong>{report.healthScore.composite}</strong>{' '}
-														out of 100
-													</p>
-													<ul className='list-disc pl-6 mt-2 space-y-1'>
-														<li>
-															Token consistency:{' '}
-															{report.healthScore.tokenConsistency}
-														</li>
-														<li>
-															Component coverage:{' '}
-															{report.healthScore.componentCoverage}
-														</li>
-														<li>
-															Naming alignment:{' '}
-															{report.healthScore.namingAlignment}
-														</li>
-														<li>
-															Value parity: {report.healthScore.valueParity}
-														</li>
-													</ul>
-													<p className='mt-4 font-medium'>
-														Findings by severity
-													</p>
-													<ul className='list-disc pl-6'>
-														<li>
-															Critical:{' '}
-															{report.summary.findingsBySeverity?.critical ?? 0}
-														</li>
-														<li>
-															Warning:{' '}
-															{report.summary.findingsBySeverity?.warning ?? 0}
-														</li>
-														<li>
-															Info:{' '}
-															{report.summary.findingsBySeverity?.info ?? 0}
-														</li>
-													</ul>
-													<div className='mt-4 flex gap-2'>
-														<Button
-															type='button'
-															variant='outline'
-															disabled={
-																!runsWithReport.includes(selectedRunId ?? '')
-															}
-															onClick={() => handleExport('csv')}
-														>
-															Export CSV
-														</Button>
-														<Button
-															type='button'
-															variant='outline'
-															disabled={
-																!runsWithReport.includes(selectedRunId ?? '')
-															}
-															onClick={() => handleExport('markdown')}
-														>
-															Export Markdown
-														</Button>
-													</div>
-												</div>
-											)}
-											{reportTab === 'tokens' && (
-												<div className='overflow-x-auto'>
-													<p className='font-medium mb-2'>Token inventory</p>
-													<table className='w-full text-sm border-collapse'>
-															<thead>
-																<tr>
-																	<th
-																		scope='col'
-																		className='text-left border p-2'
-																	>
-																		Name
-																	</th>
-																	<th
-																		scope='col'
-																		className='text-left border p-2'
-																	>
-																		Value
-																	</th>
-																	<th
-																		scope='col'
-																		className='text-left border p-2'
-																	>
-																		Type
-																	</th>
-																	<th
-																		scope='col'
-																		className='text-left border p-2'
-																	>
-																		Source
-																	</th>
-																</tr>
-															</thead>
-															<tbody>
-																{report.tokens.map((t) => (
-																	<tr key={t.name}>
-																		<td className='border p-2'>{t.name}</td>
-																		<td className='border p-2'>{t.value}</td>
-																		<td className='border p-2'>{t.type}</td>
-																		<td className='border p-2'>{t.source}</td>
-																	</tr>
-																))}
-															</tbody>
-														</table>
-												</div>
-											)}
-											{reportTab === 'components' && (
-												<div className='overflow-x-auto'>
-													<p className='font-medium mb-2'>Component inventory</p>
-													<table className='w-full text-sm border-collapse'>
-															<thead>
-																<tr>
-																	<th
-																		scope='col'
-																		className='text-left border p-2'
-																	>
-																		Name
-																	</th>
-																	<th
-																		scope='col'
-																		className='text-left border p-2'
-																	>
-																		Surfaces
-																	</th>
-																	<th
-																		scope='col'
-																		className='text-left border p-2'
-																	>
-																		Coverage
-																	</th>
-																	<th
-																		scope='col'
-																		className='text-left border p-2'
-																	>
-																		Orphan
-																	</th>
-																</tr>
-															</thead>
-															<tbody>
-																{report.components.map((c) => (
-																	<tr key={c.name}>
-																		<td className='border p-2'>{c.name}</td>
-																		<td className='border p-2'>
-																			{[
-																				c.surfaces.figma && 'Figma',
-																				c.surfaces.storybook && 'Storybook',
-																				c.surfaces.code && 'Code',
-																			]
-																				.filter(Boolean)
-																				.join(', ') || '—'}
-																		</td>
-																		<td className='border p-2'>
-																			{c.coverage.join(', ')}
-																		</td>
-																		<td className='border p-2'>
-																			{c.isOrphan ? 'Yes' : 'No'}
-																		</td>
-																	</tr>
-														))}
-													</tbody>
-												</table>
-											</div>
-											)}
-								</>
-											)}
-										</CardContent>
-									</Card>
-								</div>
-							</div>
-						</section>
-					)}
-				</>
-			)}
+							</Button>
+						</nav>
+
+						{view === 'setup' && !hasAtLeastOneSource(config) && (
+							<p className="mb-2 text-sm text-muted-foreground">
+								Configure at least one source (Figma, Code tokens, or Storybook)
+								to enable Run Inspect.
+							</p>
+						)}
+						{view === 'setup' && (
+							<SetupView
+								config={config}
+								onConfigChange={setConfig}
+								onRunScan={handleRunScan}
+								hasAtLeastOneSource={hasAtLeastOneSource(config)}
+							/>
+						)}
+						{view === 'run' && (
+							<RunView
+								runs={runs}
+								selectedRunId={selectedRunId}
+								focusedRunId={focusedRunId}
+								logs={logs}
+								runningRunId={runningRunId}
+								listboxRef={listboxRef}
+								onSelectRun={handleSelectRun}
+								onFocusChange={setFocusedRunId}
+								onCancelRun={handleCancelRun}
+							/>
+						)}
+						{view === 'report' && (
+							<ReportView
+								runs={runs}
+								runsWithReport={runsWithReport}
+								runsWithReportLoading={runsWithReportLoading}
+								selectedRunId={selectedRunId}
+								focusedRunId={focusedRunId}
+								report={report}
+								reportLoadState={reportLoadState}
+								reportTab={reportTab}
+								listboxRef={listboxRef}
+								onSelectRun={handleSelectRun}
+								onFocusChange={setFocusedRunId}
+								onReportTabChange={setReportTab}
+								onExportCsv={() => handleExport('csv')}
+								onExportMarkdown={() => handleExport('markdown')}
+								canExport={runsWithReport.includes(selectedRunId ?? '')}
+							/>
+						)}
+					</>
+				)}
 			</TooltipProvider>
 		</main>
 	);
