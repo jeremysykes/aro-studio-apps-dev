@@ -1,11 +1,13 @@
 import React from 'react';
 import {
+	Badge,
 	Button,
 	Card,
 	CardContent,
 	CardHeader,
 	CardTitle,
 	Input,
+	Separator,
 	Textarea,
 } from '@aro/desktop/components';
 import { useInspectStore } from '../store';
@@ -14,20 +16,58 @@ export interface SetupViewProps {
 	hasAtLeastOneSource: boolean;
 }
 
+/** Derive which sources are configured from the current config. */
+function configuredSources(config: {
+	figmaFileKeys: string;
+	figmaPat: string;
+	codePaths: string;
+	storybookUrl: string;
+	storybookPath: string;
+}): string[] {
+	const sources: string[] = [];
+	if (config.figmaFileKeys.trim() && config.figmaPat.trim())
+		sources.push('Figma');
+	if (config.codePaths.trim()) sources.push('Code tokens');
+	if (config.storybookUrl.trim() || config.storybookPath.trim())
+		sources.push('Storybook');
+	return sources;
+}
+
 export function SetupView({ hasAtLeastOneSource }: SetupViewProps) {
 	const config = useInspectStore((s) => s.config);
 	const setConfig = useInspectStore((s) => s.setConfig);
 	const runScan = useInspectStore((s) => s.runScan);
+
+	const sources = configuredSources(config);
+	const figmaConfigured = sources.includes('Figma');
+	const codeConfigured = sources.includes('Code tokens');
+	const storybookConfigured = sources.includes('Storybook');
 
 	return (
 		<section aria-labelledby='setup-heading'>
 			<h2 id='setup-heading' className='sr-only'>
 				Setup sources
 			</h2>
-			<div className='grid grid-cols-1 min-[900px]:grid-cols-3 gap-4 mb-4'>
+
+			{!hasAtLeastOneSource && (
+				<p className='text-sm text-zinc-500 mb-4'>
+					Configure at least one source (Figma, Code tokens, or Storybook) to
+					enable Run Inspect.
+				</p>
+			)}
+
+			<div className='grid grid-cols-1 min-[900px]:grid-cols-3 gap-4'>
+				{/* ── Figma ── */}
 				<Card>
 					<CardHeader>
-						<CardTitle className='text-base'>Figma</CardTitle>
+						<div className='flex items-center justify-between'>
+							<CardTitle className='text-base'>Figma</CardTitle>
+							{figmaConfigured ? (
+								<Badge variant='secondary'>&#10003; Configured</Badge>
+							) : (
+								<span className='text-zinc-400 text-xs'>Not configured</span>
+							)}
+						</div>
 					</CardHeader>
 					<CardContent className='space-y-2'>
 						<label
@@ -52,7 +92,7 @@ export function SetupView({ hasAtLeastOneSource }: SetupViewProps) {
 						/>
 						<label
 							htmlFor='setup-figma-pat'
-							className='block text-sm font-medium'
+							className='block text-[11px] font-medium'
 						>
 							Personal access token
 						</label>
@@ -69,19 +109,28 @@ export function SetupView({ hasAtLeastOneSource }: SetupViewProps) {
 						/>
 					</CardContent>
 				</Card>
+
+				{/* ── Code tokens ── */}
 				<Card>
 					<CardHeader>
-						<CardTitle className='text-base'>Code tokens</CardTitle>
+						<div className='flex items-center justify-between'>
+							<CardTitle className='text-base'>Code tokens</CardTitle>
+							{codeConfigured ? (
+								<Badge variant='secondary'>&#10003; Configured</Badge>
+							) : (
+								<span className='text-zinc-400 text-xs'>Not configured</span>
+							)}
+						</div>
 					</CardHeader>
 					<CardContent className='space-y-2'>
-						<p className='text-[11px] text-muted-foreground'>
+						<p className='text-[11px] text-zinc-500'>
 							Add your design tokens here. You can either list the path to each
 							token file (one per line or separated by commas), or paste JSON
 							from DTCG or Style Dictionary directly into the box below.
 						</p>
 						<label
 							htmlFor='setup-code-paths'
-							className='block text-sm font-medium'
+							className='block text-[11px] font-medium'
 						>
 							Paths or JSON
 						</label>
@@ -97,9 +146,18 @@ export function SetupView({ hasAtLeastOneSource }: SetupViewProps) {
 						/>
 					</CardContent>
 				</Card>
+
+				{/* ── Storybook ── */}
 				<Card>
 					<CardHeader>
-						<CardTitle className='text-base'>Storybook</CardTitle>
+						<div className='flex items-center justify-between'>
+							<CardTitle className='text-base'>Storybook</CardTitle>
+							{storybookConfigured ? (
+								<Badge variant='secondary'>&#10003; Configured</Badge>
+							) : (
+								<span className='text-zinc-400 text-xs'>Not configured</span>
+							)}
+						</div>
 					</CardHeader>
 					<CardContent className='space-y-2'>
 						<label
@@ -122,7 +180,7 @@ export function SetupView({ hasAtLeastOneSource }: SetupViewProps) {
 							placeholder='Base URL (e.g. https://site.vercel.app/index.json)'
 							aria-label='Storybook index URL'
 						/>
-						<span className='text-[11px] text-muted-foreground'>
+						<span className='text-[11px] text-zinc-500'>
 							or workspace path to index
 						</span>
 						<label htmlFor='setup-storybook-path' className='sr-only'>
@@ -145,15 +203,26 @@ export function SetupView({ hasAtLeastOneSource }: SetupViewProps) {
 					</CardContent>
 				</Card>
 			</div>
-			<Button
-				type='button'
-				variant='outline'
-				size='xs'
-				disabled={!hasAtLeastOneSource}
-				onClick={runScan}
-			>
-				Run Inspect
-			</Button>
+
+			<Separator className='my-4' />
+
+			{/* Scan summary + Run button */}
+			<div className='flex items-center gap-3'>
+				<Button
+					type='button'
+					variant='default'
+					size='sm'
+					disabled={!hasAtLeastOneSource}
+					onClick={runScan}
+				>
+					Run Inspect
+				</Button>
+				{hasAtLeastOneSource && (
+					<span className='text-xs text-zinc-500'>
+						Will scan: {sources.join(', ')}
+					</span>
+				)}
+			</div>
 		</section>
 	);
 }

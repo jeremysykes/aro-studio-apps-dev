@@ -16,3 +16,6 @@ export {
 	TableCell,
 	TableCaption,
 } from './ui/table';
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './ui/tooltip';
+export { Progress } from './ui/progress';
+export { Separator } from './ui/separator';

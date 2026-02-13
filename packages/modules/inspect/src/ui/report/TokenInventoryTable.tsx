@@ -4,6 +4,21 @@ import { ReportTable, type ReportTableColumn } from './ReportTable';
 
 type Token = InspectReport['tokens'][number];
 
+/* ── Color swatch: detect hex/rgb values and render a small square ── */
+const COLOR_REGEX = /^(#[0-9a-fA-F]{3,8}|rgba?\(\s*\d+[\s,]+\d+[\s,]+\d+[^)]*\))$/;
+
+function ColorSwatch({ value }: { value: string }) {
+	const trimmed = value.trim();
+	if (!COLOR_REGEX.test(trimmed)) return null;
+	return (
+		<span
+			className='inline-block w-3 h-3 rounded-sm border border-zinc-200 mr-1.5 align-middle shrink-0'
+			style={{ backgroundColor: trimmed }}
+			aria-hidden='true'
+		/>
+	);
+}
+
 const COLUMNS: ReportTableColumn<Token>[] = [
 	{
 		key: 'name',
@@ -15,7 +30,12 @@ const COLUMNS: ReportTableColumn<Token>[] = [
 	{
 		key: 'value',
 		header: 'Value',
-		render: (t) => t.value,
+		render: (t) => (
+			<span className='inline-flex items-center'>
+				<ColorSwatch value={t.value} />
+				{t.value}
+			</span>
+		),
 		sortable: true,
 		sortValue: (t) => t.value,
 	},

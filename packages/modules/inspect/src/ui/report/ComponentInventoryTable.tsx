@@ -1,4 +1,5 @@
 import React from 'react';
+import { Badge, Tooltip, TooltipContent, TooltipTrigger } from '@aro/desktop/components';
 import type { InspectReport } from '../types';
 import { ReportTable, type ReportTableColumn } from './ReportTable';
 
@@ -12,12 +13,42 @@ function surfacesText(c: Component): string {
 			c.surfaces.code && 'Code',
 		]
 			.filter(Boolean)
-			.join(', ') || '—'
+			.join(', ') || '\u2014'
 	);
 }
 
 function storybookStoryUrl(baseUrl: string, storyId: string): string {
 	return `${baseUrl}?path=/story/${storyId}`;
+}
+
+/* ── Coverage dots: filled (present) / unfilled (absent) zinc circles ── */
+const SURFACES: { key: keyof Component['surfaces']; label: string }[] = [
+	{ key: 'figma', label: 'Figma' },
+	{ key: 'storybook', label: 'Storybook' },
+	{ key: 'code', label: 'Code' },
+];
+
+function CoverageDots({ surfaces }: { surfaces: Component['surfaces'] }) {
+	return (
+		<span className='inline-flex items-center gap-1'>
+			{SURFACES.map(({ key, label }) => {
+				const present = !!surfaces[key];
+				return (
+					<Tooltip key={key}>
+						<TooltipTrigger asChild>
+							<span
+								className={`inline-block w-2.5 h-2.5 rounded-full ${present ? 'bg-zinc-900' : 'bg-zinc-200'}`}
+								aria-label={`${label}: ${present ? 'present' : 'absent'}`}
+							/>
+						</TooltipTrigger>
+						<TooltipContent>
+							{label}: {present ? 'Present' : 'Absent'}
+						</TooltipContent>
+					</Tooltip>
+				);
+			})}
+		</span>
+	);
 }
 
 function getColumns(
@@ -41,7 +72,7 @@ function getColumns(
 							href={storybookStoryUrl(storybookBaseUrl, storyId)}
 							target='_blank'
 							rel='noopener noreferrer'
-							className='text-[11px] text-primary hover:underline font-medium cursor-pointer'
+							className='text-[11px] text-zinc-900 hover:underline font-medium cursor-pointer'
 						>
 							{displayName}
 						</a>
@@ -65,7 +96,7 @@ function getColumns(
 		{
 			key: 'surfaces',
 			header: 'Surfaces',
-			render: (c) => surfacesText(c),
+			render: (c) => <CoverageDots surfaces={c.surfaces} />,
 			sortable: true,
 			sortValue: (c) => surfacesText(c),
 		},
@@ -79,7 +110,12 @@ function getColumns(
 		{
 			key: 'orphan',
 			header: 'Orphan',
-			render: (c) => (c.isOrphan ? 'Yes' : 'No'),
+			render: (c) =>
+				c.isOrphan ? (
+					<Badge variant='default'>Orphan</Badge>
+				) : (
+					<Badge variant='secondary'>No</Badge>
+				),
 			sortable: true,
 			sortValue: (c) => (c.isOrphan ? 1 : 0),
 		},

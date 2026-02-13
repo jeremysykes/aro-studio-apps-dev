@@ -38,7 +38,7 @@ export class InspectErrorBoundary extends Component<Props, State> {
 				>
 					<Alert variant='destructive' className='max-w-lg'>
 						<p className='font-medium'>Inspect encountered an error</p>
-						<p className='mt-1 text-xs text-muted-foreground'>
+						<p className='mt-1 text-xs text-zinc-500'>
 							{this.state.error.message}
 						</p>
 					</Alert>

@@ -52,7 +52,7 @@ export function ReportView() {
 	const sidebar = (
 		<Card className={CARD_CLASS}>
 			<div className={COLUMN_HEADER_CLASS} role='region' aria-label='Runs'>
-				<CardTitle className='mb-0 text-base font-medium text-muted-foreground'>
+				<CardTitle className='mb-0 text-base font-medium text-zinc-500'>
 					Runs
 				</CardTitle>
 			</div>
@@ -79,7 +79,7 @@ export function ReportView() {
 				role='region'
 				aria-label='Reports'
 			>
-				<CardTitle className='mb-0 text-base font-medium text-muted-foreground'>
+				<CardTitle className='mb-0 text-base font-medium text-zinc-500'>
 					Reports
 				</CardTitle>
 				<div className='flex items-center gap-3 shrink-0'>
@@ -116,10 +116,10 @@ export function ReportView() {
 				className={`${CARD_CONTENT_CLASS} flex-1 min-h-0 overflow-y-auto ${reportTab === 'health' ? 'p-6' : 'p-0'}`}
 			>
 				{reportLoadState === 'loading' && (
-					<p className='text-sm text-muted-foreground'>Loading report…</p>
+					<p className='text-sm text-zinc-500'>Loading report…</p>
 				)}
 				{reportLoadState === 'error' && (
-					<p className='text-sm text-muted-foreground'>
+					<p className='text-sm text-zinc-500'>
 						Report not available for this run.
 					</p>
 				)}
@@ -132,14 +132,14 @@ export function ReportView() {
 					/>
 				)}
 				{!selectedRunId && (
-					<p className='text-muted-foreground text-[11px]'>
+					<p className='text-zinc-500 text-[11px]'>
 						Select a run from the list to view its report. Each run includes a
 						health dashboard, token inventory, and component inventory. Runs
 						with a completed scan will show the full report here.
 					</p>
 				)}
 			</CardContent>
-			{reportLoadState === 'success' && report && reportTab === 'health' && (
+			{reportLoadState === 'success' && report && (
 				<CardFooter className='shrink-0 flex items-center justify-end gap-2 border-t border-zinc-200 py-3 px-4'>
 					<Button
 						type='button'

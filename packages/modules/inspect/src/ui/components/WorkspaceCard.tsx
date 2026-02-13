@@ -1,5 +1,12 @@
 import React from 'react';
-import { Button, Card, CardContent } from '@aro/desktop/components';
+import {
+	Button,
+	Card,
+	CardContent,
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from '@aro/desktop/components';
 import { useInspectStore } from '../store';
 
 export function WorkspaceCard() {
@@ -11,7 +18,7 @@ export function WorkspaceCard() {
 			<CardContent className='p-0'>
 				{!workspacePath ? (
 					<div className='flex flex-wrap items-center gap-2'>
-						<p className='text-sm text-muted-foreground'>
+						<p className='text-sm text-zinc-500'>
 							Select a workspace to configure sources and run Inspect.
 						</p>
 						<Button
@@ -25,10 +32,15 @@ export function WorkspaceCard() {
 					</div>
 				) : (
 					<div className='flex flex-wrap items-center gap-x-4 gap-y-2'>
-						<span className='text-sm text-muted-foreground min-w-0 flex items-baseline gap-1'>
-							<span className='truncate text-[11px]' title={workspacePath}>
-								{workspacePath}
-							</span>
+						<span className='text-sm text-zinc-500 min-w-0 flex items-baseline gap-1'>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<span className='truncate text-[11px] cursor-default'>
+										{workspacePath}
+									</span>
+								</TooltipTrigger>
+								<TooltipContent>{workspacePath}</TooltipContent>
+							</Tooltip>
 						</span>
 						<Button
 							type='button'

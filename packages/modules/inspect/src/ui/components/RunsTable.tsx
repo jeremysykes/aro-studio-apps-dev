@@ -1,11 +1,15 @@
 import React from 'react';
 import {
+	Badge,
 	Table,
 	TableBody,
 	TableCell,
 	TableHead,
 	TableHeader,
 	TableRow,
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
 } from '@aro/desktop/components';
 import { useInspectStore } from '../store';
 import type { RunItem } from '../types';
@@ -25,27 +29,19 @@ function formatRelativeTime(ms: number): string {
 	});
 }
 
+/* ── Status → Badge variant mapping (white-label: zinc + red-destructive only) ── */
 function statusBadge(status: string): React.ReactNode {
-	const base = 'inline-block px-1.5 py-0.5 rounded text-[10px] font-medium';
 	switch (status) {
 		case 'success':
-			return (
-				<span className={`${base} bg-green-100 text-green-700`}>Success</span>
-			);
+			return <Badge variant='default'>Success</Badge>;
 		case 'error':
-			return <span className={`${base} bg-red-100 text-red-700`}>Error</span>;
+			return <Badge variant='destructive'>Error</Badge>;
 		case 'running':
-			return (
-				<span className={`${base} bg-blue-100 text-blue-700`}>Running</span>
-			);
+			return <Badge variant='secondary'>Running</Badge>;
 		case 'cancelled':
-			return (
-				<span className={`${base} bg-zinc-100 text-zinc-600`}>Cancelled</span>
-			);
+			return <Badge variant='outline'>Cancelled</Badge>;
 		default:
-			return (
-				<span className={`${base} bg-zinc-100 text-zinc-600`}>{status}</span>
-			);
+			return <Badge variant='outline'>{status}</Badge>;
 	}
 }
 
@@ -87,8 +83,13 @@ export function RunsTable({
 							<TableCell className='text-[11px] whitespace-nowrap'>
 								{formatRelativeTime(run.startedAt)}
 							</TableCell>
-							<TableCell className='text-[11px] font-mono text-muted-foreground py-3'>
-								{run.id.slice(0, 8)}
+							<TableCell className='text-[11px] font-mono text-zinc-500 py-3'>
+								<Tooltip>
+									<TooltipTrigger asChild>
+										<span className='cursor-default'>{run.id.slice(0, 8)}</span>
+									</TooltipTrigger>
+									<TooltipContent>{run.id}</TooltipContent>
+								</Tooltip>
 							</TableCell>
 							{showStatus && <TableCell>{statusBadge(run.status)}</TableCell>}
 						</TableRow>
@@ -98,7 +99,7 @@ export function RunsTable({
 					<TableRow>
 						<TableCell
 							colSpan={showStatus ? 3 : 2}
-							className='text-center text-muted-foreground text-[11px] py-4'
+							className='text-center text-zinc-500 text-[11px] py-4'
 						>
 							No runs yet
 						</TableCell>

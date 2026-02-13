@@ -67,8 +67,19 @@ export function ReportTable<T>({
 		});
 	}, [filteredRows, sortKey, sortDir, columns]);
 
+	const isFiltered = filter.trim().length > 0;
+	const totalCount = rows.length;
+	const shownCount = sortedRows.length;
+
 	return (
-		<Table>
+		<div>
+			{/* Row count bar */}
+			<div className='px-4 py-2 text-xs text-zinc-500'>
+				{isFiltered
+					? `Showing ${shownCount} of ${totalCount} ${title.toLowerCase()}${totalCount !== shownCount ? ' (filtered)' : ''}`
+					: `${totalCount} ${title.toLowerCase()}`}
+			</div>
+			<Table>
 				<TableHeader>
 					<TableRow>
 						{columns.map((col) => {
@@ -94,8 +105,8 @@ export function ReportTable<T>({
 										>
 											{col.header}
 											{isSorted && (
-												<span className='ml-1 text-muted-foreground'>
-													{sortDir === 'asc' ? '↑' : '↓'}
+												<span className='ml-1 text-zinc-500'>
+													{sortDir === 'asc' ? '\u2191' : '\u2193'}
 												</span>
 											)}
 										</Button>
@@ -108,16 +119,30 @@ export function ReportTable<T>({
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{sortedRows.map((row) => (
-						<TableRow key={getRowKey(row)}>
-							{columns.map((col) => (
-								<TableCell key={col.key} className='py-3 text-[11px]'>
-									{col.render(row)}
-								</TableCell>
-							))}
+					{sortedRows.length === 0 ? (
+						<TableRow>
+							<TableCell
+								colSpan={columns.length}
+								className='text-center text-zinc-500 text-[11px] py-8'
+							>
+								{isFiltered
+									? `No ${title.toLowerCase()} match the current filter.`
+									: `No ${title.toLowerCase()} found.`}
+							</TableCell>
 						</TableRow>
-					))}
+					) : (
+						sortedRows.map((row) => (
+							<TableRow key={getRowKey(row)}>
+								{columns.map((col) => (
+									<TableCell key={col.key} className='py-3 text-[11px]'>
+										{col.render(row)}
+									</TableCell>
+								))}
+							</TableRow>
+						))
+					)}
 				</TableBody>
 			</Table>
+		</div>
 	);
 }

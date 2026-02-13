@@ -10,7 +10,7 @@ Technical execution contract for the **inspect** module. Authoritative for job d
 - **Module key:** `inspect`
 - **Dependency direction:** Per [ARCHITECTURE.md](../../ARCHITECTURE.md) and [MODULE_CONSTRAINTS.md](../MODULE_CONSTRAINTS.md):
   - May import Core types only (e.g. `JobContext`, `JobDefinition`, `AroCore`) for job registration in init.
-  - May import `@aro/desktop/components` for shared UI (Button, Card, Table, Tabs, Badge, Skeleton, Input, Textarea, Alert).
+  - May import `@aro/desktop/components` for shared UI (Button, Card, Table, Tabs, Badge, Skeleton, Input, Textarea, Alert, Tooltip, TooltipProvider, TooltipTrigger, TooltipContent, Progress, Separator).
   - Must not import other modules, `better-sqlite3`, Core internals, or use `fs`/`path` for domain data; all file access in jobs via `ctx.workspace`.
   - Renderer uses only `window.aro`; no Core handles in renderer.
 
@@ -94,6 +94,7 @@ Init runs in main process; Desktop passes Core (or facade) into module `init`; m
 - **Sub-scores (0–100 each):** Token consistency (100 − (duplicates + drift)/total * 100, floor 0), Component coverage (components in 2+ surfaces / total * 100), Naming alignment (unique token names appearing in ≥ 2 sources / total unique token names * 100), Value parity (cross-source names with identical values / cross-source names * 100; Delta-E for colors).
 - **Weights:** Token consistency 30%, Component coverage 30%, Naming alignment 20%, Value parity 20%.
 - **Composite:** Weighted sum of applicable sub-scores, 0–100.
+- **Not-applicable sub-scores:** A sub-score is stored as −1 when no data exists to measure it: Token consistency (no tokens), Component coverage (no components), Naming alignment (no token names in ≥ 2 sources), Value parity (no cross-source token names). Weights are redistributed proportionally among applicable scores. If no sub-scores apply, the composite defaults to 100. The UI renders −1 as "N/A" with a muted placeholder bar instead of a Progress bar.
 
 ---
 
@@ -122,6 +123,8 @@ Init runs in main process; Desktop passes Core (or facade) into module `init`; m
 - **Polling backoff:** Run status polling starts at 2 seconds when a scan is running. If no run status changes are detected between polls, the interval backs off by 1.5× up to a 10-second maximum. When changes are detected, the interval resets to 2 seconds. Polling stops when no run is active.
 - **Error boundary:** The inspect component tree is wrapped in `InspectErrorBoundary` (a React error boundary in `src/ui/components/ErrorBoundary.tsx`). On render errors, it displays a recoverable error panel with a "Try again" button instead of crashing the entire application.
 - **Type definitions:** `window.aro` API types are declared in `src/ui/aro.d.ts` so the inspect module type-checks independently of the desktop app's `preload.d.ts`. These types mirror the `AroPreloadAPI` interface from the desktop preload.
+- **Design system components:** The UI uses Tooltip (truncated paths and run IDs), Progress (health score bars, scan progress indicator), and Separator (visual section breaks). The root `Inspect` component wraps content in `<TooltipProvider>`. All UI is white-label: zinc-only palette with red limited to destructive states; no brand-specific colors.
+- **Health Dashboard:** Two-column layout per Design-spec §9.4. Left: composite score (bold number + text label: "Good"/"Fair"/"Needs attention") with Progress bar and summary stats. Right: sub-score breakdown with Progress bars per metric + findings-by-severity section with inline SVG icons and Badge components (destructive for critical, secondary for warning, secondary for info). Sub-scores that are not applicable (−1) render as "N/A" with a muted placeholder bar and an explanatory note.
 
 ---
 

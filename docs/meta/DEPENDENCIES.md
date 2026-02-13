@@ -52,6 +52,9 @@ Desktop (`apps/desktop`) may use:
 - **class-variance-authority** (cva), **clsx**, **tailwind-merge** — Used by shadcn for component variants and className merging. Standard shadcn setup.
 - **@radix-ui/react-slot** — Radix primitive used by shadcn Button (composition/asChild). Provides accessible, unstyled behavior; styling via Tailwind.
 - **@radix-ui/react-tabs** — Radix primitive for accessible tabs. Used by shadcn Tabs for Setup/Logs/Reports navigation in Inspect. Provides keyboard navigation and ARIA semantics; styling via Tailwind.
+- **@radix-ui/react-tooltip** — Radix primitive for accessible tooltips. Used by shadcn Tooltip for truncated content (workspace paths, run IDs) and contextual info. Provides delay, keyboard, and ARIA semantics; styling via Tailwind.
+- **@radix-ui/react-progress** — Radix primitive for accessible progress bars. Used by shadcn Progress for scan progress indication and health score visualization in Inspect. Provides ARIA progressbar semantics; styling via Tailwind.
+- **@radix-ui/react-separator** — Radix primitive for accessible separators. Used by shadcn Separator for visual section breaks in Inspect views. Provides ARIA separator role; styling via Tailwind.
 
 Dev-only: **typescript** (type-checking), **@types/react**, **@types/react-dom** (type definitions). **electron-rebuild** — Rebuilds native modules (e.g. better-sqlite3 from Core) for Electron's Node ABI. Required because Electron bundles a specific Node version; native modules built for the system Node will fail. Run as postinstall.
 
