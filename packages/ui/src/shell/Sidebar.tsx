@@ -9,6 +9,10 @@ export interface ModuleRegistryEntry {
   label: string;
   icon: React.ReactNode;
   component: React.ComponentType;
+  /** Optional compact widget for dashboard grid view. */
+  widget?: React.ComponentType;
+  /** Short description shown as subtitle on dashboard widget cards. */
+  description?: string;
 }
 
 interface SidebarProps {

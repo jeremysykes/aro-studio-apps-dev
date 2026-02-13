@@ -27,8 +27,8 @@ const WaveIcon = () => (
  * Must match the keys registered in server moduleRegistry.ts.
  */
 export const moduleRegistry: ModuleRegistryEntry[] = [
-  { key: 'inspect', label: 'Inspect', icon: <SearchIcon />, component: Inspect },
-  { key: 'hello-world', label: 'Hello World', icon: <WaveIcon />, component: HelloWorld },
+  { key: 'inspect', label: 'Inspect', description: 'Design system inventory & health', icon: <SearchIcon />, component: Inspect },
+  { key: 'hello-world', label: 'Hello World', description: 'Default development module', icon: <WaveIcon />, component: HelloWorld },
 ];
 
 /**

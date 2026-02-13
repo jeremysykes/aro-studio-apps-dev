@@ -70,7 +70,7 @@ See [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md) for fu
 - Each app has a focused, domain-specific experience
 - Simpler first implementation; one module, full control of UI
 
-**Status:** Current implementation (MVP).
+**Status:** Implemented.
 
 **Desktop renderer structure (Model A):**
 
@@ -95,6 +95,8 @@ App.tsx
 - Single product with many integrated features
 - Users need to switch between domains within one app
 - Per-user or per-workspace module permissions
+
+**Status:** Implemented (desktop + web).
 
 **Desktop renderer structure (Model B):**
 
@@ -228,6 +230,8 @@ ipcMain.handle('app:getUIModel', () => process.env.ARO_UI_MODEL ?? 'standalone')
 - Users want an overview of multiple domains without switching context
 - Key metrics from several modules should be visible side-by-side
 - The product has matured enough that inter-module awareness adds value
+
+**Status:** Implemented (desktop + web). Widget components are optional per module; modules without widgets render a placeholder card.
 
 **Desktop renderer structure (Model C):**
 

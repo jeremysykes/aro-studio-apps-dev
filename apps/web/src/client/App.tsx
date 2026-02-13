@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { moduleRegistry, type ModuleRegistryEntry } from './moduleRegistry';
-import { ShellLayout } from '@aro/ui/shell';
+import { ShellLayout, DashboardLayout } from '@aro/ui/shell';
 
 type UIModel = 'standalone' | 'sidebar' | 'dashboard';
 
@@ -61,7 +61,12 @@ function App() {
     return ActiveModule ? <ActiveModule /> : null;
   }
 
-  // Sidebar mode (and dashboard, which extends sidebar)
+  // Dashboard mode — responsive grid of widget cards with expand
+  if (uiModel === 'dashboard') {
+    return <DashboardLayout modules={enabledModules} />;
+  }
+
+  // Sidebar mode — vertical nav, one module visible at a time
   return (
     <ShellLayout modules={enabledModules} activeKey={activeKey} onSelect={setActiveKey}>
       {ActiveModule ? <ActiveModule /> : null}
