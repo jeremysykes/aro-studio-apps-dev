@@ -1,32 +1,8 @@
 # Future UI Models
 
-Beyond the three implemented models (Standalone, Sidebar, Dashboard), the framework could support additional shell layouts. This document describes candidates for future implementation. Each would be a new `ARO_UI_MODEL` value.
+Beyond the five implemented models (Standalone, Sidebar, Dashboard, Tabs, Carousel), the framework could support additional shell layouts. This document describes candidates for future implementation. Each would be a new `ARO_UI_MODEL` value.
 
-See [MODULE_MODELS.md](../modules/MODULE_MODELS.md) for the three implemented models.
-
----
-
-## Tabs
-
-**Value:** `ARO_UI_MODEL=tabs`
-
-A horizontal top-tab bar instead of a vertical sidebar. Each tab shows a module's full view. Lighter visual weight than the sidebar, better suited for 2-4 modules.
-
-**When to use:**
-- Browser-like navigation metaphor
-- Fewer modules (2-4) where a sidebar feels heavy
-- Horizontal screen layouts where vertical space is more valuable
-
-**Rough structure:**
-```
-┌──────────────────────────────────┐
-│  [Inspect] [Tokens] [Figma]     │  ← tab bar
-├──────────────────────────────────┤
-│                                  │
-│     Active module full view      │
-│                                  │
-└──────────────────────────────────┘
-```
+See [MODULE_MODELS.md](../modules/MODULE_MODELS.md) for the implemented models.
 
 ---
 
@@ -82,32 +58,6 @@ Two or more modules visible side-by-side in resizable panes. Users drag dividers
 
 ---
 
-## Carousel
-
-**Value:** `ARO_UI_MODEL=carousel`
-
-Swipe or arrow-key between modules, one at a time, no sidebar. Dot indicators or a progress bar show position. Mobile-friendly.
-
-**When to use:**
-- Presentation or demo mode
-- Kiosk displays
-- Mobile-first experiences
-- Onboarding flows
-
-**Rough structure:**
-```
-┌──────────────────────────────────┐
-│                                  │
-│     Active module full view      │
-│                                  │
-│         ← swipe / arrows →      │
-│                                  │
-│          ● ○ ○                   │  ← dot indicators
-└──────────────────────────────────┘
-```
-
----
-
 ## Embedded / Headless
 
 **Value:** `ARO_UI_MODEL=embedded`
@@ -140,10 +90,10 @@ No shell at all. A single module renders as an iframe-embeddable widget or web c
 
 ## Implementation Priority
 
-| Model | Value | Effort | Priority |
-|-------|-------|--------|----------|
-| Tabs | Low | Low | Medium — quick win, reuses existing patterns |
-| Command Palette | Medium | Medium | Low — niche use case |
-| Split / Panels | High | High | Medium — high value for compare workflows |
-| Carousel | Low | Low | Low — niche use case |
-| Embedded | Medium | High | High — enables third-party integrations |
+| Model | Effort | Priority | Status |
+|-------|--------|----------|--------|
+| Command Palette | Medium | Low — niche use case | Candidate |
+| Split / Panels | High | Medium — high value for compare workflows | Candidate |
+| Embedded | High | High — enables third-party integrations | Candidate |
+
+Previously listed Tabs and Carousel are now implemented — see [MODULE_MODELS.md](../modules/MODULE_MODELS.md).

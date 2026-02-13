@@ -19,3 +19,12 @@ export {
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './ui/tooltip';
 export { Progress } from './ui/progress';
 export { Separator } from './ui/separator';
+export {
+  type CarouselApi,
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  useCarousel,
+} from './ui/carousel';

@@ -55,6 +55,7 @@ Desktop (`apps/desktop`) may use:
 - **@radix-ui/react-tooltip** — Radix primitive for accessible tooltips. Used by shadcn Tooltip for truncated content (workspace paths, run IDs) and contextual info. Provides delay, keyboard, and ARIA semantics; styling via Tailwind.
 - **@radix-ui/react-progress** — Radix primitive for accessible progress bars. Used by shadcn Progress for scan progress indication and health score visualization in Inspect. Provides ARIA progressbar semantics; styling via Tailwind.
 - **@radix-ui/react-separator** — Radix primitive for accessible separators. Used by shadcn Separator for visual section breaks in Inspect views. Provides ARIA separator role; styling via Tailwind.
+- **embla-carousel-react** — Used by shadcn Carousel in `packages/ui`. Carousel shell layout (ARO_UI_MODEL=carousel) uses it for module navigation with swipe/motion. Replaces: custom carousel implementation; per rule 25, use shadcn components when available.
 
 Dev-only: **typescript** (type-checking), **@types/react**, **@types/react-dom** (type definitions). **electron-rebuild** — Rebuilds native modules (e.g. better-sqlite3 from Core) for Electron's Node ABI. Required because Electron bundles a specific Node version; native modules built for the system Node will fail. Run as postinstall.
 
@@ -76,7 +77,7 @@ Web (`apps/web`) may use:
 - **@aro/module-hello-world** — Default active module.
 - **@aro/module-inspect** — Inspect module (when `ARO_ACTIVE_MODULE=inspect`).
 - **@aro/desktop** (components subpath) — Shared design system; module UI uses shadcn components. Same as modules.
-- **tailwindcss**, **postcss**, **autoprefixer**, **tailwindcss-animate**, **class-variance-authority**, **clsx**, **tailwind-merge**, **@radix-ui/react-slot** — Design system; same as Desktop/client.
+- **tailwindcss**, **postcss**, **autoprefixer**, **tailwindcss-animate**, **class-variance-authority**, **clsx**, **tailwind-merge**, **@radix-ui/react-slot**, **embla-carousel-react** — Design system; same as Desktop/client (embla for shadcn Carousel).
 
 Dev-only: **typescript**, **@types/react**, **@types/react-dom**, **@types/ws** (type definitions), **nodemon** (restart server when dist/server changes for hot-reload). Dev is run via the root orchestrator (`pnpm web`), which starts API then Vite after readiness; see `dev/dev-web.ts`.
 

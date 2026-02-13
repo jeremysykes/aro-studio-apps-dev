@@ -122,7 +122,7 @@ See [docs/desktop/ACTIVE_MODULE_SWITCH.md](docs/desktop/ACTIVE_MODULE_SWITCH.md)
 
 ## Module models
 
-The architecture supports three module integration models. Each builds on the previous — you can start simple and evolve.
+The architecture supports five module integration models. Pick the one that fits your use case — all share the same module contract.
 
 ### Standalone Model (current)
 
@@ -223,16 +223,70 @@ flowchart LR
 
 ---
 
+### Tabs Model
+
+A horizontal tab bar instead of a vertical sidebar. Each tab shows one module's full view. Lighter weight; best for 2–4 modules.
+
+```mermaid
+flowchart LR
+    subgraph Desktop
+        Shell[Desktop Shell]
+        Tabs[Tab Bar]
+        Content[Content Slot]
+    end
+    subgraph Modules
+        M1[Inspect — full view]
+        M2[Tokens — full view]
+    end
+    Shell --> Tabs
+    Shell --> Content
+    Tabs -->|selects| Content
+    Content -.- M1
+    Content -.- M2
+```
+
+**Config:** `ARO_UI_MODEL=tabs` + `ARO_ENABLED_MODULES=inspect,tokens`
+
+---
+
+### Carousel Model
+
+No persistent navigation. One module fills the screen. Left/right arrows and dot indicators at the bottom. Mobile and presentation friendly.
+
+```mermaid
+flowchart LR
+    subgraph Desktop
+        Shell[Desktop Shell]
+        Content[Full Screen Content]
+        Nav["← ● ○ ○ →"]
+    end
+    subgraph Modules
+        M1[Module 1]
+        M2[Module 2]
+        M3[Module 3]
+    end
+    Shell --> Content
+    Shell --> Nav
+    Nav -->|prev / next| Content
+    Content -.- M1
+    Content -.- M2
+    Content -.- M3
+```
+
+**Config:** `ARO_UI_MODEL=carousel` + `ARO_ENABLED_MODULES=inspect,tokens,figma`
+
+---
+
 ### Choosing a model
 
-| | Standalone | Sidebar | Dashboard |
-|---|---|---|---|
-| Best for | Single-purpose apps | Multi-feature product | Overview + deep-dive |
-| Modules visible | 1 | 1 (switch via sidebar) | Many (tiles) + 1 (full view) |
-| Complexity | Low | Medium | High |
-| Config | `ARO_UI_MODEL=standalone` | `ARO_UI_MODEL=sidebar` | `ARO_UI_MODEL=dashboard` |
+| | Standalone | Sidebar | Dashboard | Tabs | Carousel |
+|---|---|---|---|---|---|
+| Best for | Single-purpose apps | Multi-feature product | Overview + deep-dive | 2–4 modules, browser-like | Demos, mobile, kiosk |
+| Modules visible | 1 | 1 (switch via sidebar) | Many (tiles) + 1 (full) | 1 (switch via tabs) | 1 (swipe / arrows) |
+| Complexity | Low | Medium | High | Low | Low |
+| Config | `standalone` | `sidebar` | `dashboard` | `tabs` | `carousel` |
 
-Core and the module contract remain the same across all three. Only the Desktop shell changes.
+Core and the module contract remain the same across all models. Only the Desktop shell changes.
 
 Full detail: [docs/modules/MODULE_MODELS.md](docs/modules/MODULE_MODELS.md) | [docs/modules/MODULE_TRANSITION.md](docs/modules/MODULE_TRANSITION.md) | [diagrams/module-models.md](diagrams/module-models.md)
 

@@ -1,3 +1,13 @@
 @import 'tailwindcss';
 @source "../../../../packages/modules/**/*.tsx";
 @source "../../../../apps/desktop/src/renderer/components/**/*.tsx";
+
+/* Full viewport app root so shell layouts (carousel, sidebar, tabs) can constrain viewport */
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  overflow-x: hidden;
+}

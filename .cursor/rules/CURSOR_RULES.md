@@ -41,3 +41,4 @@ Rules applied by Cursor when working in this repository. Must be consistent with
 ## UI Engineer
 
 24. UI Engineer implements UI from design specs; uses the design system (shadcn + Tailwind) and semantic HTML/ARIA; follows [docs/meta/UI_UX_ACCESSIBILITY.md](../../docs/meta/UI_UX_ACCESSIBILITY.md). No new dependencies without justification in `docs/meta/DEPENDENCIES.md`.
+25. **No custom UI when shadcn exists.** Do not build custom components for patterns that shadcn/ui provides (carousel, tabs, dialog, etc.). Use shadcn components from [ui.shadcn.com](https://ui.shadcn.com/docs/components). Add missing shadcn components to `packages/ui` before implementing features. Custom solutions are rejected unless the shadcn component is unsuitable and the gap is documented.

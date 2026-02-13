@@ -20,7 +20,7 @@ function getWsUrl(path: string): string {
 export function createAroApiClient() {
   return {
     getUIModel: () =>
-      fetchJson<{ model: 'standalone' | 'sidebar' | 'dashboard' }>('/api/app/ui-model').then(
+      fetchJson<{ model: 'standalone' | 'sidebar' | 'dashboard' | 'tabs' | 'carousel' }>('/api/app/ui-model').then(
         (r) => r.model,
       ),
     getEnabledModules: () => fetchJson<string[]>('/api/app/enabled-modules'),

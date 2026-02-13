@@ -19,9 +19,9 @@ import { init as inspectInit } from '@aro/module-inspect';
 register('hello-world', helloWorldInit);
 register('inspect', inspectInit);
 
-export type UIModel = 'standalone' | 'sidebar' | 'dashboard';
+export type UIModel = 'standalone' | 'sidebar' | 'dashboard' | 'tabs' | 'carousel';
 
-const VALID_UI_MODELS: UIModel[] = ['standalone', 'sidebar', 'dashboard'];
+const VALID_UI_MODELS: UIModel[] = ['standalone', 'sidebar', 'dashboard', 'tabs', 'carousel'];
 
 export function getUIModel(): UIModel {
   const raw = process.env.ARO_UI_MODEL?.trim().toLowerCase();

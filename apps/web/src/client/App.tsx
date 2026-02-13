@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { moduleRegistry, type ModuleRegistryEntry } from './moduleRegistry';
-import { ShellLayout, DashboardLayout } from '@aro/ui/shell';
+import { ShellLayout, DashboardLayout, TabsLayout, CarouselLayout } from '@aro/ui/shell';
 
-type UIModel = 'standalone' | 'sidebar' | 'dashboard';
+type UIModel = 'standalone' | 'sidebar' | 'dashboard' | 'tabs' | 'carousel';
 
 function App() {
   const [uiModel, setUIModel] = useState<UIModel | null>(null);
@@ -64,6 +64,21 @@ function App() {
   // Dashboard mode — responsive grid of widget cards with expand
   if (uiModel === 'dashboard') {
     return <DashboardLayout modules={enabledModules} />;
+  }
+
+  // Tabs mode — horizontal tab bar, one module visible at a time
+  if (uiModel === 'tabs') {
+    return <TabsLayout modules={enabledModules} />;
+  }
+
+  // Carousel mode — swipe/arrow navigation with dot indicators
+  // Wrapper constrains viewport so footer stays at bottom; only main content scrolls
+  if (uiModel === 'carousel') {
+    return (
+      <div className="h-full min-h-0 flex flex-col overflow-hidden">
+        <CarouselLayout modules={enabledModules} />
+      </div>
+    );
   }
 
   // Sidebar mode — vertical nav, one module visible at a time

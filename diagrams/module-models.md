@@ -79,12 +79,69 @@ flowchart TB
   end
 ```
 
-## Transition Flow
+## Tabs Model
+
+Horizontal tab bar. One module visible at a time. Best for 2–4 modules.
+
+```mermaid
+flowchart TB
+  subgraph Tabs ["Tabs"]
+    direction TB
+    DesktopT[Desktop Shell]
+    TabBar[Tab Bar]
+    ContentT[Content Slot]
+    Module1T[Module 1<br/>full view]
+    Module2T[Module 2<br/>full view]
+    CoreT[Core]
+
+    TabBar --> ContentT
+    ContentT -.- Module1T
+    ContentT -.- Module2T
+    DesktopT --> TabBar
+    DesktopT --> ContentT
+    DesktopT --> CoreT
+    Module1T -.->|registers jobs| CoreT
+    Module2T -.->|registers jobs| CoreT
+  end
+```
+
+## Carousel Model
+
+Arrow/dot navigation. One module fills the screen. No persistent nav chrome.
+
+```mermaid
+flowchart TB
+  subgraph Carousel ["Carousel"]
+    direction TB
+    DesktopR[Desktop Shell]
+    ContentR[Full Screen Content]
+    NavR["← ● ○ ○ →"]
+    Module1R[Module 1<br/>full view]
+    Module2R[Module 2<br/>full view]
+    Module3R[Module 3<br/>full view]
+    CoreR[Core]
+
+    DesktopR --> ContentR
+    DesktopR --> NavR
+    NavR -->|prev / next| ContentR
+    ContentR -.- Module1R
+    ContentR -.- Module2R
+    ContentR -.- Module3R
+    DesktopR --> CoreR
+    Module1R -.->|registers jobs| CoreR
+    Module2R -.->|registers jobs| CoreR
+    Module3R -.->|registers jobs| CoreR
+  end
+```
+
+## Model Relationships
 
 ```mermaid
 flowchart LR
-  A["Standalone"] -->|"+ sidebar shell<br/>+ multi-module loading<br/>+ IPC namespacing"| B["Sidebar"]
-  B -->|"+ Widget exports<br/>+ dashboard grid<br/>+ layout engine"| C["Dashboard"]
+  A["Standalone"] -->|"+ multi-module<br/>loading"| B["Sidebar"]
+  B -->|"+ widget grid"| C["Dashboard"]
+  B -.->|"swap nav"| D["Tabs"]
+  B -.->|"swap nav"| E["Carousel"]
 ```
 
 Reference: [docs/modules/MODULE_MODELS.md](../docs/modules/MODULE_MODELS.md) and [docs/modules/MODULE_TRANSITION.md](../docs/modules/MODULE_TRANSITION.md).

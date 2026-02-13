@@ -1,21 +1,21 @@
-# Module Models: Standalone, Sidebar, and Dashboard
+# Module Models
 
-This document defines three architectural models for how Modules integrate with Core and Desktop. Each model builds on the previous; transitions are incremental. This is the authoritative reference for module model design.
+This document defines the architectural models for how Modules integrate with Core and Desktop. Each multi-module model builds on the same core contract. This is the authoritative reference for module model design.
 
 ## Summary Table
 
-| Aspect | Standalone | Sidebar | Dashboard |
-|--------|------------|---------|-----------|
-| Module = ? | Application (owns main content) | Full-screen view behind a nav item | Tile / widget in a grid layout |
-| UI ownership | Module owns main content | Desktop shell (sidebar + content slot) | Desktop shell (grid layout + tile slots) |
-| Modules visible at once | 1 | 1 (switch via sidebar) | Many (tiles rendered simultaneously) |
-| Modules loaded at once | 1 | All enabled | All enabled |
-| Enable/disable | Build/config only | Per-user or per-workspace config | Per-user or per-workspace config |
-| IPC namespacing | Recommended (`moduleKey:jobKey`) | Required | Required |
-| Module UI exports | `default` (root component) | `default` (root component) | `default` (root component) + `Widget` |
-| Layout responsibility | Module | Desktop shell | Desktop shell + layout engine |
-| Config key | `ARO_UI_MODEL=standalone` + `ARO_ENABLED_MODULES=inspect` | `ARO_UI_MODEL=sidebar` + `ARO_ENABLED_MODULES=inspect,tokens` | `ARO_UI_MODEL=dashboard` + `ARO_ENABLED_MODULES=inspect,tokens` |
-| Use case | "Aro Studio Tokens", "Aro Studio Figma" | Single "Aro Studio" app, switch between features | Single "Aro Studio" app, see everything at a glance |
+| Aspect | Standalone | Sidebar | Dashboard | Tabs | Carousel |
+|--------|------------|---------|-----------|------|----------|
+| Module = ? | Application (owns main content) | Full-screen view behind a nav item | Tile / widget in a grid layout | Full-screen view behind a tab | Full-screen view with arrow nav |
+| UI ownership | Module owns main content | Desktop shell (sidebar + content slot) | Desktop shell (grid layout + tile slots) | Desktop shell (tab bar + content slot) | Desktop shell (content + nav footer) |
+| Modules visible at once | 1 | 1 (switch via sidebar) | Many (tiles rendered simultaneously) | 1 (switch via tabs) | 1 (swipe / arrows) |
+| Modules loaded at once | 1 | All enabled | All enabled | All enabled | All enabled |
+| Enable/disable | Build/config only | Per-user or per-workspace config | Per-user or per-workspace config | Per-user or per-workspace config | Per-user or per-workspace config |
+| IPC namespacing | Recommended (`moduleKey:jobKey`) | Required | Required | Required | Required |
+| Module UI exports | `default` (root component) | `default` (root component) | `default` (root component) + `Widget` | `default` (root component) | `default` (root component) |
+| Layout responsibility | Module | Desktop shell | Desktop shell + layout engine | Desktop shell | Desktop shell |
+| Config key | `ARO_UI_MODEL=standalone` | `ARO_UI_MODEL=sidebar` | `ARO_UI_MODEL=dashboard` | `ARO_UI_MODEL=tabs` | `ARO_UI_MODEL=carousel` |
+| Use case | Single-purpose apps | Multi-feature product, switch between features | Overview + deep-dive | Browser-like navigation, 2–4 modules | Presentations, demos, mobile-first |
 
 ---
 
@@ -25,21 +25,18 @@ The active model is controlled by the `ARO_UI_MODEL` environment variable (or `.
 
 | `ARO_UI_MODEL` value | Model | Behaviour |
 |----------------------|-------|-----------|
-| `standalone` | Standalone | Current MVP behaviour. First module in `ARO_ENABLED_MODULES` owns the full screen. |
-| `sidebar` | Sidebar | Desktop shell renders sidebar + content slot. All modules in `ARO_ENABLED_MODULES` are loaded. |
-| `dashboard` | Dashboard | Extends Sidebar. Adds a dashboard home view with module widget tiles. |
+| `standalone` | Standalone | First module in `ARO_ENABLED_MODULES` owns the full screen. |
+| `sidebar` | Sidebar | Vertical sidebar + content slot. All modules loaded. |
+| `dashboard` | Dashboard | Extends Sidebar. Dashboard home with widget tiles. |
+| `tabs` | Tabs | Horizontal tab bar + content slot. All modules loaded. |
+| `carousel` | Carousel | Arrow / dot navigation. One module at a time, no persistent nav. |
 
 ### Configuration variables
 
 Two environment variables control the module system:
 
-- **`ARO_UI_MODEL`** — which shell layout to use (`standalone`, `sidebar`, or `dashboard`).
+- **`ARO_UI_MODEL`** — which shell layout to use (`standalone`, `sidebar`, `dashboard`, `tabs`, or `carousel`).
 - **`ARO_ENABLED_MODULES`** — comma-separated list of module keys to load. Used by all models.
-
-| Variable | Standalone | Sidebar | Dashboard |
-|----------|------------|---------|-----------|
-| `ARO_UI_MODEL` | `standalone` | `sidebar` | `dashboard` |
-| `ARO_ENABLED_MODULES` | Single module (e.g. `inspect`) | Multiple (e.g. `inspect,hello-world`) | Same as Sidebar |
 
 **`.env` examples:**
 
@@ -48,12 +45,20 @@ Two environment variables control the module system:
 ARO_UI_MODEL=standalone
 ARO_ENABLED_MODULES=inspect
 
-# Sidebar — multiple modules behind a nav
+# Sidebar — multiple modules behind a vertical nav
 ARO_UI_MODEL=sidebar
 ARO_ENABLED_MODULES=inspect,hello-world
 
 # Dashboard — tiled widget grid (extends Sidebar)
 ARO_UI_MODEL=dashboard
+ARO_ENABLED_MODULES=inspect,hello-world
+
+# Tabs — horizontal tab bar
+ARO_UI_MODEL=tabs
+ARO_ENABLED_MODULES=inspect,hello-world
+
+# Carousel — swipe / arrow navigation
+ARO_UI_MODEL=carousel
 ARO_ENABLED_MODULES=inspect,hello-world
 ```
 
@@ -346,27 +351,76 @@ Add a "Dashboard" / "Home" entry as the first sidebar item. When active, render 
 
 ---
 
+## Tabs Model
+
+**Description:** A horizontal tab bar replaces the vertical sidebar. Each tab shows one module's full view. Lighter visual weight than the Sidebar; best suited for 2–4 modules.
+
+**When to use:**
+- Browser-like navigation metaphor
+- Fewer modules (2–4) where a sidebar feels heavy
+- Horizontal screen layouts where vertical space is more valuable
+
+**Status:** Implemented (desktop + web).
+
+**Renderer structure (Tabs):**
+
+```
+App.tsx
+├── <TabBar />
+│   ├── [Inspect] [Tokens] [Figma]
+└── <ContentSlot>
+    └── <ActiveModule />    ← selected tab's module renders here
+</ContentSlot>
+```
+
+**Config:** `ARO_UI_MODEL=tabs` + `ARO_ENABLED_MODULES=inspect,hello-world`
+
+---
+
+## Carousel Model
+
+**Description:** No persistent navigation chrome. One module fills the screen. Users move between modules with left/right arrows and dot indicators. The nav bar is a sticky footer at the bottom of the viewport (viewport constrained via html/body/#root height and a flex wrapper); only the module content scrolls. Mobile-friendly and presentation-ready.
+
+**When to use:**
+- Presentation or demo mode
+- Kiosk displays
+- Mobile-first experiences
+- Onboarding flows
+
+**Status:** Implemented (desktop + web).
+
+**Renderer structure (Carousel):**
+
+Uses shadcn Carousel (Embla) from `packages/ui`. See [ui.shadcn.com/docs/components/carousel](https://ui.shadcn.com/docs/components/carousel).
+
+```
+App.tsx
+├── <Wrapper> (h-full min-h-0 flex flex-col overflow-hidden)
+│   └── <CarouselLayout>
+│       └── <Carousel> (shadcn)
+│           ├── <CarouselContent> (one CarouselItem per module)
+│           │   └── <CarouselItem> ← module fills the screen, scrolls
+│           └── <Footer> (shrink-0)
+│               ← CarouselPrevious  ● ○ ○  CarouselNext →   ← always visible
+```
+
+**Config:** `ARO_UI_MODEL=carousel` + `ARO_ENABLED_MODULES=inspect,hello-world`
+
+---
+
 ## Transition Path
 
-Each model builds on the previous. Detailed implementation steps are in [MODULE_TRANSITION.md](MODULE_TRANSITION.md).
+Each multi-module model reuses the same module contract. Standalone → Sidebar is the primary upgrade path; Tabs and Carousel are lateral alternatives. Dashboard extends Sidebar.
 
 ```
-Standalone
-  │
-  │  + shell layout, sidebar, multi-module loading,
-  │  + IPC namespacing, enable/disable config, ARO_UI_MODEL
-  │
-  ▼
-Sidebar
-  │
-  │  + Widget exports, dashboard grid, layout engine,
-  │  + error boundaries, performance tuning
-  │
-  ▼
-Dashboard
+                    ┌── Tabs (horizontal tab bar)
+                    │
+Standalone ────► Sidebar ────► Dashboard (widget grid)
+                    │
+                    └── Carousel (arrow / dot nav)
 ```
 
-Core and the module-to-Core relationship remain the same across all three models.
+Core and the module-to-Core relationship remain the same across all models.
 
 ---
 
