@@ -1,19 +1,34 @@
 import type { AroCore } from '@aro/core';
-import { getEnabledModuleKeys, getInit } from './moduleRegistry.js';
+import { getEnabledModuleKeys, getInit, getUIModel } from './moduleRegistry.js';
 import { setRegisteredJobKeys } from './state.js';
 
 /**
- * Load all enabled modules (works for every UI model).
- * ARO_ENABLED_MODULES is the single source of truth — one module or many.
+ * Load modules based on the active UI model.
+ *
+ * - standalone: loads only the first module in ARO_ENABLED_MODULES.
+ * - sidebar / dashboard: loads all modules in ARO_ENABLED_MODULES.
  */
 export function loadModules(core: AroCore): void {
+  const model = getUIModel();
   const enabledKeys = getEnabledModuleKeys();
   if (enabledKeys.length === 0) {
     console.warn('ARO_ENABLED_MODULES is empty or unset — no modules loaded');
     return;
   }
+
+  const keysToLoad = model === 'standalone' ? [enabledKeys[0]] : enabledKeys;
+
+  if (model === 'standalone' && enabledKeys.length > 1) {
+    console.warn(
+      'Standalone mode — only loading first module:',
+      enabledKeys[0],
+      '(ignoring:',
+      enabledKeys.slice(1).join(', ') + ')',
+    );
+  }
+
   const allJobKeys: string[] = [];
-  for (const key of enabledKeys) {
+  for (const key of keysToLoad) {
     const init = getInit(key);
     if (!init) continue; // already warned in getEnabledModuleKeys
     try {

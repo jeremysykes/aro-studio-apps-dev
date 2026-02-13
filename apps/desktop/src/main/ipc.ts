@@ -49,7 +49,9 @@ export function registerIpcHandlers(getMainWindow: () => BrowserWindow | null): 
   });
 
   ipcMain.handle('app:getEnabledModules', async () => {
-    return getEnabledModuleKeys();
+    const keys = getEnabledModuleKeys();
+    // Standalone mode only exposes the first module
+    return getUIModel() === 'standalone' ? keys.slice(0, 1) : keys;
   });
 
   ipcMain.handle('job:run', async (_, jobKey: string, input?: unknown) => {
