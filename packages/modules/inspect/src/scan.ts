@@ -22,30 +22,18 @@ import { crossReferenceTokens, crossReferenceComponents } from './analysis/cross
 import { generateFindings, findingsBySeverity } from './analysis/findings.js';
 import { computeHealthScore } from './analysis/healthScore.js';
 
-const CONFIG_PATH = 'inspect-config.json';
-
 export async function runScan(
   ctx: JobContext,
   input: unknown
 ): Promise<InspectReport | null> {
   // Validate input with Zod
   const parseResult = ScanInputSchema.safeParse(input ?? {});
-  let scanInput: ScanInput;
+  let config: ScanInput;
   if (parseResult.success) {
-    scanInput = parseResult.data as ScanInput;
+    config = parseResult.data as ScanInput;
   } else {
     ctx.logger('warning', `Invalid scan input: ${parseResult.error.issues.map(i => i.message).join(', ')}. Using defaults.`);
-    scanInput = {};
-  }
-
-  let config: ScanInput = scanInput;
-  try {
-    if (ctx.workspace.exists(CONFIG_PATH)) {
-      const raw = ctx.workspace.readText(CONFIG_PATH);
-      config = { ...JSON.parse(raw), ...scanInput };
-    }
-  } catch {
-    // use input only
+    config = {};
   }
 
   const sourcesScanned: string[] = [];
@@ -185,25 +173,6 @@ export async function runScan(
     incomplete: ctx.abort.aborted,
     storybookBaseUrl,
   };
-
-  // Persist config to workspace for next session
-  try {
-    const configToSave: Record<string, unknown> = {};
-    if (config.figma?.fileKeys?.length) {
-      configToSave.figma = { fileKeys: config.figma.fileKeys };
-    }
-    if (config.codeTokens?.paths?.length) {
-      configToSave.codeTokens = { paths: config.codeTokens.paths };
-    }
-    if (config.storybook) {
-      configToSave.storybook = { ...config.storybook };
-    }
-    if (Object.keys(configToSave).length > 0) {
-      ctx.workspace.writeText(CONFIG_PATH, JSON.stringify(configToSave, null, 2));
-    }
-  } catch {
-    // non-critical — config persistence is best-effort
-  }
 
   ctx.progress?.(1.0);
 

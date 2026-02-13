@@ -88,3 +88,24 @@ This document details how to implement and verify each module constraint. Module
 **Verification:**
 
 - PR check: if `packages/modules/*/package.json` changes, [meta/DEPENDENCIES.md](../meta/DEPENDENCIES.md) must include the new dep with justification.
+
+---
+
+## Constraint 6: Jobs must be stateless
+
+**Rule:** Job definitions must be pure functions of their input. Jobs must not read or write their own config/state files in the workspace. All configuration must arrive via the `input` parameter; all output goes through `ctx.artifactWriter`.
+
+**Why:** When a job persists its own config (e.g. writing a `<module>-config.json`), it creates a hidden state channel between runs that duplicates what the UI layer already owns. This leads to stale config, merge conflicts between UI state and file state, and makes jobs harder to test in isolation.
+
+**Implementation:**
+
+- Jobs receive everything they need via `input` (validated with Zod schemas).
+- Jobs write results only via `ctx.artifactWriter` and `ctx.logger`.
+- Preference/form persistence belongs in the UI layer (Zustand store, env vars, or a future `window.aro` key-value API).
+- `ctx.workspace.readText` is permitted for reading *domain data* (e.g. token files the user pointed to), not for reading job config.
+- `ctx.workspace.writeText` is permitted only for domain output, never for config persistence.
+
+**Verification:**
+
+- Code review: job definitions must not contain config read/write patterns (e.g. `readText('<module>-config.json')` or `writeText` for non-artifact data).
+- Grep check: `ctx.workspace.writeText` calls in job code should only reference artifact or domain data paths, never config paths.

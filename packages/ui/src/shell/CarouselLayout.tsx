@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Carousel,
   CarouselContent,
@@ -18,10 +18,36 @@ interface CarouselLayoutProps {
  * Carousel shell layout using shadcn Carousel (Embla). One module visible at a time
  * with left/right arrow navigation and dot indicators. No persistent nav chrome.
  * Mobile-friendly.
+ *
+ * We measure the container width in JS and set an explicit pixel width on each
+ * slide so that child min-width constraints (e.g. Inspect's min-w-[900px])
+ * cannot inflate the slide and throw off Embla's translate calculations.
  */
 export function CarouselLayout({ modules }: CarouselLayoutProps) {
   const [api, setApi] = useState<CarouselApi>();
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [slideWidth, setSlideWidth] = useState<number | null>(null);
+
+  const measure = useCallback(() => {
+    if (containerRef.current) {
+      setSlideWidth(containerRef.current.offsetWidth);
+    }
+  }, []);
+
+  useEffect(() => {
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (containerRef.current) ro.observe(containerRef.current);
+    return () => ro.disconnect();
+  }, [measure]);
+
+  // Re-init Embla after slide width changes so it picks up correct measurements
+  useEffect(() => {
+    if (api && slideWidth != null) {
+      api.reInit();
+    }
+  }, [api, slideWidth]);
 
   useEffect(() => {
     if (!api) return;
@@ -32,7 +58,7 @@ export function CarouselLayout({ modules }: CarouselLayoutProps) {
   }, [api]);
 
   return (
-    <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+    <div ref={containerRef} className="flex-1 min-h-0 flex flex-col overflow-hidden">
       <Carousel
         setApi={setApi}
         opts={{
@@ -48,7 +74,8 @@ export function CarouselLayout({ modules }: CarouselLayoutProps) {
           {modules.map((mod) => (
             <CarouselItem
               key={mod.key}
-              className="pl-0 shrink-0 grow-0 basis-full flex flex-col min-h-0 overflow-hidden"
+              className="pl-0 flex flex-col min-h-0 overflow-hidden"
+              style={slideWidth != null ? { width: slideWidth, minWidth: slideWidth, maxWidth: slideWidth } : undefined}
             >
               <div className="flex-1 min-h-0 overflow-x-hidden overflow-y-auto pb-12">
                 {mod.component ? <mod.component /> : null}

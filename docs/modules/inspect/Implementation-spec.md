@@ -32,9 +32,9 @@ Init runs in main process; Desktop passes Core (or facade) into module `init`; m
 - **Trigger:** `window.aro.job.run('inspect:scan', input)` with `ScanInput`.
 - **Input validation:** Input is validated at the boundary with Zod (`ScanInputSchema.safeParse`). Invalid input logs a warning and falls back to defaults; malformed fields are rejected rather than silently accepted.
 - **Input schema:** Figma (fileKeys, pat), codeTokens (paths?, inline?, format?), storybook (indexUrl or indexPath), options (namingStrategy, colorDistanceTolerance, fuzzyThreshold). codeTokens.paths: file paths relative to workspace. codeTokens.inline: raw DTCG or Style Dictionary JSON. codeTokens.format: optional override ('dtcg' | 'style-dictionary' | 'tokens-studio').
-- **Context usage:** `ctx.logger` for phase/findings/errors; `ctx.workspace` for config and token file reads and config write; `ctx.artifactWriter` for report.json, tokens.json, components.json; `ctx.abort` checked before each phase and propagated to scanners; `ctx.progress` at 0, 0.5, 0.75, 1.0.
-- **Execution order:** Read config from workspace or input → Phase 1+3 Figma and Storybook in parallel (both network I/O, via `Promise.all`) → Phase 2 Code tokens (synchronous file reads) → Phase 4 Analysis → Phase 5 Write artifacts. On abort, write partial results with `incomplete: true`.
-- **Config persistence:** At end of successful scan, non-sensitive config (file keys, code paths, storybook URLs) is persisted to `inspect-config.json` in the workspace (best-effort; PATs are never persisted). On next scan, workspace config is merged with input, with input taking precedence.
+- **Context usage:** `ctx.logger` for phase/findings/errors; `ctx.workspace` for token file reads only; `ctx.artifactWriter` for report.json, tokens.json, components.json; `ctx.abort` checked before each phase and propagated to scanners; `ctx.progress` at 0, 0.5, 0.75, 1.0.
+- **Execution order:** Validate input → Phase 1+3 Figma and Storybook in parallel (both network I/O, via `Promise.all`) → Phase 2 Code tokens (synchronous file reads) → Phase 4 Analysis → Phase 5 Write artifacts. On abort, write partial results with `incomplete: true`.
+- **Stateless:** The job is a pure function of its input. It does not read or write config files. All configuration arrives via the `input` parameter from the UI. See [MODULE_CONSTRAINTS.md](../MODULE_CONSTRAINTS.md) Constraint 6.
 
 ### 2.3 inspect:export
 
@@ -106,7 +106,6 @@ Init runs in main process; Desktop passes Core (or facade) into module `init`; m
 - **Token:** name, type, value, rawValue?, source, collection?, modes?, description?, filePath?.
 - **Component:** name, surfaces (figma?, storybook?, code?), coverage[], isOrphan.
 - **Finding:** id, severity, category, title, details, affectedTokens?, affectedComponents?, sources[].
-- **Config persistence:** Non-sensitive configuration (file keys, code token paths, storybook URLs) is persisted to `inspect-config.json` in the workspace at the end of each successful scan. PATs are never persisted to the config file; they are only stored in `.env` and passed at runtime. Config persistence is best-effort (failures are silently ignored).
 - **Validation schemas:** All external data structures (ScanInput, ExportInput, InspectReport, Figma API responses, Storybook index) have corresponding Zod schemas in `src/schemas.ts` for runtime boundary validation.
 - **Finding IDs:** Finding IDs are deterministic per scan (counter resets to 1 for each `generateFindings()` call) via a per-call ID generator. Module-scoped counters are not used.
 
