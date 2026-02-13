@@ -23,6 +23,7 @@ In progress. Core scan pipeline (Figma, code tokens, Storybook), analysis, healt
 |------|----------|
 | `src/` | Job registration (`init`), scan and export jobs, scanners (Figma, code tokens, Storybook), analysis (cross-reference, findings, health score). |
 | `src/ui/` | Setup / Run / Report views and report tabs (Health Dashboard, Token Inventory, Component Inventory). |
+| `src/ui/store.ts` | Zustand store (`useInspectStore`) — single source of truth for all shared UI state (workspace, config, runs, logs, report, navigation). Components subscribe to individual slices for selective re-rendering. Side-effect subscriptions (workspace changes, log streaming, run polling) are initialized via `initInspectSubscriptions()` in the root `Inspect` component. |
 
 ## Docs
 

@@ -1,14 +1,25 @@
 import type { ScanConfig } from '../types';
 import { defaultConfig } from '../constants';
 
+function getEnv(key: string): string {
+	if (typeof import.meta === 'undefined') return '';
+	return (import.meta as { env?: Record<string, string | undefined> }).env?.[key] ?? '';
+}
+
 export function getInitialConfig(): ScanConfig {
-	const envToken =
-		typeof import.meta !== 'undefined' &&
-		(import.meta as { env?: Record<string, string | undefined> }).env
-			?.VITE_FIGMA_TOKEN;
+	const envToken = getEnv('VITE_FIGMA_TOKEN');
+	const storybookUrl = getEnv('VITE_STORYBOOK_INDEX_URL').trim();
+	const storybookPath = getEnv('VITE_STORYBOOK_INDEX_PATH').trim();
+	const codePaths = getEnv('VITE_CODE_TOKENS_PATH').trim();
+	const figmaFileKeyOrUrl = (getEnv('VITE_FIGMA_FILE_KEY') || getEnv('VITE_FIGMA_FILE_URL')).trim();
+
 	return {
 		...defaultConfig,
 		figmaPat: typeof envToken === 'string' ? envToken : '',
+		storybookUrl,
+		storybookPath,
+		codePaths,
+		figmaFileKeys: figmaFileKeyOrUrl ? figmaFileKeyOrUrl : '',
 	};
 }
 

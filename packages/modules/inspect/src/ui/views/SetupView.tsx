@@ -8,21 +8,17 @@ import {
 	Input,
 	Textarea,
 } from '@aro/desktop/components';
-import type { ScanConfig } from '../types';
+import { useInspectStore } from '../store';
 
 export interface SetupViewProps {
-	config: ScanConfig;
-	onConfigChange: React.Dispatch<React.SetStateAction<ScanConfig>>;
-	onRunScan: () => void;
 	hasAtLeastOneSource: boolean;
 }
 
-export function SetupView({
-	config,
-	onConfigChange,
-	onRunScan,
-	hasAtLeastOneSource,
-}: SetupViewProps) {
+export function SetupView({ hasAtLeastOneSource }: SetupViewProps) {
+	const config = useInspectStore((s) => s.config);
+	const setConfig = useInspectStore((s) => s.setConfig);
+	const runScan = useInspectStore((s) => s.runScan);
+
 	return (
 		<section aria-labelledby='setup-heading'>
 			<h2 id='setup-heading' className='sr-only'>
@@ -46,7 +42,7 @@ export function SetupView({
 							className='text-[11px]'
 							value={config.figmaFileKeys}
 							onChange={(e) =>
-								onConfigChange((c) => ({
+								setConfig((c) => ({
 									...c,
 									figmaFileKeys: e.target.value,
 								}))
@@ -66,7 +62,7 @@ export function SetupView({
 							className='text-[11px]'
 							value={config.figmaPat}
 							onChange={(e) =>
-								onConfigChange((c) => ({ ...c, figmaPat: e.target.value }))
+								setConfig((c) => ({ ...c, figmaPat: e.target.value }))
 							}
 							placeholder='figd_…'
 							aria-label='Figma PAT'
@@ -94,7 +90,7 @@ export function SetupView({
 							className='text-[11px]'
 							value={config.codePaths}
 							onChange={(e) =>
-								onConfigChange((c) => ({ ...c, codePaths: e.target.value }))
+								setConfig((c) => ({ ...c, codePaths: e.target.value }))
 							}
 							placeholder='tokens/tokens.json or paste JSON'
 							aria-label='Code token paths or inline JSON'
@@ -118,7 +114,7 @@ export function SetupView({
 							className='text-[11px]'
 							value={config.storybookUrl}
 							onChange={(e) =>
-								onConfigChange((c) => ({
+								setConfig((c) => ({
 									...c,
 									storybookUrl: e.target.value,
 								}))
@@ -138,7 +134,7 @@ export function SetupView({
 							className='text-[11px]'
 							value={config.storybookPath}
 							onChange={(e) =>
-								onConfigChange((c) => ({
+								setConfig((c) => ({
 									...c,
 									storybookPath: e.target.value,
 								}))
@@ -154,7 +150,7 @@ export function SetupView({
 				variant='outline'
 				size='xs'
 				disabled={!hasAtLeastOneSource}
-				onClick={onRunScan}
+				onClick={runScan}
 			>
 				Run Inspect
 			</Button>

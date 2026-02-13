@@ -19,50 +19,26 @@ import {
 	COLUMN_HEADER_CLASS,
 } from '../components/TwoColumnLayout';
 import { ReportContent, REPORT_TABS } from '../report/ReportContent';
-import type {
-	RunItem,
-	InspectReport,
-	ReportTab,
-	ReportLoadState,
-} from '../types';
+import { useInspectStore } from '../store';
+import type { ReportTab } from '../types';
 
-export interface ReportViewProps {
-	runs: RunItem[];
-	runsWithReport: string[];
-	runsWithReportLoading: boolean;
-	selectedRunId: string | null;
-	report: InspectReport | null;
-	reportLoadState: ReportLoadState;
-	reportTab: ReportTab;
-	onSelectRun: (id: string) => void;
-	onReportTabChange: (tab: ReportTab) => void;
-	onExportCsv: () => void;
-	onExportMarkdown: () => void;
-	onExportPdf: () => void;
-	canExport: boolean;
-	storybookUrl?: string;
-}
+export function ReportView() {
+	const runs = useInspectStore((s) => s.runs);
+	const runsWithReport = useInspectStore((s) => s.runsWithReport);
+	const runsWithReportLoading = useInspectStore((s) => s.runsWithReportLoading);
+	const selectedRunId = useInspectStore((s) => s.selectedRunId);
+	const report = useInspectStore((s) => s.report);
+	const reportLoadState = useInspectStore((s) => s.reportLoadState);
+	const reportTab = useInspectStore((s) => s.reportTab);
+	const setReportTab = useInspectStore((s) => s.setReportTab);
+	const exportReport = useInspectStore((s) => s.exportReport);
+	const config = useInspectStore((s) => s.config);
 
-export function ReportView({
-	runs,
-	runsWithReport,
-	runsWithReportLoading,
-	selectedRunId,
-	report,
-	reportLoadState,
-	reportTab,
-	onSelectRun,
-	onReportTabChange,
-	onExportCsv,
-	onExportMarkdown,
-	onExportPdf,
-	canExport,
-	storybookUrl,
-}: ReportViewProps) {
+	const canExport = runsWithReport.includes(selectedRunId ?? '');
 	const storybookBaseUrl =
 		report?.storybookBaseUrl ??
-		(storybookUrl?.trim()
-			? `${new URL(storybookUrl.trim()).origin}/`
+		(config.storybookUrl?.trim()
+			? `${new URL(config.storybookUrl.trim()).origin}/`
 			: undefined);
 	const [filter, setFilter] = useState('');
 	const reportRuns = runs.filter((r) => runsWithReport.includes(r.id));
@@ -70,7 +46,7 @@ export function ReportView({
 
 	const handleTabChange = (tab: ReportTab) => {
 		setFilter('');
-		onReportTabChange(tab);
+		setReportTab(tab);
 	};
 
 	const sidebar = (
@@ -90,11 +66,7 @@ export function ReportView({
 						))}
 					</ul>
 				) : (
-					<RunsTable
-						runs={reportRuns}
-						selectedRunId={selectedRunId}
-						onSelectRun={onSelectRun}
-					/>
+					<RunsTable runs={reportRuns} />
 				)}
 			</CardContent>
 		</Card>
@@ -174,7 +146,7 @@ export function ReportView({
 						variant='outline'
 						size='xs'
 						disabled={!canExport}
-						onClick={onExportCsv}
+						onClick={() => exportReport('csv')}
 					>
 						Export CSV
 					</Button>
@@ -183,7 +155,7 @@ export function ReportView({
 						variant='outline'
 						size='xs'
 						disabled={!canExport}
-						onClick={onExportMarkdown}
+						onClick={() => exportReport('markdown')}
 					>
 						Export Markdown
 					</Button>
@@ -192,7 +164,7 @@ export function ReportView({
 						variant='outline'
 						size='xs'
 						disabled={!canExport}
-						onClick={onExportPdf}
+						onClick={() => exportReport('pdf')}
 					>
 						Export PDF
 					</Button>

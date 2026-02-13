@@ -7,27 +7,16 @@ import {
 	CARD_CONTENT_CLASS,
 	COLUMN_HEADER_CLASS,
 } from '../components/TwoColumnLayout';
-import type { RunItem, LogEntry } from '../types';
+import { useInspectStore } from '../store';
 
-export interface RunViewProps {
-	runs: RunItem[];
-	selectedRunId: string | null;
-	logs: LogEntry[];
-	runningRunId: string | null;
-	onSelectRun: (id: string) => void;
-	onCancelRun: (runId: string) => void;
-	onViewReports: () => void;
-}
+export function RunView() {
+	const runs = useInspectStore((s) => s.runs);
+	const selectedRunId = useInspectStore((s) => s.selectedRunId);
+	const logs = useInspectStore((s) => s.logs);
+	const runningRunId = useInspectStore((s) => s.runningRunId);
+	const cancelRun = useInspectStore((s) => s.cancelRun);
+	const setView = useInspectStore((s) => s.setView);
 
-export function RunView({
-	runs,
-	selectedRunId,
-	logs,
-	runningRunId,
-	onSelectRun,
-	onCancelRun,
-	onViewReports,
-}: RunViewProps) {
 	const selectedRun = runs.find((r) => r.id === selectedRunId);
 	const isLoading = runningRunId != null && runningRunId === selectedRunId;
 	const canViewReports = selectedRun?.status === 'success';
@@ -41,12 +30,7 @@ export function RunView({
 					</CardTitle>
 				</div>
 				<CardContent className={`${CARD_CONTENT_CLASS} p-0`}>
-					<RunsTable
-						runs={runs}
-						selectedRunId={selectedRunId}
-						onSelectRun={onSelectRun}
-						showStatus
-					/>
+					<RunsTable showStatus />
 				</CardContent>
 			</Card>
 			{runningRunId && (
@@ -55,7 +39,7 @@ export function RunView({
 					variant='destructive'
 					size='xs'
 					className='min-[900px]:mt-4'
-					onClick={() => onCancelRun(runningRunId)}
+					onClick={() => cancelRun(runningRunId)}
 				>
 					Abort scan
 				</Button>
@@ -79,7 +63,7 @@ export function RunView({
 						variant='outline'
 						size='xs'
 						disabled={isLoading || !canViewReports}
-						onClick={onViewReports}
+						onClick={() => setView('report')}
 					>
 						{isLoading && (
 							<span

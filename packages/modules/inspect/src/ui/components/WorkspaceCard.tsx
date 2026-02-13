@@ -1,15 +1,11 @@
 import React from 'react';
 import { Button, Card, CardContent } from '@aro/desktop/components';
+import { useInspectStore } from '../store';
 
-export interface WorkspaceCardProps {
-	workspacePath: string | null;
-	onSelectWorkspace: () => void;
-}
+export function WorkspaceCard() {
+	const workspacePath = useInspectStore((s) => s.workspacePath);
+	const selectWorkspace = useInspectStore((s) => s.selectWorkspace);
 
-export function WorkspaceCard({
-	workspacePath,
-	onSelectWorkspace,
-}: WorkspaceCardProps) {
 	return (
 		<Card className='mb-0 py-2 px-4'>
 			<CardContent className='p-0'>
@@ -22,7 +18,7 @@ export function WorkspaceCard({
 							type='button'
 							variant='secondary'
 							size='xs'
-							onClick={onSelectWorkspace}
+							onClick={selectWorkspace}
 						>
 							Select workspace
 						</Button>
@@ -38,7 +34,7 @@ export function WorkspaceCard({
 							type='button'
 							variant='ghost'
 							size='xs'
-							onClick={onSelectWorkspace}
+							onClick={selectWorkspace}
 						>
 							Set workspace
 						</Button>

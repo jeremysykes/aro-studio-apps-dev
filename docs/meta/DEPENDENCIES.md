@@ -95,5 +95,6 @@ Modules (`packages/modules/*`) may use:
 - **react** / **react-dom** — Peer dependencies for module UI. Desktop supplies them when bundling the module's React component; the module does not list them as direct dependencies to avoid duplicate React in the renderer.
 - **@aro/desktop** (components subpath) — When a module uses the shared design system, it may depend on Desktop's exported UI components (e.g. `@aro/desktop/components`). Reason: shared design system; module UI uses shadcn components from Desktop. Replaces: ad-hoc inline styles and manual styling in the module.
 - **pdfkit** (inspect module only) — PDF generation for export. Reason: inspect module exports report as PDF with tables. No built-in Node option for PDF; required for "Export PDF" feature.
+- **zustand** (inspect module only) — Lightweight state management for the inspect UI. Reason: replaces a monolithic `useInspectState` hook (13 useState calls + prop drilling through 3+ component layers) with a single Zustand store. Components subscribe to only the slices they need, eliminating unnecessary re-renders. ~1KB gzipped; no providers or context wrappers required. Replaces: custom `useState`-based hook with manual prop drilling.
 
 New module dependencies require justification in this doc (name, reason, what it replaces) before addition.

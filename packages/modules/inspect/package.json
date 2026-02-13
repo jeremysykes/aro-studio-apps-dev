@@ -14,7 +14,8 @@
   "dependencies": {
     "@aro/core": "workspace:*",
     "@aro/desktop": "workspace:*",
-    "pdfkit": "^0.15.0"
+    "pdfkit": "^0.15.0",
+    "zustand": "^5.0.11"
   },
   "peerDependencies": {
     "react": "^18.0.0",

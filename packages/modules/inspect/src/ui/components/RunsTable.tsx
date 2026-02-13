@@ -7,6 +7,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@aro/desktop/components';
+import { useInspectStore } from '../store';
 import type { RunItem } from '../types';
 
 function formatRelativeTime(ms: number): string {
@@ -49,18 +50,21 @@ function statusBadge(status: string): React.ReactNode {
 }
 
 export interface RunsTableProps {
-	runs: RunItem[];
-	selectedRunId: string | null;
-	onSelectRun: (id: string) => void;
+	/** Override runs list (e.g. for filtered report runs). Falls back to store. */
+	runs?: RunItem[];
 	showStatus?: boolean;
 }
 
 export function RunsTable({
-	runs,
-	selectedRunId,
-	onSelectRun,
+	runs: runsProp,
 	showStatus = false,
 }: RunsTableProps) {
+	const storeRuns = useInspectStore((s) => s.runs);
+	const selectedRunId = useInspectStore((s) => s.selectedRunId);
+	const selectRun = useInspectStore((s) => s.selectRun);
+
+	const runs = runsProp ?? storeRuns;
+
 	return (
 		<Table>
 			<TableHeader>
@@ -78,7 +82,7 @@ export function RunsTable({
 							key={run.id}
 							data-state={isSelected ? 'selected' : undefined}
 							className={`cursor-pointer ${isSelected ? 'bg-zinc-100' : ''}`}
-							onClick={() => onSelectRun(run.id)}
+							onClick={() => selectRun(run.id)}
 						>
 							<TableCell className='text-[11px] whitespace-nowrap'>
 								{formatRelativeTime(run.startedAt)}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
 	Alert,
 	Tabs,
@@ -6,7 +6,7 @@ import {
 	TabsList,
 	TabsTrigger,
 } from '@aro/desktop/components';
-import { useInspectState } from './hooks/useInspectState';
+import { useInspectStore, initInspectSubscriptions } from './store';
 import { WorkspaceCard } from './components/WorkspaceCard';
 import { SetupView } from './views/SetupView';
 import { RunView } from './views/RunView';
@@ -21,30 +21,16 @@ const VIEW_TABS: Array<{ id: View; label: string }> = [
 ];
 
 export default function Inspect() {
-	const state = useInspectState();
-	const {
-		workspacePath,
-		view,
-		setView,
-		config,
-		setConfig,
-		runs,
-		selectedRunId,
-		logs,
-		report,
-		reportLoadState,
-		runningRunId,
-		error,
-		reportTab,
-		setReportTab,
-		runsWithReport,
-		runsWithReportLoading,
-		handleSelectRun,
-		handleSelectWorkspace,
-		handleRunScan,
-		handleCancelRun,
-		handleExport,
-	} = state;
+	const view = useInspectStore((s) => s.view);
+	const setView = useInspectStore((s) => s.setView);
+	const config = useInspectStore((s) => s.config);
+	const workspacePath = useInspectStore((s) => s.workspacePath);
+	const error = useInspectStore((s) => s.error);
+
+	useEffect(() => {
+		const cleanup = initInspectSubscriptions();
+		return cleanup;
+	}, []);
 
 	return (
 		<main className='min-w-[900px] min-h-screen p-6 font-sans' role='main'>
@@ -56,10 +42,7 @@ export default function Inspect() {
 						</p>
 					</div>
 					<div className='min-w-0 min-[900px]:shrink-0'>
-						<WorkspaceCard
-							workspacePath={workspacePath}
-							onSelectWorkspace={handleSelectWorkspace}
-						/>
+						<WorkspaceCard />
 					</div>
 				</div>
 
@@ -103,41 +86,13 @@ export default function Inspect() {
 								))}
 							</TabsList>
 							<TabsContent value='setup'>
-								<SetupView
-									config={config}
-									onConfigChange={setConfig}
-									onRunScan={handleRunScan}
-									hasAtLeastOneSource={hasAtLeastOneSource(config)}
-								/>
+								<SetupView hasAtLeastOneSource={hasAtLeastOneSource(config)} />
 							</TabsContent>
 							<TabsContent value='run'>
-								<RunView
-									runs={runs}
-									selectedRunId={selectedRunId}
-									logs={logs}
-									runningRunId={runningRunId}
-									onSelectRun={handleSelectRun}
-									onCancelRun={handleCancelRun}
-									onViewReports={() => setView('report')}
-								/>
+								<RunView />
 							</TabsContent>
 							<TabsContent value='report'>
-								<ReportView
-									runs={runs}
-									runsWithReport={runsWithReport}
-									runsWithReportLoading={runsWithReportLoading}
-									selectedRunId={selectedRunId}
-									report={report}
-									reportLoadState={reportLoadState}
-									reportTab={reportTab}
-									onSelectRun={handleSelectRun}
-									onReportTabChange={setReportTab}
-									onExportCsv={() => handleExport('csv')}
-									onExportMarkdown={() => handleExport('markdown')}
-									onExportPdf={() => handleExport('pdf')}
-									canExport={runsWithReport.includes(selectedRunId ?? '')}
-									storybookUrl={config.storybookUrl}
-								/>
+								<ReportView />
 							</TabsContent>
 						</Tabs>
 					</>

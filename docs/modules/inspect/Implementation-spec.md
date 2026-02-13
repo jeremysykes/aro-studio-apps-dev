@@ -108,6 +108,7 @@ Init runs in main process; Desktop passes Core (or facade) into module `init`; m
 - **Workspace:** `workspace.select()`, `workspace.getCurrent()`; subscribe to `workspace:changed`.
 - **Cancel:** `job.cancel(runId)`.
 - **Export (UI):** Either re-use artifact JSON or call `inspect:export` and then `artifacts.read(runId, exportPath)` for download.
+- **State management:** All shared renderer state is managed via a Zustand store (`src/ui/store.ts`). Components consume only the slices they need via `useInspectStore(selector)`. Side effects (workspace subscription, log streaming, run polling, report fetching) are managed through `initInspectSubscriptions()`, called once from the root `Inspect` component. Local-only UI state (table sort, filter text) remains as component-level `useState`.
 
 ---
 
