@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, Tooltip, TooltipContent, TooltipTrigger } from '@aro/desktop/components';
+import { Badge, Tooltip, TooltipContent, TooltipTrigger } from '@aro/ui/components';
 import type { InspectReport } from '../types';
 import { ReportTable, type ReportTableColumn } from './ReportTable';
 

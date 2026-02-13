@@ -1,12 +1,29 @@
-export { Alert, alertVariants, AlertTitle, AlertDescription } from './ui/alert';
-export { Badge, badgeVariants } from './ui/badge';
-export { Button, buttonVariants } from './ui/button';
-export { Input } from './ui/input';
-export { Textarea } from './ui/textarea';
-export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './ui/card';
-export { Skeleton } from './ui/skeleton';
-export { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
+/**
+ * Re-export all UI components from the shared @aro/ui package.
+ * Desktop-specific components can be added below the re-export.
+ */
 export {
+	Alert,
+	alertVariants,
+	AlertTitle,
+	AlertDescription,
+	Badge,
+	badgeVariants,
+	Button,
+	buttonVariants,
+	Input,
+	Textarea,
+	Card,
+	CardHeader,
+	CardTitle,
+	CardDescription,
+	CardContent,
+	CardFooter,
+	Skeleton,
+	Tabs,
+	TabsList,
+	TabsTrigger,
+	TabsContent,
 	Table,
 	TableHeader,
 	TableBody,
@@ -15,7 +32,10 @@ export {
 	TableRow,
 	TableCell,
 	TableCaption,
-} from './ui/table';
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './ui/tooltip';
-export { Progress } from './ui/progress';
-export { Separator } from './ui/separator';
+	Tooltip,
+	TooltipTrigger,
+	TooltipContent,
+	TooltipProvider,
+	Progress,
+	Separator,
+} from '@aro/ui/components';

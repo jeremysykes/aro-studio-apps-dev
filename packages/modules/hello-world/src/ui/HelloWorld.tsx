@@ -1,13 +1,13 @@
 /// <reference path="./window.d.ts" />
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Run, LogEntry, Artifact } from './types';
-import { Button } from '@aro/desktop/components';
+import { Button } from '@aro/ui/components';
 import {
 	Card,
 	CardContent,
 	CardHeader,
 	CardTitle,
-} from '@aro/desktop/components';
+} from '@aro/ui/components';
 
 const JOB_KEY = 'hello-world:greet';
 

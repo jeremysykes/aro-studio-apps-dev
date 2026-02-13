@@ -12,12 +12,9 @@
   },
   "dependencies": {
     "@aro/core": "workspace:*",
-    "@aro/desktop": "workspace:*",
     "@aro/module-hello-world": "workspace:*",
     "@aro/module-inspect": "workspace:*",
-    "@radix-ui/react-slot": "^1.2.4",
-    "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
+    "@aro/ui": "workspace:*",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.0",

@@ -1,16 +1,9 @@
 import React from 'react';
 import HelloWorld from '@aro/module-hello-world/ui';
 import Inspect from '@aro/module-inspect/ui';
+import type { ModuleRegistryEntry } from '@aro/ui/shell';
 
-/**
- * A module entry with metadata for sidebar rendering.
- */
-export interface ModuleRegistryEntry {
-  key: string;
-  label: string;
-  icon: React.ReactNode;
-  component: React.ComponentType;
-}
+export type { ModuleRegistryEntry };
 
 /**
  * Inline SVG icons — no icon library in the project.

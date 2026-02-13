@@ -23,6 +23,9 @@ importers:
       '@aro/module-inspect':
         specifier: workspace:*
         version: link:../../packages/modules/inspect
+      '@aro/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@radix-ui/react-progress':
         specifier: ^1.1.8
         version: 1.1.8(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -102,24 +105,15 @@ importers:
       '@aro/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@aro/desktop':
-        specifier: workspace:*
-        version: link:../desktop
       '@aro/module-hello-world':
         specifier: workspace:*
         version: link:../../packages/modules/hello-world
       '@aro/module-inspect':
         specifier: workspace:*
         version: link:../../packages/modules/inspect
-      '@radix-ui/react-slot':
-        specifier: ^1.2.4
-        version: 1.2.4(@types/react@18.3.28)(react@18.3.1)
-      class-variance-authority:
-        specifier: ^0.7.1
-        version: 0.7.1
-      clsx:
-        specifier: ^2.1.1
-        version: 2.1.1
+      '@aro/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       cors:
         specifier: ^2.8.5
         version: 2.8.6
@@ -215,9 +209,9 @@ importers:
       '@aro/core':
         specifier: workspace:*
         version: link:../../core
-      '@aro/desktop':
+      '@aro/ui':
         specifier: workspace:*
-        version: link:../../../apps/desktop
+        version: link:../../ui
       react:
         specifier: ^18.0.0
         version: 18.3.1
@@ -234,9 +228,9 @@ importers:
       '@aro/core':
         specifier: workspace:*
         version: link:../../core
-      '@aro/desktop':
+      '@aro/ui':
         specifier: workspace:*
-        version: link:../../../apps/desktop
+        version: link:../../ui
       pdfkit:
         specifier: ^0.15.0
         version: 0.15.2
@@ -259,6 +253,39 @@ importers:
       typescript:
         specifier: ^5.6.3
         version: 5.9.3
+
+  packages/ui:
+    dependencies:
+      '@radix-ui/react-progress':
+        specifier: ^1.1.8
+        version: 1.1.8(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-separator':
+        specifier: ^1.1.8
+        version: 1.1.8(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-slot':
+        specifier: ^1.2.4
+        version: 1.2.4(@types/react@18.3.28)(react@18.3.1)
+      '@radix-ui/react-tabs':
+        specifier: ^1.1.13
+        version: 1.1.13(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@radix-ui/react-tooltip':
+        specifier: ^1.2.8
+        version: 1.2.8(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.3.1
+        version: 18.3.1(react@18.3.1)
+      tailwind-merge:
+        specifier: ^3.4.0
+        version: 3.4.0
 
 packages:
 

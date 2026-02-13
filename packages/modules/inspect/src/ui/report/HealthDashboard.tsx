@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, Progress, Separator, Tooltip, TooltipContent, TooltipTrigger } from '@aro/desktop/components';
+import { Badge, Progress, Separator, Tooltip, TooltipContent, TooltipTrigger } from '@aro/ui/components';
 import type { InspectReport, Finding, FindingSeverity } from '../types';
 
 export interface HealthDashboardProps {

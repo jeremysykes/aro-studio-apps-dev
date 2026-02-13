@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Card, CardContent, CardTitle, Progress } from '@aro/desktop/components';
+import { Button, Card, CardContent, CardTitle, Progress } from '@aro/ui/components';
 import { RunsTable } from '../components/RunsTable';
 import {
 	TwoColumnLayout,

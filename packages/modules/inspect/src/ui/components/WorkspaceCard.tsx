@@ -6,7 +6,7 @@ import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
-} from '@aro/desktop/components';
+} from '@aro/ui/components';
 import { useInspectStore } from '../store';
 
 export function WorkspaceCard() {

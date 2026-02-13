@@ -6,7 +6,7 @@ import {
 	TabsList,
 	TabsTrigger,
 	TooltipProvider,
-} from '@aro/desktop/components';
+} from '@aro/ui/components';
 import { useInspectStore, initInspectSubscriptions } from './store';
 import { WorkspaceCard } from './components/WorkspaceCard';
 import { SetupView } from './views/SetupView';

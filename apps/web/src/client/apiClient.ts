@@ -19,7 +19,11 @@ function getWsUrl(path: string): string {
 
 export function createAroApiClient() {
   return {
-    getActiveModuleKey: () => fetchJson<{ key: string }>('/api/app/active-module').then((r) => r.key),
+    getUIModel: () =>
+      fetchJson<{ model: 'standalone' | 'sidebar' | 'dashboard' }>('/api/app/ui-model').then(
+        (r) => r.model,
+      ),
+    getEnabledModules: () => fetchJson<string[]>('/api/app/enabled-modules'),
     workspace: {
       select: () => Promise.resolve(null as { path: string } | null),
       getCurrent: () => fetchJson<{ path: string } | null>('/api/workspace/current'),

@@ -9,7 +9,7 @@ import {
   addLogSubscription,
   removeLogSubscription,
 } from './state.js';
-import { getActiveModuleKey } from './moduleRegistry.js';
+import { getUIModel, getEnabledModuleKeys } from './moduleRegistry.js';
 
 const NO_WORKSPACE = 'No workspace selected';
 
@@ -27,8 +27,14 @@ export function createApiRouter(): Router {
     res.json(path ? { path } : null);
   });
 
-  router.get('/app/active-module', (_req, res) => {
-    res.json({ key: getActiveModuleKey() });
+  router.get('/app/ui-model', (_req, res) => {
+    res.json({ model: getUIModel() });
+  });
+
+  router.get('/app/enabled-modules', (_req, res) => {
+    const keys = getEnabledModuleKeys();
+    // Standalone mode only exposes the first module
+    res.json(getUIModel() === 'standalone' ? keys.slice(0, 1) : keys);
   });
 
   router.get('/job/registered', (_req, res) => {

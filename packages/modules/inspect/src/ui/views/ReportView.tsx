@@ -10,7 +10,7 @@ import {
 	Tabs,
 	TabsList,
 	TabsTrigger,
-} from '@aro/desktop/components';
+} from '@aro/ui/components';
 import { RunsTable } from '../components/RunsTable';
 import {
 	TwoColumnLayout,

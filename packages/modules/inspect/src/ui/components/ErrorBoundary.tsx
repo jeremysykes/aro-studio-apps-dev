@@ -1,5 +1,5 @@
 import React, { Component, type ReactNode } from 'react';
-import { Alert, Button } from '@aro/desktop/components';
+import { Alert, Button } from '@aro/ui/components';
 
 interface Props {
 	children: ReactNode;

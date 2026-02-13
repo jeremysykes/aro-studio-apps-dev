@@ -9,7 +9,7 @@ import {
 	Input,
 	Separator,
 	Textarea,
-} from '@aro/desktop/components';
+} from '@aro/ui/components';
 import { useInspectStore } from '../store';
 
 export interface SetupViewProps {

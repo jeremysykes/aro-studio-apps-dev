@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@aro/core": "workspace:*",
-    "@aro/desktop": "workspace:*"
+    "@aro/ui": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.0.0",

@@ -6,7 +6,7 @@ import cors from 'cors';
 import { createCore } from '@aro/core';
 import { createServer as createHttpServer } from 'http';
 import { initCore, shutdownCore } from './state.js';
-import { loadActiveModule } from './moduleLoader.js';
+import { loadModules } from './moduleLoader.js';
 import { createApiRouter, attachLogWebSocket } from './api.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -15,7 +15,7 @@ loadDotenv({ path: path.join(projectRoot, '.env') });
 
 const workspaceRoot = process.env.ARO_WORKSPACE_ROOT || projectRoot;
 const core = initCore(workspaceRoot, createCore);
-loadActiveModule(core);
+loadModules(core);
 
 const app = express();
 app.use(cors());

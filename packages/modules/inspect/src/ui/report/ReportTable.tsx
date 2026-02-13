@@ -7,7 +7,7 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@aro/desktop/components';
+} from '@aro/ui/components';
 
 export interface ReportTableColumn<T> {
 	key: string;
