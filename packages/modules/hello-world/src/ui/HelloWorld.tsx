@@ -151,9 +151,8 @@ export default function HelloWorld() {
 		<main className='p-4 font-sans'>
 			<h1 className='text-2xl font-semibold mb-4'>Aro Studio — Hello World</h1>
 			<p className='text-sm text-muted-foreground mb-4'>
-				This is the default module when ARO_ACTIVE_MODULE is not set. Set
-				ARO_ACTIVE_MODULE in your environment or in the project root `.env`. See
-				README.
+				Starter module for testing the platform. Configure modules via
+				ARO_ENABLED_MODULES in the project root `.env`. See README.
 			</p>
 
 			<Card className='mb-4'>
