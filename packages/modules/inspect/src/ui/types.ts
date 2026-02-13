@@ -31,4 +31,4 @@ export type ReportTab = 'health' | 'tokens' | 'components';
 export type ReportLoadState = 'idle' | 'loading' | 'success' | 'error';
 
 /** Re-export from module types (single source of truth). */
-export type { InspectReport } from '../types';
+export type { InspectReport, Finding, FindingSeverity } from '../types';

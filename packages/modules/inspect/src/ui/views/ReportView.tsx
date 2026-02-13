@@ -43,7 +43,6 @@ export function ReportView() {
 	const [filter, setFilter] = useState('');
 	const reportRuns = runs.filter((r) => runsWithReport.includes(r.id));
 	const showFilter = reportTab === 'tokens' || reportTab === 'components';
-
 	const handleTabChange = (tab: ReportTab) => {
 		setFilter('');
 		setReportTab(tab);
@@ -81,8 +80,24 @@ export function ReportView() {
 			>
 				<CardTitle className='mb-0 text-base font-medium text-zinc-500'>
 					Reports
+					{reportLoadState === 'success' && report && reportTab === 'tokens' && report.tokens?.length ? (
+						<span className='text-zinc-400 font-normal'>{' '}({report.tokens.length} tokens)</span>
+					) : null}
+					{reportLoadState === 'success' && report && reportTab === 'components' && report.components?.length ? (
+						<span className='text-zinc-400 font-normal'>{' '}({report.components.length} components)</span>
+					) : null}
 				</CardTitle>
 				<div className='flex items-center gap-3 shrink-0'>
+					{showFilter && (
+						<Input
+							type='search'
+							placeholder='Filter…'
+							value={filter}
+							onChange={(e) => setFilter(e.target.value)}
+							className='w-40'
+							aria-label={`Filter ${reportTab}`}
+						/>
+					)}
 					<Tabs
 						value={reportTab}
 						onValueChange={(value) => handleTabChange(value as ReportTab)}
@@ -100,16 +115,6 @@ export function ReportView() {
 							))}
 						</TabsList>
 					</Tabs>
-					{showFilter && (
-						<Input
-							type='search'
-							placeholder='Filter…'
-							value={filter}
-							onChange={(e) => setFilter(e.target.value)}
-							className='w-40'
-							aria-label={`Filter ${reportTab}`}
-						/>
-					)}
 				</div>
 			</div>
 			<CardContent

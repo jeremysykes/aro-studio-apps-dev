@@ -1,6 +1,6 @@
 import React from 'react';
-import { Badge, Progress, Separator } from '@aro/desktop/components';
-import type { InspectReport, FindingSeverity } from '../types';
+import { Badge, Progress, Separator, Tooltip, TooltipContent, TooltipTrigger } from '@aro/desktop/components';
+import type { InspectReport, Finding, FindingSeverity } from '../types';
 
 export interface HealthDashboardProps {
 	report: InspectReport;
@@ -18,12 +18,50 @@ const SUB_SCORES: {
 	key: keyof InspectReport['healthScore'];
 	label: string;
 	weight: string;
+	description: string;
 }[] = [
-	{ key: 'tokenConsistency', label: 'Token consistency', weight: '30%' },
-	{ key: 'componentCoverage', label: 'Component coverage', weight: '30%' },
-	{ key: 'namingAlignment', label: 'Naming alignment', weight: '20%' },
-	{ key: 'valueParity', label: 'Value parity', weight: '20%' },
+	{ key: 'tokenConsistency', label: 'Token consistency', weight: '30%', description: 'Measures how free your tokens are from duplicates and value drift across sources.' },
+	{ key: 'componentCoverage', label: 'Component coverage', weight: '30%', description: 'Percentage of components that exist in 2 or more surfaces (Figma, Storybook, Code).' },
+	{ key: 'namingAlignment', label: 'Naming alignment', weight: '20%', description: 'How many token names are shared across multiple sources. Higher means more consistent naming.' },
+	{ key: 'valueParity', label: 'Value parity', weight: '20%', description: 'Of tokens shared across sources, how many have identical values everywhere.' },
 ];
+
+/* ── Info icon for tooltip trigger ── */
+const InfoIcon = () => (
+	<svg
+		width='12'
+		height='12'
+		viewBox='0 0 16 16'
+		fill='none'
+		aria-hidden='true'
+		className='inline-block ml-1 align-[-1px] text-zinc-400'
+	>
+		<circle cx='8' cy='8' r='6.5' stroke='currentColor' strokeWidth='1.5' />
+		<path d='M8 7v4' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' />
+		<circle cx='8' cy='5' r='0.75' fill='currentColor' />
+	</svg>
+);
+
+/* ── Group findings by category for tooltip summaries ── */
+const CATEGORY_LABELS: Record<string, string> = {
+	'token-drift': 'token drift',
+	'token-duplicate': 'duplicate tokens',
+	'token-dead': 'dead tokens',
+	'token-naming': 'naming issues',
+	'component-orphan': 'orphan components',
+	'component-parity': 'parity issues',
+};
+
+function groupFindingsByCategory(findings: Finding[], severity: FindingSeverity): string[] {
+	const counts = new Map<string, number>();
+	for (const f of findings) {
+		if (f.severity !== severity) continue;
+		counts.set(f.category, (counts.get(f.category) ?? 0) + 1);
+	}
+	return Array.from(counts.entries()).map(
+		([cat, count]) => `${count} ${CATEGORY_LABELS[cat] ?? cat}`,
+	);
+}
 
 /* ── Severity config — icon + Badge variant ── */
 const SEVERITY_CONFIG: Record<
@@ -155,7 +193,7 @@ export function HealthDashboard({ report }: HealthDashboardProps) {
 								Score breakdown
 							</h2>
 							<div className='mt-3 space-y-3'>
-								{SUB_SCORES.map(({ key, label, weight }) => {
+								{SUB_SCORES.map(({ key, label, weight, description }) => {
 									const raw =
 										key === 'composite'
 											? healthScore.composite
@@ -164,9 +202,19 @@ export function HealthDashboard({ report }: HealthDashboardProps) {
 									return (
 										<div key={key}>
 											<div className='flex items-baseline justify-between mb-1'>
-												<span className={`text-xs ${isNA ? 'text-zinc-400' : 'text-zinc-700'}`}>
+												<span className={`text-xs flex items-center gap-0 ${isNA ? 'text-zinc-400' : 'text-zinc-700'}`}>
 													{label}{' '}
 													<span className='text-zinc-400'>({weight})</span>
+													<Tooltip>
+														<TooltipTrigger asChild>
+															<button type='button' className='cursor-help'>
+																<InfoIcon />
+															</button>
+														</TooltipTrigger>
+														<TooltipContent side='top' className='max-w-[220px]'>
+															{description}
+														</TooltipContent>
+													</Tooltip>
 												</span>
 												{isNA ? (
 													<span className='text-xs font-medium text-zinc-400'>
@@ -218,15 +266,27 @@ export function HealthDashboard({ report }: HealthDashboardProps) {
 										const count =
 											summary.findingsBySeverity[severity] ?? 0;
 										const config = SEVERITY_CONFIG[severity];
+										const categoryLines = groupFindingsByCategory(report.findings, severity);
 										return (
-											<Badge
-												key={severity}
-												variant={config.variant}
-												aria-label={`${config.label}: ${count}`}
-											>
-												{config.icon}
-												{count} {config.label}
-											</Badge>
+											<Tooltip key={severity}>
+												<TooltipTrigger asChild>
+													<Badge
+														variant={config.variant}
+														aria-label={`${config.label}: ${count}`}
+														className='cursor-default'
+													>
+														{config.icon}
+														{count} {config.label}
+													</Badge>
+												</TooltipTrigger>
+												{count > 0 && (
+													<TooltipContent side='bottom' className='max-w-[240px]'>
+														{categoryLines.map((line) => (
+															<div key={line}>{line}</div>
+														))}
+													</TooltipContent>
+												)}
+											</Tooltip>
 										);
 									},
 								)}

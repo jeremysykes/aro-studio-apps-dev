@@ -73,12 +73,12 @@ export function ReportTable<T>({
 
 	return (
 		<div>
-			{/* Row count bar */}
-			<div className='px-4 py-2 text-xs text-zinc-500'>
-				{isFiltered
-					? `Showing ${shownCount} of ${totalCount} ${title.toLowerCase()}${totalCount !== shownCount ? ' (filtered)' : ''}`
-					: `${totalCount} ${title.toLowerCase()}`}
-			</div>
+			{/* Row count bar — only shown when actively filtering */}
+			{isFiltered && (
+				<div className='px-4 py-2 text-xs text-zinc-500'>
+					Showing {shownCount} of {totalCount} {title.toLowerCase()}
+				</div>
+			)}
 			<Table>
 				<TableHeader>
 					<TableRow>
