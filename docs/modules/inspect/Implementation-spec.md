@@ -30,14 +30,18 @@ Init runs in main process; Desktop passes Core (or facade) into module `init`; m
 ### 2.2 inspect:scan
 
 - **Trigger:** `window.aro.job.run('inspect:scan', input)` with `ScanInput`.
+- **Input validation:** Input is validated at the boundary with Zod (`ScanInputSchema.safeParse`). Invalid input logs a warning and falls back to defaults; malformed fields are rejected rather than silently accepted.
 - **Input schema:** Figma (fileKeys, pat), codeTokens (paths?, inline?, format?), storybook (indexUrl or indexPath), options (namingStrategy, colorDistanceTolerance, fuzzyThreshold). codeTokens.paths: file paths relative to workspace. codeTokens.inline: raw DTCG or Style Dictionary JSON. codeTokens.format: optional override ('dtcg' | 'style-dictionary' | 'tokens-studio').
-- **Context usage:** `ctx.logger` for phase/findings/errors; `ctx.workspace` for config and token file reads and config write; `ctx.artifactWriter` for report.json, tokens.json, components.json; `ctx.abort` checked before each phase; `ctx.progress` at 0, 0.25, 0.5, 0.75, 1.0.
-- **Execution order:** Read config from workspace or input → Phase 1 Figma → Phase 2 Code tokens → Phase 3 Storybook → Phase 4 Analysis → Phase 5 Write artifacts. On abort, write partial results with `incomplete: true`.
+- **Context usage:** `ctx.logger` for phase/findings/errors; `ctx.workspace` for config and token file reads and config write; `ctx.artifactWriter` for report.json, tokens.json, components.json; `ctx.abort` checked before each phase and propagated to scanners; `ctx.progress` at 0, 0.5, 0.75, 1.0.
+- **Execution order:** Read config from workspace or input → Phase 1+3 Figma and Storybook in parallel (both network I/O, via `Promise.all`) → Phase 2 Code tokens (synchronous file reads) → Phase 4 Analysis → Phase 5 Write artifacts. On abort, write partial results with `incomplete: true`.
+- **Config persistence:** At end of successful scan, non-sensitive config (file keys, code paths, storybook URLs) is persisted to `inspect-config.json` in the workspace (best-effort; PATs are never persisted). On next scan, workspace config is merged with input, with input taking precedence.
 
 ### 2.3 inspect:export
 
-- **Trigger:** `window.aro.job.run('inspect:export', { runId, format })` with format `'csv' | 'markdown'`.
+- **Trigger:** `window.aro.job.run('inspect:export', { runId, format })` with format `'csv' | 'markdown' | 'pdf'`.
+- **Input validation:** Input is validated with Zod (`ExportInputSchema.safeParse`). Invalid input logs a warning and returns early.
 - **Context:** Reads artifact via workspace (run artifact path); writes export artifact for same run.
+- **Export completeness:** All tokens and components are exported without truncation. No row limits are applied.
 - **Cancellable:** Yes; expected duration under 5 seconds.
 
 ---
@@ -48,11 +52,14 @@ Init runs in main process; Desktop passes Core (or facade) into module `init`; m
 
 - **Endpoints:** Variables (Tier 2), file/components (Tier 1) for styles and component metadata.
 - **Behavior:** Sequential requests per file key; exponential backoff with jitter on 429 (e.g. 1s initial, 30s max, 5 retries). Cache responses in workspace (e.g. `.figma-cache/`) with 15-minute TTL.
+- **Abort signal:** The abort signal is checked between each API call (`checkAbort()`) and passed directly to `fetch({ signal })` so that in-flight network requests are cancelled immediately when the user aborts a scan.
 - **Output:** Normalized `Token[]` (from Variables and Styles) and component metadata; canonical name as collection/variable in dot notation; RGBA → hex for color; mode-specific values in `Token.modes`.
 
 ### 3.2 Code token scanner
 
 - **Input:** Paths relative to workspace (or inline JSON via input); all reads via `ctx.workspace.readText(path)` or inline content.
+- **Path validation:** Every file path is validated with `isPathSafe()` before access: rejects absolute paths, `..` traversal, and null bytes. Unsafe paths are logged as warnings and skipped.
+- **Logging:** Accepts an optional logger; logs per-file results (tokens found, format detected), missing files, unsafe paths, and read failures.
 - **Format detection:** DTCG detection checks for nested `$value` or `$type` anywhere in the tree (root object need not have them; e.g. `{ "color": { "brand": { "primary": { "$value": "#2563EB" } } } }` is DTCG). `.tokens`/`.tokens.json` with `$type`/`$value` → DTCG v1; `$themes`/`$metadata` → Tokens Studio; else Style Dictionary. Overridable via input.
 - **Parsing:** DTCG v1: `$type`, `$value`, `$description`, alias resolution, group hierarchy → canonical name. Style Dictionary: CTI naming, value/type at leaf. Tokens Studio: themes/metadata structure.
 - **Output:** Normalized `Token[]` with source set to code-dtcg | code-style-dictionary | code-tokens-studio.
@@ -84,7 +91,7 @@ Init runs in main process; Desktop passes Core (or facade) into module `init`; m
 
 ## 6. Health score computation
 
-- **Sub-scores (0–100 each):** Token consistency (100 − (duplicates + dead)/total * 100, floor 0), Component coverage (components in 2+ surfaces / total * 100), Naming alignment (matched names / cross-source pairs * 100), Value parity (matching values / tokens in 2+ sources * 100; Delta-E for colors).
+- **Sub-scores (0–100 each):** Token consistency (100 − (duplicates + drift)/total * 100, floor 0), Component coverage (components in 2+ surfaces / total * 100), Naming alignment (unique token names appearing in ≥ 2 sources / total unique token names * 100), Value parity (cross-source names with identical values / cross-source names * 100; Delta-E for colors).
 - **Weights:** Token consistency 30%, Component coverage 30%, Naming alignment 20%, Value parity 20%.
 - **Composite:** Weighted sum of applicable sub-scores, 0–100.
 
@@ -98,7 +105,9 @@ Init runs in main process; Desktop passes Core (or facade) into module `init`; m
 - **Token:** name, type, value, rawValue?, source, collection?, modes?, description?, filePath?.
 - **Component:** name, surfaces (figma?, storybook?, code?), coverage[], isOrphan.
 - **Finding:** id, severity, category, title, details, affectedTokens?, affectedComponents?, sources[].
-- Config persisted in workspace (e.g. `inspect-config.json`); PAT stored with restricted permissions (e.g. 0600), never logged unmasked.
+- **Config persistence:** Non-sensitive configuration (file keys, code token paths, storybook URLs) is persisted to `inspect-config.json` in the workspace at the end of each successful scan. PATs are never persisted to the config file; they are only stored in `.env` and passed at runtime. Config persistence is best-effort (failures are silently ignored).
+- **Validation schemas:** All external data structures (ScanInput, ExportInput, InspectReport, Figma API responses, Storybook index) have corresponding Zod schemas in `src/schemas.ts` for runtime boundary validation.
+- **Finding IDs:** Finding IDs are deterministic per scan (counter resets to 1 for each `generateFindings()` call) via a per-call ID generator. Module-scoped counters are not used.
 
 ---
 
@@ -109,12 +118,16 @@ Init runs in main process; Desktop passes Core (or facade) into module `init`; m
 - **Cancel:** `job.cancel(runId)`.
 - **Export (UI):** Either re-use artifact JSON or call `inspect:export` and then `artifacts.read(runId, exportPath)` for download.
 - **State management:** All shared renderer state is managed via a Zustand store (`src/ui/store.ts`). Components consume only the slices they need via `useInspectStore(selector)`. Side effects (workspace subscription, log streaming, run polling, report fetching) are managed through `initInspectSubscriptions()`, called once from the root `Inspect` component. Local-only UI state (table sort, filter text) remains as component-level `useState`.
+- **Log ring buffer:** The logs array is capped at 1,000 entries (most recent). Older entries are discarded on initial load and on each subscription push to prevent unbounded memory growth during long-running scans.
+- **Polling backoff:** Run status polling starts at 2 seconds when a scan is running. If no run status changes are detected between polls, the interval backs off by 1.5× up to a 10-second maximum. When changes are detected, the interval resets to 2 seconds. Polling stops when no run is active.
+- **Error boundary:** The inspect component tree is wrapped in `InspectErrorBoundary` (a React error boundary in `src/ui/components/ErrorBoundary.tsx`). On render errors, it displays a recoverable error panel with a "Try again" button instead of crashing the entire application.
+- **Type definitions:** `window.aro` API types are declared in `src/ui/aro.d.ts` so the inspect module type-checks independently of the desktop app's `preload.d.ts`. These types mirror the `AroPreloadAPI` interface from the desktop preload.
 
 ---
 
 ## 9. Performance, security, and cancellation
 
-- **Cancellation:** Scan checks `ctx.abort` before each phase; on signal, stop and write partial report with `incomplete: true`. Export job also respects abort.
+- **Cancellation:** Scan checks `ctx.abort` before each phase; on signal, stop and write partial report with `incomplete: true`. The Figma scanner propagates the abort signal to `fetch()` calls (via `signal` option) and checks `checkAbort()` between each API endpoint, so in-flight network requests are cancelled immediately. Export job also respects abort.
 - **Performance:** Target &lt; 60s for ~500 tokens and ~100 components on standard broadband; Figma API is the expected bottleneck; caching and backoff reduce repeat latency.
 - **Security:** Figma PAT only in workspace config; only sent to Figma REST API. No telemetry. No raw PAT in logs (masked).
 - **Reliability:** 429 and transient errors logged as warnings; scan continues with remaining sources where possible; partial report allowed.

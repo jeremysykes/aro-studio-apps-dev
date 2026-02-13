@@ -11,6 +11,7 @@ import { WorkspaceCard } from './components/WorkspaceCard';
 import { SetupView } from './views/SetupView';
 import { RunView } from './views/RunView';
 import { ReportView } from './views/ReportView';
+import { InspectErrorBoundary } from './components/ErrorBoundary';
 import { hasAtLeastOneSource } from './lib/config';
 import type { View } from './types';
 
@@ -33,6 +34,7 @@ export default function Inspect() {
 	}, []);
 
 	return (
+		<InspectErrorBoundary>
 		<main className='min-w-[900px] min-h-screen p-6 font-sans' role='main'>
 			<div className='flex flex-col min-[900px]:flex-row min-[900px]:items-start min-[900px]:justify-between gap-4 mb-3 pb-4 border-b border-[#E4E4E7]'>
 					<div className='flex flex-col gap-1 min-w-0'>
@@ -98,5 +100,6 @@ export default function Inspect() {
 					</>
 				)}
 		</main>
+		</InspectErrorBoundary>
 	);
 }

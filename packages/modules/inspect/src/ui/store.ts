@@ -12,6 +12,9 @@ import { JOB_SCAN, JOB_EXPORT } from './constants';
 import { getInitialConfig, buildScanInput } from './lib/config';
 
 const RUNS_WITH_REPORT_LIMIT = 50;
+const MAX_LOG_ENTRIES = 1000;
+const POLL_INTERVAL_ACTIVE = 2000;
+const POLL_INTERVAL_IDLE = 10000;
 
 export interface InspectState {
 	// -- State --
@@ -51,6 +54,7 @@ export interface InspectState {
 let _workspaceUnsub: (() => void) | null = null;
 let _logsUnsub: (() => void) | null = null;
 let _pollingInterval: ReturnType<typeof setInterval> | null = null;
+let _lastRunsSnapshot: string = '';
 
 export const useInspectStore = create<InspectState>((set, get) => ({
 	// -- Initial state --
@@ -246,11 +250,14 @@ export const useInspectStore = create<InspectState>((set, get) => ({
 		_logsUnsub = null;
 		try {
 			const logList = await window.aro.logs.list(selectedRunId);
-			set({ logs: logList });
+			set({ logs: logList.slice(-MAX_LOG_ENTRIES) });
 			_logsUnsub = await window.aro.logs.subscribe(
 				selectedRunId,
 				(entry: LogEntry) => {
-					set((state) => ({ logs: [...state.logs, entry] }));
+					set((state) => {
+						const next = [...state.logs, entry];
+						return { logs: next.length > MAX_LOG_ENTRIES ? next.slice(-MAX_LOG_ENTRIES) : next };
+					});
 				},
 			);
 		} catch {
@@ -290,16 +297,33 @@ export function initInspectSubscriptions(): () => void {
 			state._loadRuns();
 		}
 
-		// When runningRunId changes, start/stop polling
+		// When runningRunId changes, start/stop polling with backoff
 		if (state.runningRunId !== prev.runningRunId) {
 			if (_pollingInterval) {
 				clearInterval(_pollingInterval);
 				_pollingInterval = null;
 			}
+			_lastRunsSnapshot = '';
 			if (state.runningRunId != null) {
-				_pollingInterval = setInterval(() => {
-					store.getState()._loadRuns();
-				}, 2000);
+				let pollDelay = POLL_INTERVAL_ACTIVE;
+				const schedulePoll = () => {
+					_pollingInterval = setTimeout(async () => {
+						const s = store.getState();
+						if (s.runningRunId == null) return;
+						const prevSnapshot = _lastRunsSnapshot;
+						await s._loadRuns();
+						const newSnapshot = JSON.stringify(store.getState().runs.map((r) => `${r.id}:${r.status}`));
+						if (newSnapshot === prevSnapshot) {
+							// No change — back off up to idle interval
+							pollDelay = Math.min(pollDelay * 1.5, POLL_INTERVAL_IDLE);
+						} else {
+							pollDelay = POLL_INTERVAL_ACTIVE;
+						}
+						_lastRunsSnapshot = newSnapshot;
+						schedulePoll();
+					}, pollDelay) as unknown as ReturnType<typeof setInterval>;
+				};
+				schedulePoll();
 			}
 		}
 
@@ -366,7 +390,7 @@ export function initInspectSubscriptions(): () => void {
 		_logsUnsub?.();
 		_logsUnsub = null;
 		if (_pollingInterval) {
-			clearInterval(_pollingInterval);
+			clearTimeout(_pollingInterval);
 			_pollingInterval = null;
 		}
 		unsubStore();

@@ -30,7 +30,7 @@ View-level acceptance criteria and accessibility checklist for the Inspect UI. I
 - **Health Dashboard:** Health score is the primary focal element (single hero number, left column); score breakdown and findings-by-severity form one supporting panel (right column). At 900px+, the top of the health-score block and the top of the score-breakdown block align (content top alignment). Composite score (0–100) and sub-scores (token consistency, component coverage, naming alignment, value parity); finding counts by severity (critical, warning, info). All scores available as text (not only visual). Severity badges are consistent and system-driven, and visually secondary to the score and breakdown (same shape, padding, typography; restrained colour).
 - **Token Inventory:** Table with columns: token name, value, type, source(s), flags. Sortable and filterable.
 - **Component Inventory:** Table with columns: component name, surfaces present, coverage status, orphan flag. Sortable and filterable.
-- **Export actions** — Anchored in card footer, right-aligned; secondary styling (outline/ghost). "Export report" allows exporting as JSON/CSV/markdown (via `inspect:export` or reading artifact).
+- **Export actions** — Anchored in card footer, right-aligned; secondary styling (outline/ghost). "Export report" allows exporting as CSV, Markdown, or PDF (via `inspect:export`). All tokens and components are exported without truncation.
 
 ---
 
@@ -43,6 +43,7 @@ View-level acceptance criteria and accessibility checklist for the Inspect UI. I
 - **Focus:** Visible focus indicators on all focusable elements; focus management consistent with Desktop shell; no focus trap except in modal/dialog with a clear exit (e.g. Escape, explicit Close).
 - **Design system:** Use `@aro/desktop/components` (shadcn + Tailwind); minimum window width 900px; sidebar + main content; tables use horizontal scroll when needed.
 - **Errors and loading:** Loading states and errors are announced (e.g. `role="alert"` for errors, `aria-busy` or visible loading text where appropriate).
+- **Error boundary:** The inspect component tree is wrapped in a React error boundary (`InspectErrorBoundary`). On uncaught render errors, a recoverable error panel is displayed with `role="alert"` and a "Try again" button. The user is never left with a blank screen from a crash in the inspect UI.
 
 ---
 

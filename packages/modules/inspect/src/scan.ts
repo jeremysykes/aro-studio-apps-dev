@@ -8,6 +8,7 @@ import type {
   Token,
   Component,
 } from './types.js';
+import { ScanInputSchema } from './schemas.js';
 import {
   scanCodeTokens,
   parseTokensFromContent,
@@ -27,7 +28,15 @@ export async function runScan(
   ctx: JobContext,
   input: unknown
 ): Promise<InspectReport | null> {
-  const scanInput = (input ?? {}) as ScanInput;
+  // Validate input with Zod
+  const parseResult = ScanInputSchema.safeParse(input ?? {});
+  let scanInput: ScanInput;
+  if (parseResult.success) {
+    scanInput = parseResult.data as ScanInput;
+  } else {
+    ctx.logger('warning', `Invalid scan input: ${parseResult.error.issues.map(i => i.message).join(', ')}. Using defaults.`);
+    scanInput = {};
+  }
 
   let config: ScanInput = scanInput;
   try {
@@ -49,66 +58,89 @@ export async function runScan(
 
   if (ctx.abort.aborted) return null;
 
-  if (config.figma?.fileKeys?.length && config.figma.pat) {
-    ctx.logger('info', 'Phase 1: Figma');
-    try {
-      const result = await scanFigma(
-        config.figma.fileKeys,
-        config.figma.pat,
-        ctx.abort,
-        ctx.logger
-      );
-      figmaTokens = result.tokens;
-      figmaComponents = result.componentNames;
-      sourcesScanned.push('figma');
-    } catch (e) {
-      ctx.logger('warning', `Figma scan failed: ${e}`);
-    }
-    ctx.progress?.(0.25);
-  }
+  // Phase 1 & 3: Figma and Storybook run in parallel (both network I/O)
+  const hasFigma = !!(config.figma?.fileKeys?.length && config.figma.pat);
+  const hasStorybook = !!(config.storybook?.indexUrl || config.storybook?.indexPath);
 
-  if (ctx.abort.aborted) return null;
+  const figmaPromise = hasFigma
+    ? (async () => {
+        ctx.logger('info', 'Phase 1: Figma');
+        try {
+          const result = await scanFigma(
+            config.figma!.fileKeys,
+            config.figma!.pat!,
+            ctx.abort,
+            ctx.logger
+          );
+          figmaTokens = result.tokens;
+          figmaComponents = result.componentNames;
+          sourcesScanned.push('figma');
+        } catch (e) {
+          ctx.logger('warning', `Figma scan failed: ${e}`);
+        }
+      })()
+    : Promise.resolve();
 
-  if (config.codeTokens?.inline) {
-    ctx.logger('info', 'Phase 2: Code tokens (inline)');
-    codeTokens = parseTokensFromContent(
-      config.codeTokens.inline,
-      config.codeTokens.format
-    );
-    sourcesScanned.push('code');
-  }
-  if (config.codeTokens?.paths?.length) {
-    ctx.logger('info', 'Phase 2: Code tokens');
-    const pathTokens = scanCodeTokens(
-      ctx.workspace,
-      config.codeTokens.paths,
-      config.codeTokens.format
-    );
-    codeTokens = [...codeTokens, ...pathTokens];
-    if (!sourcesScanned.includes('code')) sourcesScanned.push('code');
-  }
-  if ((config.codeTokens?.inline || config.codeTokens?.paths?.length) && codeTokens.length === 0) {
-    ctx.logger('warning', 'Code tokens configured but no tokens produced. Check paths or inline JSON format (DTCG or Style Dictionary).');
-  }
+  const storybookPromise = hasStorybook
+    ? (async () => {
+        ctx.logger('info', 'Phase 3: Storybook');
+        if (config.storybook?.indexUrl) {
+          try {
+            storybookComponents = await scanStorybookFromUrl(config.storybook.indexUrl);
+            sourcesScanned.push('storybook');
+          } catch (e) {
+            ctx.logger('warning', `Storybook URL scan failed: ${e}`);
+          }
+        } else if (config.storybook?.indexPath) {
+          try {
+            storybookComponents = scanStorybookFromPath(
+              ctx.workspace,
+              config.storybook.indexPath
+            );
+            sourcesScanned.push('storybook');
+          } catch (e) {
+            ctx.logger('warning', `Storybook path scan failed: ${e}`);
+          }
+        }
+      })()
+    : Promise.resolve();
+
+  // Run Figma and Storybook in parallel
+  await Promise.all([figmaPromise, storybookPromise]);
   ctx.progress?.(0.5);
 
   if (ctx.abort.aborted) return null;
 
-  if (config.storybook?.indexUrl) {
-    ctx.logger('info', 'Phase 3: Storybook (URL)');
+  // Phase 2: Code tokens (synchronous file reads, runs after parallel phases)
+  if (config.codeTokens?.inline) {
+    ctx.logger('info', 'Phase 2: Code tokens (inline)');
     try {
-      storybookComponents = await scanStorybookFromUrl(config.storybook.indexUrl);
-      sourcesScanned.push('storybook');
+      codeTokens = parseTokensFromContent(
+        config.codeTokens.inline,
+        config.codeTokens.format
+      );
     } catch (e) {
-      ctx.logger('warning', `Storybook URL scan failed: ${e}`);
+      ctx.logger('warning', `Inline token parsing failed: ${e}`);
     }
-  } else if (config.storybook?.indexPath) {
-    ctx.logger('info', 'Phase 3: Storybook (path)');
-    storybookComponents = scanStorybookFromPath(
-      ctx.workspace,
-      config.storybook.indexPath
-    );
-    sourcesScanned.push('storybook');
+    sourcesScanned.push('code');
+  }
+  if (config.codeTokens?.paths?.length) {
+    ctx.logger('info', 'Phase 2: Code tokens');
+    try {
+      const pathTokens = scanCodeTokens(
+        ctx.workspace,
+        config.codeTokens.paths,
+        config.codeTokens.format,
+        ctx.logger
+      );
+      codeTokens = [...codeTokens, ...pathTokens];
+    } catch (e) {
+      ctx.logger('warning', `Code token scan failed: ${e}`);
+    }
+    if (!sourcesScanned.includes('code')) sourcesScanned.push('code');
+  }
+  if ((config.codeTokens?.inline || config.codeTokens?.paths?.length) && codeTokens.length === 0) {
+    ctx.logger('warning', 'Code tokens configured but no tokens produced. Check paths or inline JSON format (DTCG or Style Dictionary).');
   }
   ctx.progress?.(0.75);
 
@@ -153,6 +185,27 @@ export async function runScan(
     incomplete: ctx.abort.aborted,
     storybookBaseUrl,
   };
+
+  // Persist config to workspace for next session
+  try {
+    const configToSave: Record<string, unknown> = {};
+    if (config.figma?.fileKeys?.length) {
+      configToSave.figma = { fileKeys: config.figma.fileKeys };
+    }
+    if (config.codeTokens?.paths?.length) {
+      configToSave.codeTokens = { paths: config.codeTokens.paths };
+    }
+    if (config.storybook) {
+      configToSave.storybook = { ...config.storybook };
+    }
+    if (Object.keys(configToSave).length > 0) {
+      ctx.workspace.writeText(CONFIG_PATH, JSON.stringify(configToSave, null, 2));
+    }
+  } catch {
+    // non-critical — config persistence is best-effort
+  }
+
+  ctx.progress?.(1.0);
 
   return report;
 }

@@ -3,6 +3,7 @@
  */
 import type { JobContext } from '@aro/core';
 import type { ExportInput, InspectReport } from './types.js';
+import { ExportInputSchema } from './schemas.js';
 import PDFDocument from 'pdfkit';
 
 const ARTIFACTS_PREFIX = '.aro/artifacts/';
@@ -44,11 +45,8 @@ function reportToMarkdown(report: InspectReport): string {
   lines.push('## Tokens');
   lines.push('| Name | Type | Value | Source |');
   lines.push('|------|------|-------|--------|');
-  for (const t of report.tokens.slice(0, 100)) {
+  for (const t of report.tokens) {
     lines.push(`| ${t.name} | ${t.type} | ${t.value} | ${t.source} |`);
-  }
-  if (report.tokens.length > 100) {
-    lines.push(`| ... | ${report.tokens.length - 100} more |`);
   }
   lines.push('');
   lines.push('## Components');
@@ -120,13 +118,9 @@ async function reportToPdf(report: InspectReport): Promise<Buffer> {
     const tokenCols = [pageWidth * 0.25, pageWidth * 0.15, pageWidth * 0.35, pageWidth * 0.25];
     drawTable(
       ['Name', 'Type', 'Value', 'Source'],
-      report.tokens.slice(0, 100).map((t) => [t.name, t.type, t.value, t.source]),
+      report.tokens.map((t) => [t.name, t.type, t.value, t.source]),
       tokenCols,
     );
-    if (report.tokens.length > 100) {
-      doc.fontSize(9).text(`... and ${report.tokens.length - 100} more tokens`);
-      doc.moveDown(0.5);
-    }
 
     doc.fontSize(14).text('Components', { continued: false });
     doc.moveDown(0.5);
@@ -153,15 +147,13 @@ async function reportToPdf(report: InspectReport): Promise<Buffer> {
 }
 
 export async function runExport(ctx: JobContext, input: unknown): Promise<void> {
-  const { runId, format } = (input ?? {}) as ExportInput;
-  if (
-    !runId ||
-    !format ||
-    (format !== 'csv' && format !== 'markdown' && format !== 'pdf')
-  ) {
-    ctx.logger('warning', 'inspect:export requires { runId, format: "csv" | "markdown" | "pdf" }');
+  const parseResult = ExportInputSchema.safeParse(input ?? {});
+  if (!parseResult.success) {
+    ctx.logger('warning', `inspect:export invalid input: ${parseResult.error.issues.map(i => i.message).join(', ')}`);
     return;
   }
+  const { runId, format } = parseResult.data;
+
   const reportPath = `${ARTIFACTS_PREFIX}${runId}/report.json`;
   if (!ctx.workspace.exists(reportPath)) {
     ctx.logger('warning', `Report not found: ${reportPath}`);

@@ -23,31 +23,38 @@ export function computeHealthScore(
   const componentCoverage =
     totalComponents === 0 ? 100 : (componentsInTwoPlus / totalComponents) * 100;
 
-  const crossSourceTokens = new Set<string>();
-  const byName = new Map<string, Token[]>();
+  // Naming alignment: proportion of unique token names that appear in 2+ sources.
+  // Group tokens by name; count those whose sources span ≥ 2 distinct origins.
+  const byName = new Map<string, Set<string>>();
   for (const t of tokens) {
-    const list = byName.get(t.name) ?? [];
-    list.push(t);
-    byName.set(t.name, list);
+    const sources = byName.get(t.name) ?? new Set<string>();
+    sources.add(t.source);
+    byName.set(t.name, sources);
   }
-  for (const [, list] of byName) {
-    if (list.length >= 2 && new Set(list.map((t) => t.source)).size >= 2) {
-      list.forEach((t) => crossSourceTokens.add(t.name));
-    }
+  const uniqueTokenNames = byName.size;
+  let crossSourceNames = 0;
+  for (const [, sources] of byName) {
+    if (sources.size >= 2) crossSourceNames++;
   }
-  const matchedTokens = crossSourceTokens.size;
-  const totalPairs = byName.size;
-  const namingAlignment = totalPairs === 0 ? 100 : (matchedTokens / totalPairs) * 100;
+  const namingAlignment = uniqueTokenNames === 0 ? 100 : (crossSourceNames / uniqueTokenNames) * 100;
 
+  // Value parity: of the cross-source names, how many have identical values?
   let valueParity = 100;
-  if (crossSourceTokens.size > 0) {
+  if (crossSourceNames > 0) {
+    const byNameTokens = new Map<string, Token[]>();
+    for (const t of tokens) {
+      const list = byNameTokens.get(t.name) ?? [];
+      list.push(t);
+      byNameTokens.set(t.name, list);
+    }
     let matching = 0;
-    for (const name of crossSourceTokens) {
-      const list = byName.get(name) ?? [];
+    for (const [name, sources] of byName) {
+      if (sources.size < 2) continue;
+      const list = byNameTokens.get(name) ?? [];
       const values = new Set(list.map((t) => t.value));
       if (values.size === 1) matching++;
     }
-    valueParity = (matching / crossSourceTokens.size) * 100;
+    valueParity = (matching / crossSourceNames) * 100;
   }
 
   const composite =

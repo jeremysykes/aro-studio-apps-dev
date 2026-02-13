@@ -40,15 +40,25 @@ function mapFigmaType(resolvedType: string): string {
   return FIGMA_TYPE_MAP[resolvedType] ?? 'other';
 }
 
+/** Check abort signal and throw if aborted. */
+function checkAbort(abort?: AbortSignal): void {
+  if (abort?.aborted) {
+    throw new DOMException('Figma scan aborted', 'AbortError');
+  }
+}
+
 async function fetchWithBackoff(
   url: string,
   pat: string,
-  retries = 5
+  retries = 5,
+  abort?: AbortSignal
 ): Promise<Response> {
   let delay = 1000;
   for (let i = 0; i <= retries; i++) {
+    checkAbort(abort);
     const res = await fetch(url, {
       headers: { 'X-Figma-Token': pat },
+      signal: abort,
     });
     if (res.status !== 429) return res;
     if (i === retries) return res;
@@ -68,7 +78,7 @@ export interface FigmaScanResult {
 export async function scanFigma(
   fileKeys: string[],
   pat: string,
-  _abort?: AbortSignal,
+  abort?: AbortSignal,
   logger?: FigmaLogger
 ): Promise<FigmaScanResult> {
   const log = logger ?? (() => {});
@@ -88,11 +98,12 @@ export async function scanFigma(
   }
 
   for (const fileKey of fileKeys) {
+    checkAbort(abort);
     log('info', `Scanning Figma file: ${fileKey}`);
 
     // --- Variables (tokens) ---
     const varUrl = `${FIGMA_BASE}/files/${fileKey}/variables/local`;
-    const varRes = await fetchWithBackoff(varUrl, pat);
+    const varRes = await fetchWithBackoff(varUrl, pat, 5, abort);
     if (varRes.ok) {
       type VarRecord = Record<
         string,
@@ -137,11 +148,13 @@ export async function scanFigma(
       log('warning', `Variables endpoint returned ${varRes.status}: ${varRes.statusText}`);
     }
 
+    checkAbort(abort);
+
     // --- Published components (dedicated endpoint, not depth-limited) ---
     // Used as fallback; the tree walk below is the primary source since it
     // provides accurate parent–child (COMPONENT_SET → COMPONENT) relationships.
     const pubCompUrl = `${FIGMA_BASE}/files/${fileKey}/components`;
-    const pubCompRes = await fetchWithBackoff(pubCompUrl, pat);
+    const pubCompRes = await fetchWithBackoff(pubCompUrl, pat, 5, abort);
     let pubCompNames: Array<{ name: string; frame?: string }> = [];
     if (pubCompRes.ok) {
       const pubData = (await pubCompRes.json()) as {
@@ -158,12 +171,14 @@ export async function scanFigma(
       log('warning', `Published components endpoint returned ${pubCompRes.status}: ${pubCompRes.statusText}`);
     }
 
+    checkAbort(abort);
+
     // --- File document tree (components & component sets) ---
     // The tree walk is the primary source for components because it correctly
     // associates COMPONENT nodes with their parent COMPONENT_SET, giving us
     // accurate layerName values for the display name prefix.
     const fileUrl = `${FIGMA_BASE}/files/${fileKey}?depth=10`;
-    const fileRes = await fetchWithBackoff(fileUrl, pat);
+    const fileRes = await fetchWithBackoff(fileUrl, pat, 5, abort);
     if (fileRes.ok) {
       const fileData = (await fileRes.json()) as {
         document?: { children?: Array<{ type: string; name: string; children?: Array<{ type: string; name: string }> }> };

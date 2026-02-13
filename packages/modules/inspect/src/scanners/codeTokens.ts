@@ -4,6 +4,9 @@
  */
 import type { Token } from '../types.js';
 import type { WorkspaceFacet } from '../types.js';
+import { isPathSafe } from '../schemas.js';
+
+export type RunLogger = (level: string, message: string) => void;
 
 const CANONICAL_TYPES = new Set([
   'color',
@@ -133,31 +136,44 @@ function isDtcg(content: string): boolean {
 export function scanCodeTokens(
   workspace: WorkspaceFacet,
   paths: string[],
-  format?: 'dtcg' | 'style-dictionary' | 'tokens-studio'
+  format?: 'dtcg' | 'style-dictionary' | 'tokens-studio',
+  logger?: RunLogger
 ): Token[] {
+  const log = logger ?? (() => {});
   const all: Token[] = [];
   for (const relPath of paths) {
-    if (!workspace.exists(relPath)) continue;
+    // Path traversal guard
+    if (!isPathSafe(relPath)) {
+      log('warning', `Skipping unsafe path: ${relPath}`);
+      continue;
+    }
+    if (!workspace.exists(relPath)) {
+      log('warning', `Token file not found: ${relPath}`);
+      continue;
+    }
     let content: string;
     try {
       content = workspace.readText(relPath);
-    } catch {
+    } catch (e) {
+      log('warning', `Failed to read token file ${relPath}: ${e}`);
       continue;
     }
-    const resolved = workspace.resolve(relPath);
     const filePath = relPath;
+    let fileTokens: Token[] = [];
     if (format === 'style-dictionary') {
-      all.push(...parseStyleDictionary(content, filePath));
+      fileTokens = parseStyleDictionary(content, filePath);
     } else if (format === 'tokens-studio') {
       // P0: treat as style-dictionary-like; P1 has full Tokens Studio parser
-      all.push(...parseStyleDictionary(content, filePath));
+      fileTokens = parseStyleDictionary(content, filePath);
     } else {
       if (isDtcg(content)) {
-        all.push(...parseDtcg(content, filePath));
+        fileTokens = parseDtcg(content, filePath);
       } else {
-        all.push(...parseStyleDictionary(content, filePath));
+        fileTokens = parseStyleDictionary(content, filePath);
       }
     }
+    log('info', `${relPath}: ${fileTokens.length} tokens (${format ?? 'auto-detected'})`);
+    all.push(...fileTokens);
   }
   return all;
 }

@@ -4,9 +4,14 @@
  */
 import type { Finding, FindingSeverity, Token, Component } from '../types.js';
 
-let findingId = 0;
-function nextId(): string {
-  return `finding-${++findingId}`;
+/**
+ * Create a fresh finding ID generator scoped to a single generateFindings() call.
+ * This avoids the previous module-scoped counter that accumulated across calls,
+ * producing non-deterministic IDs (e.g. "finding-47" on the second scan).
+ */
+function createIdGenerator(): () => string {
+  let counter = 0;
+  return () => `finding-${++counter}`;
 }
 
 export function generateFindings(
@@ -15,6 +20,7 @@ export function generateFindings(
   duplicateTokenNames: string[],
   driftCandidates: Array<{ name: string; values: string[] }>
 ): Finding[] {
+  const nextId = createIdGenerator();
   const findings: Finding[] = [];
 
   for (const { name, values } of driftCandidates) {
