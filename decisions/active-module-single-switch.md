@@ -11,7 +11,7 @@ Desktop implements a **single-switch** so that which module is loaded (main proc
 
 - One place to change when switching between hello-world, inspect, or future modules
 - Adding a new module = add package + one registry entry; no scattered import edits
-- Aligns with Model A: "build or config selects which module is loaded" ([MODULE_ARCHITECTURE.md](../docs/modules/MODULE_ARCHITECTURE.md))
+- Aligns with the Standalone Model: "build or config selects which module is loaded" ([MODULE_ARCHITECTURE.md](../docs/modules/MODULE_ARCHITECTURE.md))
 
 ## Implementation (Phase 3)
 
@@ -21,5 +21,5 @@ Desktop implements a **single-switch** so that which module is loaded (main proc
 
 ## References
 
-- [docs/modules/MODULE_ARCHITECTURE.md](../docs/modules/MODULE_ARCHITECTURE.md) — Model A, job registration flow
-- [decisions/module-model-choice.md](module-model-choice.md) — Model A for MVP
+- [docs/modules/MODULE_ARCHITECTURE.md](../docs/modules/MODULE_ARCHITECTURE.md) — Standalone Model, job registration flow
+- [decisions/module-model-choice.md](module-model-choice.md) — Standalone Model for MVP

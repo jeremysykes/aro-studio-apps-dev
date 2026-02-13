@@ -70,7 +70,7 @@ All stateful, long-running, and domain-specific behavior lives in Core.
 | Window, menus, IPC   | Desktop  | Full ownership                         |
 | Module loading       | Desktop  | Load active module after Core init; call module `init(core)`; use returned job keys for `job:listRegistered`; render module UI in main content |
 
-**Model A (hello-world):** Desktop loads the active module (e.g. `@aro/module-hello-world`) after creating Core, invokes the module's `init(core)` so the module registers jobs with Core, stores the returned job keys for IPC, and renders the module's UI in the main content area.
+**Standalone (hello-world):** Desktop loads the active module (e.g. `@aro/module-hello-world`) after creating Core, invokes the module's `init(core)` so the module registers jobs with Core, stores the returned job keys for IPC, and renders the module's UI in the main content area.
 
 ---
 
@@ -84,16 +84,16 @@ All stateful, long-running, and domain-specific behavior lives in Core.
 
 ---
 
-## Module loading (Model A)
+## Module loading (Standalone)
 
 Desktop loads the **active module** in the main process after creating Core (on workspace select or on restore of last workspace). The active module is chosen by `ARO_ACTIVE_MODULE` (default `hello-world` when unset); for development, you can set it in **`.env`** at the project root (see [ACTIVE_MODULE_SWITCH.md](ACTIVE_MODULE_SWITCH.md)). Desktop calls the module's `init(core)` function, which registers job definitions with Core and returns the list of registered job keys. Desktop stores those keys and returns them from `job:listRegistered` IPC. The renderer imports and renders the module's UI component in the main content area. No new IPC channels; modules use existing `window.aro` (workspace, job, runs, logs, artifacts).
 
 ## Future extension points (Q7)
 
-1. **Renderer route for module UI** — Future (Model B Sidebar): renderer could have routes like `/module/:moduleKey` that load module-specific UI. Model A (Standalone) uses a single active module; single view only.
+1. **Renderer route for module UI** — Future (Sidebar): renderer could have routes like `/module/:moduleKey` that load module-specific UI. Standalone uses a single active module; single view only.
 2. **IPC channel for module-invoked jobs** — Same as `job:run`; modules use the same IPC. No new channel needed.
-3. **Preload API extension** — When moving to Model B (Sidebar) or C (Dashboard), the preload script exposes `getUIModel()` and `getEnabledModules()`. Model C also requires a `module` namespace for module-specific IPC. Model A uses only `workspace`, `job`, `runs`, `logs`, `artifacts`.
-4. **Dashboard grid** — Future (Model C Dashboard): renderer renders multiple module widgets simultaneously in a tiled grid. See [modules/MODULE_MODELS.md](../modules/MODULE_MODELS.md) for the full architecture.
+3. **Preload API extension** — When moving to Sidebar or Dashboard, the preload script exposes `getUIModel()` and `getEnabledModules()`. Dashboard also requires a `module` namespace for module-specific IPC. Standalone uses only `workspace`, `job`, `runs`, `logs`, `artifacts`.
+4. **Dashboard grid** — Future (Dashboard): renderer renders multiple module widgets simultaneously in a tiled grid. See [modules/MODULE_MODELS.md](../modules/MODULE_MODELS.md) for the full architecture.
 
 ---
 

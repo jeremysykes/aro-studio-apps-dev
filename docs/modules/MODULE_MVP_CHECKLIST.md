@@ -1,6 +1,6 @@
 # Module MVP Checklist
 
-Pass/fail checklist for the Model A hello-world module.
+Pass/fail checklist for the Standalone hello-world module.
 
 ---
 

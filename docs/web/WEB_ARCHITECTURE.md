@@ -71,7 +71,7 @@ All stateful, long-running, and domain-specific behavior lives in Core. Core run
 | API, server process   | Web      | Full ownership                                                    |
 | Module loading        | Web      | Load active module in backend after Core init; call `init(core)`; return job keys from API; render module UI in frontend |
 
-**Model A (same as Desktop):** Web backend loads the active module (e.g. `@aro/module-hello-world`) after creating Core, invokes the module's `init(core)` so the module registers jobs with Core, stores the returned job keys for the API, and the frontend renders the module's UI in the main content area.
+**Standalone (same as Desktop):** Web backend loads the active module (e.g. `@aro/module-hello-world`) after creating Core, invokes the module's `init(core)` so the module registers jobs with Core, stores the returned job keys for the API, and the frontend renders the module's UI in the main content area.
 
 ---
 
@@ -84,7 +84,7 @@ All stateful, long-running, and domain-specific behavior lives in Core. Core run
 
 ---
 
-## Module loading (Model A)
+## Module loading (Standalone)
 
 Web backend loads the **active module** after creating Core (on server start). The active module is chosen by `ARO_ACTIVE_MODULE` (default `hello-world` when unset); for development, set it in **`.env`** at the project root. Web backend calls the module's `init(core)` function, which registers job definitions with Core and returns the list of registered job keys. Web stores those keys and returns them from the `job/listRegistered` API. The frontend imports and renders the module's UI component in the main content area (same moduleRegistry pattern as Desktop). Modules use the Web API (fetch/WebSocket) instead of `window.aro` (IPC).
 

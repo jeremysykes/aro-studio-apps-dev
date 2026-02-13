@@ -34,11 +34,11 @@ Desktop MVP is complete. Modules must adapt to Desktop and Core — not the othe
 
 ## Module Models
 
-See [MODULE_MODELS.md](MODULE_MODELS.md) for the full Model A vs B vs C comparison.
+See [MODULE_MODELS.md](MODULE_MODELS.md) for the full Standalone vs Sidebar vs Dashboard comparison.
 
 ---
 
-## MVP: Model A (Standalone)
+## MVP: Standalone Model
 
 - **One module per app** — e.g. "Aro Studio Tokens", "Aro Studio Figma"
 - **Module owns the UI** — main content area
@@ -46,10 +46,10 @@ See [MODULE_MODELS.md](MODULE_MODELS.md) for the full Model A vs B vs C comparis
 
 ---
 
-## Future: Model B (Sidebar) and Model C (Dashboard)
+## Future: Sidebar and Dashboard Models
 
-- **Model B (Sidebar):** Single app with sidebar navigation; switch between full module views
-- **Model C (Dashboard):** Single app with a tiled grid; multiple module widgets visible simultaneously
+- **Sidebar Model:** Single app with sidebar navigation; switch between full module views
+- **Dashboard Model:** Single app with a tiled grid; multiple module widgets visible simultaneously
 - Per-user or per-workspace enable/disable
 - See [MODULE_TRANSITION.md](MODULE_TRANSITION.md) for the transition path
 
@@ -73,14 +73,14 @@ This is a **planning and framing exercise only**.
 Executing `MODULE_KICK_OFF.md` must produce the following documentation artifacts
 before any module code is written:
 
-1. [MODULE_MODELS.md](MODULE_MODELS.md) — Model A vs Model B vs Model C comparison
-2. [MODULE_TRANSITION.md](MODULE_TRANSITION.md) — Transition paths (A to B to C)
+1. [MODULE_MODELS.md](MODULE_MODELS.md) — Standalone vs Sidebar vs Dashboard comparison
+2. [MODULE_TRANSITION.md](MODULE_TRANSITION.md) — Transition paths (Standalone → Sidebar → Dashboard)
 3. [MODULE_ARCHITECTURE.md](MODULE_ARCHITECTURE.md) — Module responsibilities, flow, boundaries
 4. [MODULE_CONSTRAINTS.md](MODULE_CONSTRAINTS.md) — Constraint implementation details
 5. [MODULE_PUBLIC_API.md](MODULE_PUBLIC_API.md) — Job registration, IPC surface
 6. [MODULE_MVP_CHECKLIST.md](MODULE_MVP_CHECKLIST.md) — Pass/fail for hello-world module
 7. [diagrams/module-models.md](../../diagrams/module-models.md) — Mermaid diagram
-8. [decisions/module-model-choice.md](../../decisions/module-model-choice.md) — Model A decision
+8. [decisions/module-model-choice.md](../../decisions/module-model-choice.md) — Standalone Model decision
 
 Module-specific rules must be added to [.cursor/rules/CURSOR_RULES.md](../../.cursor/rules/CURSOR_RULES.md).
 
@@ -108,7 +108,7 @@ If these artifacts do not exist, module implementation must not begin.
 6. What is the minimal hello-world module that proves the architecture?
 7. How do we enforce module-to-module isolation?
 8. How do we enforce no direct DB or filesystem access?
-9. What extension points exist for future Model B?
+9. What extension points exist for future Sidebar and Dashboard models?
 10. What module mistakes would permanently damage Core or Desktop integrity?
 
 Answers should be captured in [MODULE_ARCHITECTURE.md](MODULE_ARCHITECTURE.md), [MODULE_CONSTRAINTS.md](MODULE_CONSTRAINTS.md), and [MODULE_PUBLIC_API.md](MODULE_PUBLIC_API.md).

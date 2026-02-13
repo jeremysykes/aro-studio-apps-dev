@@ -16,8 +16,8 @@ This document defines the API surface for Modules: job registration and renderer
 
 **Job key format:**
 
-- Use namespaced keys for Model B (Sidebar) and C (Dashboard) readiness: `moduleKey:jobKey` (e.g. `hello-world:greet`).
-- For Model A MVP with one module, `hello-world:greet` or similar is sufficient.
+- Use namespaced keys for Sidebar and Dashboard readiness: `moduleKey:jobKey` (e.g. `hello-world:greet`).
+- For Standalone MVP with one module, `hello-world:greet` or similar is sufficient.
 
 **Example:**
 
@@ -34,24 +34,24 @@ core.jobs.register({
 
 ---
 
-## Renderer API (Model A MVP)
+## Renderer API (Standalone MVP)
 
 **Context:** Module UI runs in the renderer (Desktop) or browser (Web). It receives the same intent-based API from the host: Desktop exposes `window.aro` via IPC; Web exposes `window.aro` via HTTP/WS API. Same capability surface in both hosts.
 
 **API:** `window.aro` — workspace, job, runs, logs, artifacts. See [desktop/DESKTOP_PUBLIC_API.md](../desktop/DESKTOP_PUBLIC_API.md) and [web/WEB_PUBLIC_API.md](../web/WEB_PUBLIC_API.md).
 
-- No new IPC channels for Model A MVP.
+- No new IPC channels for Standalone MVP.
 - Module UI calls `window.aro.job.run('hello-world:greet')`, `window.aro.runs.list()`, etc.
 
 ---
 
-## Future: Model B (Sidebar) and Model C (Dashboard) extensions
+## Future: Sidebar and Dashboard extensions
 
-When moving beyond Model A (Standalone):
+When moving beyond the Standalone Model:
 
 - **`window.aro.getUIModel()`** — New IPC channel to expose the active model (`standalone`, `sidebar`, `dashboard`) to the renderer. See [MODULE_MODELS.md](MODULE_MODELS.md) for configuration.
-- **`window.aro.getEnabledModules()`** — Returns the list of enabled module keys (Model B/C). Not needed for Model A.
+- **`window.aro.getEnabledModules()`** — Returns the list of enabled module keys (Sidebar/Dashboard). Not needed for Standalone.
 - **`module.*` namespace** — If modules need module-specific IPC (e.g. `module.tokens.getConfig`), add a `module` namespace to the preload API.
 - **Module-scoped job keys** — Already required; `moduleKey:jobKey` format.
-- **Widget export** — Model C requires modules to export a `Widget` component. See [MODULE_MODELS.md](MODULE_MODELS.md) for the contract.
+- **Widget export** — The Dashboard Model requires modules to export a `Widget` component. See [MODULE_MODELS.md](MODULE_MODELS.md) for the contract.
 - **Extension points** — Document any new IPC channels in this file when added.

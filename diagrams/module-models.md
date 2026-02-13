@@ -1,12 +1,12 @@
 # Module Models Diagram
 
-## Model A (Standalone)
+## Standalone Model
 
 One module per app. Module owns the renderer content.
 
 ```mermaid
 flowchart TB
-  subgraph ModelA ["Model A — Standalone"]
+  subgraph ModelA ["Standalone"]
     DesktopA[Desktop Shell]
     ModuleA[Single Active Module]
     CoreA[Core]
@@ -16,13 +16,13 @@ flowchart TB
   end
 ```
 
-## Model B (Sidebar)
+## Sidebar Model
 
 One app, multiple modules. Sidebar switches between full module views.
 
 ```mermaid
 flowchart TB
-  subgraph ModelB ["Model B — Sidebar"]
+  subgraph ModelB ["Sidebar"]
     direction TB
     DesktopB[Desktop Shell]
     SidebarB[Sidebar Nav]
@@ -45,13 +45,13 @@ flowchart TB
   end
 ```
 
-## Model C (Dashboard)
+## Dashboard Model
 
 One app, multiple modules visible simultaneously as tiles. Sidebar still available for full views.
 
 ```mermaid
 flowchart TB
-  subgraph ModelC ["Model C — Dashboard"]
+  subgraph ModelC ["Dashboard"]
     direction TB
     DesktopC[Desktop Shell]
     SidebarC[Sidebar Nav]
@@ -83,8 +83,8 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-  A["Model A<br/>Standalone"] -->|"+ sidebar shell<br/>+ multi-module loading<br/>+ IPC namespacing"| B["Model B<br/>Sidebar"]
-  B -->|"+ Widget exports<br/>+ dashboard grid<br/>+ layout engine"| C["Model C<br/>Dashboard"]
+  A["Standalone"] -->|"+ sidebar shell<br/>+ multi-module loading<br/>+ IPC namespacing"| B["Sidebar"]
+  B -->|"+ Widget exports<br/>+ dashboard grid<br/>+ layout engine"| C["Dashboard"]
 ```
 
 Reference: [docs/modules/MODULE_MODELS.md](../docs/modules/MODULE_MODELS.md) and [docs/modules/MODULE_TRANSITION.md](../docs/modules/MODULE_TRANSITION.md).

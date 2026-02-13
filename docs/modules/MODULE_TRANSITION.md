@@ -6,7 +6,7 @@ See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comparison table of all th
 
 ---
 
-## Transition: Model A (Standalone) to Model B (Sidebar)
+## Transition: Standalone to Sidebar
 
 ### What Stays the Same
 
@@ -18,9 +18,9 @@ See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comparison table of all th
 
 ### Desktop Shell Changes
 
-**Current (Model A):** Desktop hosts one module's UI; the module effectively owns the renderer content.
+**Current (Standalone):** Desktop hosts one module's UI; the module effectively owns the renderer content.
 
-**Model B:** Desktop provides a shared layout:
+**Sidebar:** Desktop provides a shared layout:
 
 - Sidebar or top navigation for module switching
 - Main content area as a slot/region where the active module renders
@@ -30,9 +30,9 @@ See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comparison table of all th
 
 ### Module Loading
 
-**Current (Model A):** Desktop loads one module (build-time or config); that module registers jobs.
+**Current (Standalone):** Desktop loads one module (build-time or config); that module registers jobs.
 
-**Model B:** Desktop discovers and loads multiple modules:
+**Sidebar:** Desktop discovers and loads multiple modules:
 
 - Scan `packages/modules/*` (or config-driven list)
 - Load all enabled modules at startup
@@ -42,21 +42,21 @@ See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comparison table of all th
 
 ### IPC and Namespacing
 
-**Current (Model A):** One module; job keys like `hello` are fine. No `module.*` namespace needed.
+**Current (Standalone):** One module; job keys like `hello` are fine. No `module.*` namespace needed.
 
-**Model B:** Multiple modules require:
+**Sidebar:** Multiple modules require:
 
 - **Job key namespacing:** Use `moduleKey:jobKey` (e.g. `tokens:validate`) to avoid collisions
 - **Optional `module.*` namespace:** If modules need module-specific IPC (e.g. `module.tokens.getConfig`), add a `module` namespace to the preload API
 - **Shared channels:** `job:run`, `runs:list`, etc. remain; `job:run` accepts the namespaced key
 
-**Implementation:** Ensure MODULE_PUBLIC_API mandates namespaced job keys from the start (Model A readiness). Add `module.*` to preload when a module needs custom IPC.
+**Implementation:** Ensure MODULE_PUBLIC_API mandates namespaced job keys from the start (Standalone readiness). Add `module.*` to preload when a module needs custom IPC.
 
 ### Enable/Disable
 
-**Current (Model A):** Config or build selects which single module is active.
+**Current (Standalone):** Config or build selects which single module is active.
 
-**Model B:** Per-user or per-workspace module list:
+**Sidebar:** Per-user or per-workspace module list:
 
 - Store enabled module keys (e.g. in electron-store or workspace config)
 - On load, only init modules in the enabled list
@@ -64,7 +64,7 @@ See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comparison table of all th
 
 **Implementation:** Add `enabledModules: string[]` to config/store; filter module loading by this list.
 
-### Migration Checklist (A to B)
+### Migration Checklist (Standalone to Sidebar)
 
 1. Add Desktop layout/shell with sidebar navigation
 2. Change module loading from single to multi
@@ -77,29 +77,29 @@ Core and existing modules require minimal changes if job keys are already namesp
 
 ---
 
-## Transition: Model B (Sidebar) to Model C (Dashboard)
+## Transition: Sidebar to Dashboard
 
 ### What Stays the Same
 
-- Everything from Model B (sidebar nav, multi-module loading, IPC namespacing, enable/disable)
+- Everything from Sidebar (sidebar nav, multi-module loading, IPC namespacing, enable/disable)
 - Full module views remain identical
 - Core API and job registration pattern
 - Module constraints
 
 ### What Changes
 
-Model C adds a **dashboard home view** alongside the existing sidebar navigation. The sidebar still works for switching to full module views; the dashboard is an additional view that shows all enabled modules simultaneously as tiles.
+The Dashboard Model adds a **dashboard home view** alongside the existing sidebar navigation. The sidebar still works for switching to full module views; the dashboard is an additional view that shows all enabled modules simultaneously as tiles.
 
 ### Module UI Contract Change
 
-**Model B contract (unchanged):**
+**Sidebar contract (unchanged):**
 
 ```typescript
 // Full module view — renders in the main content area
 export default function InspectModule(): JSX.Element;
 ```
 
-**Model C addition:**
+**Dashboard addition:**
 
 ```typescript
 // Compact widget — renders as a tile in the dashboard grid
@@ -153,7 +153,7 @@ If tiles need to coordinate (e.g. workspace change triggers all tiles to refresh
 - Use the existing `window.aro.workspace.onChanged()` callback (already available)
 - For custom cross-module events, consider a simple pub/sub on `window.aro.events` — but prefer keeping tiles independent
 
-### Migration Checklist (B to C)
+### Migration Checklist (Sidebar to Dashboard)
 
 1. Define `Widget` export contract in MODULE_PUBLIC_API
 2. Add `Widget` export to each module (optional; modules without it are sidebar-only)
@@ -166,22 +166,22 @@ If tiles need to coordinate (e.g. workspace change triggers all tiles to refresh
 
 ---
 
-## Full Migration Path: A to B to C
+## Full Migration Path
 
 ```
-Model A (Standalone)
+Standalone
   │
   │  Add sidebar shell, multi-module loading,
   │  IPC namespacing, enable/disable config
   │
   ▼
-Model B (Sidebar)
+Sidebar
   │
   │  Add Widget exports, dashboard grid view,
   │  layout engine, error boundaries
   │
   ▼
-Model C (Dashboard)
+Dashboard
 ```
 
 At every stage, Core remains unchanged. Module code requires minimal modification — the primary work is in the Desktop shell.

@@ -124,7 +124,7 @@ See [docs/desktop/ACTIVE_MODULE_SWITCH.md](docs/desktop/ACTIVE_MODULE_SWITCH.md)
 
 The architecture supports three module integration models. Each builds on the previous — you can start simple and evolve.
 
-### Model A — Standalone (current)
+### Standalone Model (current)
 
 One module per app. The module owns the entire UI. Think of each build as a separate product: "Aro Studio Inspect", "Aro Studio Tokens".
 
@@ -148,7 +148,7 @@ flowchart LR
 
 ---
 
-### Model B — Sidebar
+### Sidebar Model
 
 One app, multiple modules. A sidebar lets you switch between full module views. All enabled modules are loaded; one is visible at a time.
 
@@ -183,7 +183,7 @@ flowchart LR
 
 ---
 
-### Model C — Dashboard
+### Dashboard Model
 
 One app, multiple modules visible simultaneously. A tiled grid of module widgets shows key metrics at a glance. Click a tile to open the full view (falls back to sidebar navigation).
 

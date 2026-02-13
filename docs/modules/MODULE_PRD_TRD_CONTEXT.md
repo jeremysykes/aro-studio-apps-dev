@@ -27,13 +27,13 @@ See [ARCHITECTURE.md](../ARCHITECTURE.md) for the source of truth on boundaries 
 
 ## How modules fit in
 
-**Model A (current / Standalone):** One active module per app. The module effectively *is* the app: it owns the main renderer content; Desktop hosts it. The active module is selected by `ARO_ACTIVE_MODULE` (default `hello-world`); for development, use **`.env`** at the project root (see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md)). Job keys are namespaced for future use: `moduleKey:jobKey` (e.g. `hello-world:greet`).
+**Standalone (current):** One active module per app. The module effectively *is* the app: it owns the main renderer content; Desktop hosts it. The active module is selected by `ARO_ACTIVE_MODULE` (default `hello-world`); for development, use **`.env`** at the project root (see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md)). Job keys are namespaced for future use: `moduleKey:jobKey` (e.g. `hello-world:greet`).
 
-**Model B (future / Sidebar):** One "Aro Studio" app with a sidebar for switching between full module views. Desktop provides the shell and navigation; all enabled modules are loaded but only one is visible at a time.
+**Sidebar (future):** One "Aro Studio" app with a sidebar for switching between full module views. Desktop provides the shell and navigation; all enabled modules are loaded but only one is visible at a time.
 
-**Model C (future / Dashboard):** Extends Model B with a tiled grid home view where multiple module widgets are visible simultaneously. Modules export a compact `Widget` component in addition to their full root view.
+**Dashboard (future):** Extends Sidebar with a tiled grid home view where multiple module widgets are visible simultaneously. Modules export a compact `Widget` component in addition to their full root view.
 
-PRDs/TRDs for new modules should remain compatible with a possible move to Model B and C (namespaced job keys, no assumption that only one module exists). Where practical, consider what a compact widget view of the module would show.
+PRDs/TRDs for new modules should remain compatible with a possible move to Sidebar and Dashboard models (namespaced job keys, no assumption that only one module exists). Where practical, consider what a compact widget view of the module would show.
 
 See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comparison.
 
@@ -60,7 +60,7 @@ See [MODULE_ARCHITECTURE.md](MODULE_ARCHITECTURE.md) and [MODULE_CONSTRAINTS.md]
 - **Job key format:** `moduleKey:jobKey` (e.g. `tokens:export`, `figma:sync`).
 - **Signature:** `core.jobs.register({ key: string, run: (ctx: JobContext, input?: unknown) => void | Promise<void> })`.
 - **JobContext** in `run`: `logger(level, message)`, `workspace` (resolve, readText, writeText, exists, mkdirp), `artifactWriter({ path, content })`, `abort` (AbortSignal). Optional: `progress`.
-- **Input:** Optional; for Model A MVP the UI may pass input when calling `window.aro.job.run(key, input)`.
+- **Input:** Optional; for Standalone MVP the UI may pass input when calling `window.aro.job.run(key, input)`.
 
 See [core/CORE_PUBLIC_API.md](../core/CORE_PUBLIC_API.md) for the full JobDefinition and JobContext types.
 
@@ -88,6 +88,6 @@ Types: `Run`, `LogEntry`, `Artifact` (id, runId, status/path, timestamps, etc.).
 
 ## What to produce for new modules
 
-**PRD:** User-facing goals, workflows, and acceptance criteria for the module; which jobs exist from the user’s perspective; how the UI should behave (workspace, run job, view runs/logs/artifacts). Assume Model A (one module = app) but keep wording compatible with Model B. Call out a11y/design-system expectations per [meta/UI_UX_ACCESSIBILITY.md](../meta/UI_UX_ACCESSIBILITY.md) where relevant.
+**PRD:** User-facing goals, workflows, and acceptance criteria for the module; which jobs exist from the user's perspective; how the UI should behave (workspace, run job, view runs/logs/artifacts). Assume Standalone (one module = app) but keep wording compatible with Sidebar and Dashboard models. Call out a11y/design-system expectations per [meta/UI_UX_ACCESSIBILITY.md](../meta/UI_UX_ACCESSIBILITY.md) where relevant.
 
 **TRD:** Job keys (`moduleKey:jobKey`); for each job: inputs, use of JobContext (workspace, logger, artifactWriter, abort, progress); no direct DB/fs; no inter-module imports; no new IPC unless documented in [MODULE_PUBLIC_API.md](MODULE_PUBLIC_API.md); new dependencies with justification in [meta/DEPENDENCIES.md](../meta/DEPENDENCIES.md). Reference [MODULE_ARCHITECTURE.md](MODULE_ARCHITECTURE.md), [MODULE_CONSTRAINTS.md](MODULE_CONSTRAINTS.md), and [MODULE_PUBLIC_API.md](MODULE_PUBLIC_API.md) as the authority for constraints and APIs.

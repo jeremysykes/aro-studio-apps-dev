@@ -19,9 +19,9 @@ Desktop is the host; Modules and Core are dependencies. Dependency flow is one-w
 
 ---
 
-## Model A (MVP): Standalone
+## Standalone Model (MVP)
 
-The MVP uses Model A. See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comparison.
+The MVP uses the Standalone Model. See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comparison.
 
 - **One active module** — The active module is selected by `ARO_ACTIVE_MODULE` (default `hello-world` when unset); for development, set it in **`.env`** at the project root. See [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md).
 - **Module owns the UI** — The module provides the main renderer content; Desktop hosts it.
@@ -36,7 +36,7 @@ The MVP uses Model A. See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comp
 3. Desktop invokes the module's init function, passing Core (or a restricted facade).
 4. The module calls `core.jobs.register({ key, run })` for each job it provides.
 5. Registration happens in the main process only.
-6. The renderer uses `window.aro.job.run(key)`, `window.aro.runs.list()`, etc. — existing IPC; no new channels for Model A MVP.
+6. The renderer uses `window.aro.job.run(key)`, `window.aro.runs.list()`, etc. — existing IPC; no new channels for the Standalone MVP.
 
 ---
 
@@ -61,4 +61,4 @@ For context when writing PRDs and TRDs for new modules, see [MODULE_PRD_TRD_CONT
 
 ## Diagram
 
-See [diagrams/module-models.md](../../diagrams/module-models.md) for Model A (Standalone), B (Sidebar), and C (Dashboard) diagrams.
+See [diagrams/module-models.md](../../diagrams/module-models.md) for Standalone, Sidebar, and Dashboard model diagrams.

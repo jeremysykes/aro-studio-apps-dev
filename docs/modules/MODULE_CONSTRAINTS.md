@@ -66,7 +66,7 @@ This document details how to implement and verify each module constraint. Module
 - Module renderer code uses `window.aro` only (workspace, job, runs, logs, artifacts).
 - Modules do not receive Core handles in the renderer.
 - No `nodeIntegration`; no direct Node/Electron imports in renderer.
-- Custom IPC (if needed for Model B) must be documented in MODULE_PUBLIC_API.md.
+- Custom IPC (if needed for Sidebar or Dashboard) must be documented in MODULE_PUBLIC_API.md.
 
 **Verification:**
 

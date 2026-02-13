@@ -1,6 +1,7 @@
 .DS_Store
 .aro
 .dev-state
+.claude
 .env
 node_modules
 dist
