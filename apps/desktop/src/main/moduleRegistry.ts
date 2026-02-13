@@ -30,13 +30,13 @@ export function getUIModel(): UIModel {
   return 'standalone';
 }
 
-export function getActiveModuleKey(): string {
-  return process.env.ARO_ACTIVE_MODULE ?? 'hello-world';
-}
-
 export function getEnabledModuleKeys(): string[] {
   const raw = process.env.ARO_ENABLED_MODULES ?? '';
   const keys = raw.split(',').map((k) => k.trim()).filter(Boolean);
+  if (keys.length === 0) {
+    console.warn('ARO_ENABLED_MODULES is empty — no modules will be loaded');
+    return [];
+  }
   const registered = getRegisteredModuleKeys();
   const valid: string[] = [];
   for (const key of keys) {

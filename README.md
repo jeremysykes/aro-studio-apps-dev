@@ -91,12 +91,12 @@ pnpm web       # Launch Web app — API on 3001, Vite on 5173 (open http://local
 
 If `pnpm web` fails with `EADDRINUSE: port 3001`, an unrelated process owns the port. The orchestrator only cleans up its own prior runs; stop the other process or use a different port.
 
-**Switch active module:** When `ARO_ACTIVE_MODULE` is not set, the app loads **hello-world** (default). Valid module IDs: **`hello-world`** (default) and **`inspect`**. The **inspect** module is currently **in QA** (not yet production-ready).
+**Configure modules:** Set `ARO_UI_MODEL` and `ARO_ENABLED_MODULES` in a `.env` file at the project root. The Desktop app loads `.env` at startup. Valid module IDs: **`hello-world`** and **`inspect`**.
 
-- **.env for development:** Set the active module in a `.env` file so you don't need to pass the env var each time. The Desktop app loads **`.env` at the project root** at startup (when present). Set `ARO_ACTIVE_MODULE=hello-world` or `ARO_ACTIVE_MODULE=inspect`, then restart the app. No rebuild. Shell/inline env var overrides `.env` if both are set.
-- **Env example file:** A template lives at **`.env.example`** at the project root. It contains `ARO_ACTIVE_MODULE=hello-world`. Copy it to `.env` and edit as needed: `cp .env.example .env`
+- **`.env` for development:** Set `ARO_UI_MODEL=standalone` and `ARO_ENABLED_MODULES=inspect`, then restart the app. No rebuild needed. Shell/inline env vars override `.env` if both are set.
+- **Env example file:** Copy `.env.example` to `.env` and edit as needed: `cp .env.example .env`
 
-See [docs/desktop/ACTIVE_MODULE_SWITCH.md](docs/desktop/ACTIVE_MODULE_SWITCH.md) for full details (inline/shell, adding new modules).
+See [docs/desktop/ACTIVE_MODULE_SWITCH.md](docs/desktop/ACTIVE_MODULE_SWITCH.md) for full details.
 
 ## Module models
 
@@ -122,7 +122,7 @@ flowchart LR
     Shell --> Engine
 ```
 
-**Config:** `ARO_UI_MODEL=standalone` + `ARO_ACTIVE_MODULE=inspect`
+**Config:** `ARO_UI_MODEL=standalone` + `ARO_ENABLED_MODULES=inspect`
 
 ---
 

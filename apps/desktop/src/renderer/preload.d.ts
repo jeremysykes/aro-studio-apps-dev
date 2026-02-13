@@ -1,7 +1,6 @@
 import type { Run, LogEntry, Artifact } from '../shared/types';
 
 export interface AroPreloadAPI {
-  getActiveModuleKey(): Promise<string>;
   getUIModel(): Promise<'standalone' | 'sidebar' | 'dashboard'>;
   getEnabledModules(): Promise<string[]>;
   workspace: {

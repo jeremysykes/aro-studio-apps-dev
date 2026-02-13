@@ -10,11 +10,11 @@ This document defines three architectural models for how Modules integrate with 
 | UI ownership | Module owns main content | Desktop shell (sidebar + content slot) | Desktop shell (grid layout + tile slots) |
 | Modules visible at once | 1 | 1 (switch via sidebar) | Many (tiles rendered simultaneously) |
 | Modules loaded at once | 1 | All enabled | All enabled |
-| Enable/disable | Build/config only (`ARO_ACTIVE_MODULE`) | Per-user or per-workspace config | Per-user or per-workspace config |
+| Enable/disable | Build/config only | Per-user or per-workspace config | Per-user or per-workspace config |
 | IPC namespacing | Recommended (`moduleKey:jobKey`) | Required | Required |
 | Module UI exports | `default` (root component) | `default` (root component) | `default` (root component) + `Widget` |
 | Layout responsibility | Module | Desktop shell | Desktop shell + layout engine |
-| Config key | `ARO_UI_MODEL=standalone` + `ARO_ACTIVE_MODULE` | `ARO_UI_MODEL=sidebar` + `ARO_ENABLED_MODULES` | `ARO_UI_MODEL=dashboard` + `ARO_ENABLED_MODULES` |
+| Config key | `ARO_UI_MODEL=standalone` + `ARO_ENABLED_MODULES=inspect` | `ARO_UI_MODEL=sidebar` + `ARO_ENABLED_MODULES=inspect,tokens` | `ARO_UI_MODEL=dashboard` + `ARO_ENABLED_MODULES=inspect,tokens` |
 | Use case | "Aro Studio Tokens", "Aro Studio Figma" | Single "Aro Studio" app, switch between features | Single "Aro Studio" app, see everything at a glance |
 
 ---
@@ -25,41 +25,34 @@ The active model is controlled by the `ARO_UI_MODEL` environment variable (or `.
 
 | `ARO_UI_MODEL` value | Model | Behaviour |
 |----------------------|-------|-----------|
-| `standalone` | A — Standalone | Current MVP behaviour. `ARO_ACTIVE_MODULE` selects the single module. |
+| `standalone` | A — Standalone | Current MVP behaviour. First module in `ARO_ENABLED_MODULES` owns the full screen. |
 | `sidebar` | B — Sidebar | Desktop shell renders sidebar + content slot. All modules in `ARO_ENABLED_MODULES` are loaded. |
 | `dashboard` | C — Dashboard | Extends Sidebar. Adds a dashboard home view with module widget tiles. |
 
 ### Configuration variables
 
-`ARO_UI_MODEL` and `ARO_ACTIVE_MODULE` are independent variables:
+Two environment variables control the module system:
 
 - **`ARO_UI_MODEL`** — which shell layout to use (`standalone`, `sidebar`, or `dashboard`).
-- **`ARO_ACTIVE_MODULE`** — which single module to load (only used in standalone mode, e.g. `inspect`).
-- **`ARO_ENABLED_MODULES`** — which modules to load (used in sidebar and dashboard modes).
+- **`ARO_ENABLED_MODULES`** — comma-separated list of module keys to load. Used by all models.
 
 | Variable | Model A (Standalone) | Model B (Sidebar) | Model C (Dashboard) |
 |----------|----------------------|---------------------|---------------------|
 | `ARO_UI_MODEL` | `standalone` | `sidebar` | `dashboard` |
-| `ARO_ACTIVE_MODULE` | Required (default `hello-world`) | Ignored | Ignored |
-| `ARO_ENABLED_MODULES` | Not used | Comma-separated list (e.g. `inspect,tokens`) | Same as Sidebar |
+| `ARO_ENABLED_MODULES` | Single module (e.g. `inspect`) | Multiple (e.g. `inspect,hello-world`) | Same as Sidebar |
 
-**`.env` example for Model A:**
+**`.env` examples:**
 
 ```bash
+# Standalone — one module, no shell chrome
 ARO_UI_MODEL=standalone
-ARO_ACTIVE_MODULE=inspect
-```
+ARO_ENABLED_MODULES=inspect
 
-**`.env` example for Model B:**
-
-```bash
+# Sidebar — multiple modules behind a nav
 ARO_UI_MODEL=sidebar
 ARO_ENABLED_MODULES=inspect,hello-world
-```
 
-**`.env` example for Model C:**
-
-```bash
+# Dashboard — tiled widget grid (extends Sidebar)
 ARO_UI_MODEL=dashboard
 ARO_ENABLED_MODULES=inspect,hello-world
 ```
@@ -70,7 +63,7 @@ See [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md) for fu
 
 ## Model A (Standalone)
 
-**Description:** One module per application. The active module effectively *is* the application; it is selected by `ARO_ACTIVE_MODULE` (default `hello-world`) or `.env` at the project root (see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md)). Core + Desktop are shared infrastructure; the module owns the main UI and user experience. Each shipped product is a distinct app (e.g. "Aro Studio Tokens", "Aro Studio Figma").
+**Description:** One module per application. Set `ARO_ENABLED_MODULES` to a single module key (e.g. `inspect`). The module owns the main UI and user experience; no shell chrome is rendered. Core + Desktop are shared infrastructure. Each shipped product is a distinct app (e.g. "Aro Studio Tokens", "Aro Studio Figma").
 
 **When to use:**
 - Different applications packaged from the same platform

@@ -7,35 +7,16 @@ type UIModel = 'standalone' | 'sidebar' | 'dashboard';
 function App() {
   const [uiModel, setUIModel] = useState<UIModel | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // Standalone state
-  const [StandaloneComponent, setStandaloneComponent] = useState<React.ComponentType | null>(null);
-
-  // Sidebar state
   const [enabledModules, setEnabledModules] = useState<ModuleRegistryEntry[]>([]);
   const [activeKey, setActiveKey] = useState<string>('');
 
   useEffect(() => {
     let cancelled = false;
 
-    window.aro.getUIModel().then(async (model) => {
-      if (cancelled) return;
+    Promise.all([window.aro.getUIModel(), window.aro.getEnabledModules()]).then(
+      ([model, enabledKeys]) => {
+        if (cancelled) return;
 
-      if (model === 'standalone') {
-        setUIModel('standalone');
-        const key = await window.aro.getActiveModuleKey();
-        if (cancelled) return;
-        const Component = moduleComponents[key];
-        if (!Component) {
-          setError(`Invalid ARO_ACTIVE_MODULE: '${key}'. Use one of: ${Object.keys(moduleComponents).join(', ')}.`);
-          return;
-        }
-        setStandaloneComponent(() => Component);
-      } else {
-        // sidebar or dashboard — load enabled modules
-        setUIModel(model);
-        const enabledKeys = await window.aro.getEnabledModules();
-        if (cancelled) return;
         const entries = enabledKeys
           .map((key) => moduleRegistry.find((m) => m.key === key))
           .filter((entry): entry is ModuleRegistryEntry => !!entry);
@@ -44,10 +25,12 @@ function App() {
           setError('No enabled modules found. Set ARO_ENABLED_MODULES in .env.');
           return;
         }
+
+        setUIModel(model);
         setEnabledModules(entries);
         setActiveKey(entries[0].key);
-      }
-    });
+      },
+    );
 
     return () => {
       cancelled = true;
@@ -71,21 +54,14 @@ function App() {
     );
   }
 
-  // Standalone mode — original behaviour
+  const ActiveModule = enabledModules.find((m) => m.key === activeKey)?.component;
+
+  // Standalone mode — no shell, module owns the full screen
   if (uiModel === 'standalone') {
-    if (!StandaloneComponent) {
-      return (
-        <div className="flex min-h-screen items-center justify-center p-6">
-          <p className="text-muted-foreground">Loading…</p>
-        </div>
-      );
-    }
-    return <StandaloneComponent />;
+    return ActiveModule ? <ActiveModule /> : null;
   }
 
   // Sidebar mode (and dashboard, which extends sidebar)
-  const ActiveModule = enabledModules.find((m) => m.key === activeKey)?.component;
-
   return (
     <ShellLayout modules={enabledModules} activeKey={activeKey} onSelect={setActiveKey}>
       {ActiveModule ? <ActiveModule /> : null}
