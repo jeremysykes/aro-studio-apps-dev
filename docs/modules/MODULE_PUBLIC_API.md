@@ -16,7 +16,7 @@ This document defines the API surface for Modules: job registration and renderer
 
 **Job key format:**
 
-- Use namespaced keys for Model B readiness: `moduleKey:jobKey` (e.g. `hello-world:greet`).
+- Use namespaced keys for Model B (Sidebar) and C (Dashboard) readiness: `moduleKey:jobKey` (e.g. `hello-world:greet`).
 - For Model A MVP with one module, `hello-world:greet` or similar is sufficient.
 
 **Example:**
@@ -45,10 +45,13 @@ core.jobs.register({
 
 ---
 
-## Future: Model B extensions
+## Future: Model B (Sidebar) and Model C (Dashboard) extensions
 
-When moving to the Dashboard model:
+When moving beyond Model A (Standalone):
 
+- **`window.aro.getUIModel()`** — New IPC channel to expose the active model (`standalone`, `sidebar`, `dashboard`) to the renderer. See [MODULE_MODELS.md](MODULE_MODELS.md) for configuration.
+- **`window.aro.getEnabledModules()`** — Returns the list of enabled module keys (Model B/C). Not needed for Model A.
 - **`module.*` namespace** — If modules need module-specific IPC (e.g. `module.tokens.getConfig`), add a `module` namespace to the preload API.
 - **Module-scoped job keys** — Already required; `moduleKey:jobKey` format.
+- **Widget export** — Model C requires modules to export a `Widget` component. See [MODULE_MODELS.md](MODULE_MODELS.md) for the contract.
 - **Extension points** — Document any new IPC channels in this file when added.

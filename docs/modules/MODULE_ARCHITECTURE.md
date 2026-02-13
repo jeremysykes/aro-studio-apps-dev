@@ -19,7 +19,7 @@ Desktop is the host; Modules and Core are dependencies. Dependency flow is one-w
 
 ---
 
-## Model A (MVP): Multi-Variant
+## Model A (MVP): Standalone
 
 The MVP uses Model A. See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comparison.
 
@@ -61,4 +61,4 @@ For context when writing PRDs and TRDs for new modules, see [MODULE_PRD_TRD_CONT
 
 ## Diagram
 
-See [diagrams/module-models.md](../../diagrams/module-models.md) for Model A vs Model B.
+See [diagrams/module-models.md](../../diagrams/module-models.md) for Model A (Standalone), B (Sidebar), and C (Dashboard) diagrams.

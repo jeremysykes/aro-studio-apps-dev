@@ -98,6 +98,122 @@ If `pnpm web` fails with `EADDRINUSE: port 3001`, an unrelated process owns the 
 
 See [docs/desktop/ACTIVE_MODULE_SWITCH.md](docs/desktop/ACTIVE_MODULE_SWITCH.md) for full details (inline/shell, adding new modules).
 
+## Module models
+
+The architecture supports three module integration models. Each builds on the previous — you can start simple and evolve.
+
+### Model A — Standalone (current)
+
+One module per app. The module owns the entire UI. Think of each build as a separate product: "Aro Studio Inspect", "Aro Studio Tokens".
+
+```mermaid
+flowchart LR
+    subgraph Desktop
+        Shell[Desktop Shell]
+    end
+    subgraph Module
+        UI[Module UI — full screen]
+    end
+    subgraph Core
+        Engine[Core Engine]
+    end
+    Module -->|registers jobs| Engine
+    Shell -->|loads one module| Module
+    Shell --> Engine
+```
+
+**Config:** `ARO_ACTIVE_MODULE=inspect` (one module selected at build/config time).
+
+---
+
+### Model B — Sidebar
+
+One app, multiple modules. A sidebar lets you switch between full module views. All enabled modules are loaded; one is visible at a time.
+
+```mermaid
+flowchart LR
+    subgraph Desktop
+        Shell[Desktop Shell]
+        Sidebar[Sidebar Nav]
+        Content[Content Slot]
+    end
+    subgraph Modules
+        M1[Inspect — full view]
+        M2[Tokens — full view]
+        M3[Figma — full view]
+    end
+    subgraph Core
+        Engine[Core Engine]
+    end
+    Shell --> Sidebar
+    Shell --> Content
+    Sidebar -->|selects| Content
+    Content -.- M1
+    Content -.- M2
+    Content -.- M3
+    M1 -->|registers jobs| Engine
+    M2 -->|registers jobs| Engine
+    M3 -->|registers jobs| Engine
+    Shell --> Engine
+```
+
+**Config:** `ARO_UI_MODEL=sidebar` + `ARO_ENABLED_MODULES=inspect,tokens,figma`
+
+---
+
+### Model C — Dashboard
+
+One app, multiple modules visible simultaneously. A tiled grid of module widgets shows key metrics at a glance. Click a tile to open the full view (falls back to sidebar navigation).
+
+```mermaid
+flowchart LR
+    subgraph Desktop
+        Shell[Desktop Shell]
+        Sidebar[Sidebar Nav]
+        Grid[Dashboard Grid]
+        Content[Content Slot]
+    end
+    subgraph Modules
+        W1[Inspect Widget]
+        W2[Tokens Widget]
+        W3[Figma Widget]
+        Full[Full Module View]
+    end
+    subgraph Core
+        Engine[Core Engine]
+    end
+    Shell --> Sidebar
+    Shell --> Grid
+    Shell --> Content
+    Grid --> W1
+    Grid --> W2
+    Grid --> W3
+    W1 -->|click to expand| Content
+    Content -.- Full
+    Sidebar -->|selects| Content
+    W1 -.->|window.aro| Engine
+    W2 -.->|window.aro| Engine
+    W3 -.->|window.aro| Engine
+    Shell --> Engine
+```
+
+**Config:** `ARO_UI_MODEL=dashboard` + `ARO_ENABLED_MODULES=inspect,tokens,figma`
+
+---
+
+### Choosing a model
+
+| | Standalone | Sidebar | Dashboard |
+|---|---|---|---|
+| Best for | Single-purpose apps | Multi-feature product | Overview + deep-dive |
+| Modules visible | 1 | 1 (switch via sidebar) | Many (tiles) + 1 (full view) |
+| Complexity | Low | Medium | High |
+| Config | `ARO_ACTIVE_MODULE` | `ARO_UI_MODEL=sidebar` | `ARO_UI_MODEL=dashboard` |
+
+Core and the module contract remain the same across all three. Only the Desktop shell changes.
+
+Full detail: [docs/modules/MODULE_MODELS.md](docs/modules/MODULE_MODELS.md) | [docs/modules/MODULE_TRANSITION.md](docs/modules/MODULE_TRANSITION.md) | [diagrams/module-models.md](diagrams/module-models.md)
+
 ## Testing
 
 Core tests run under Electron’s Node (better-sqlite3 ABI); see the test script in `packages/core`. **Web** runs the API server under Electron's Node so it uses the same better-sqlite3 build as Desktop. If you see "Could not locate the bindings file" or `NODE_MODULE_VERSION` errors, run `pnpm rebuild better-sqlite3` or `pnpm --filter @aro/desktop exec electron-rebuild` as needed.

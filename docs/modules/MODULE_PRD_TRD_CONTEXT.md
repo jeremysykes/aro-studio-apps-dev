@@ -27,9 +27,13 @@ See [ARCHITECTURE.md](../ARCHITECTURE.md) for the source of truth on boundaries 
 
 ## How modules fit in
 
-**Model A (current / Multi-Variant):** One active module per app. The module effectively *is* the app: it owns the main renderer content; Desktop hosts it. The active module is selected by `ARO_ACTIVE_MODULE` (default `hello-world`); for development, use **`.env`** at the project root (see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md)). Job keys are namespaced for future use: `moduleKey:jobKey` (e.g. `hello-world:greet`).
+**Model A (current / Standalone):** One active module per app. The module effectively *is* the app: it owns the main renderer content; Desktop hosts it. The active module is selected by `ARO_ACTIVE_MODULE` (default `hello-world`); for development, use **`.env`** at the project root (see [desktop/ACTIVE_MODULE_SWITCH.md](../desktop/ACTIVE_MODULE_SWITCH.md)). Job keys are namespaced for future use: `moduleKey:jobKey` (e.g. `hello-world:greet`).
 
-**Model B (future / Dashboard):** One “Aro Studio” app with multiple modules (tabs/panels). Desktop would provide shell and navigation; multiple modules could be active. PRDs/TRDs for new modules should remain compatible with a possible move to Model B (namespaced job keys, no assumption that only one module exists).
+**Model B (future / Sidebar):** One "Aro Studio" app with a sidebar for switching between full module views. Desktop provides the shell and navigation; all enabled modules are loaded but only one is visible at a time.
+
+**Model C (future / Dashboard):** Extends Model B with a tiled grid home view where multiple module widgets are visible simultaneously. Modules export a compact `Widget` component in addition to their full root view.
+
+PRDs/TRDs for new modules should remain compatible with a possible move to Model B and C (namespaced job keys, no assumption that only one module exists). Where practical, consider what a compact widget view of the module would show.
 
 See [MODULE_MODELS.md](MODULE_MODELS.md) for the full comparison.
 

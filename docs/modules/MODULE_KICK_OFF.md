@@ -34,11 +34,11 @@ Desktop MVP is complete. Modules must adapt to Desktop and Core — not the othe
 
 ## Module Models
 
-See [MODULE_MODELS.md](MODULE_MODELS.md) for the full Model A vs Model B comparison.
+See [MODULE_MODELS.md](MODULE_MODELS.md) for the full Model A vs B vs C comparison.
 
 ---
 
-## MVP: Model A (Multi-Variant)
+## MVP: Model A (Standalone)
 
 - **One module per app** — e.g. "Aro Studio Tokens", "Aro Studio Figma"
 - **Module owns the UI** — main content area
@@ -46,11 +46,12 @@ See [MODULE_MODELS.md](MODULE_MODELS.md) for the full Model A vs Model B compari
 
 ---
 
-## Future: Model B (Dashboard)
+## Future: Model B (Sidebar) and Model C (Dashboard)
 
-- Single app with multiple contained modules
+- **Model B (Sidebar):** Single app with sidebar navigation; switch between full module views
+- **Model C (Dashboard):** Single app with a tiled grid; multiple module widgets visible simultaneously
 - Per-user or per-workspace enable/disable
-- See [MODULE_B_TRANSITION.md](MODULE_B_TRANSITION.md) for the transition path
+- See [MODULE_TRANSITION.md](MODULE_TRANSITION.md) for the transition path
 
 ---
 
@@ -72,8 +73,8 @@ This is a **planning and framing exercise only**.
 Executing `MODULE_KICK_OFF.md` must produce the following documentation artifacts
 before any module code is written:
 
-1. [MODULE_MODELS.md](MODULE_MODELS.md) — Model A vs Model B comparison
-2. [MODULE_B_TRANSITION.md](MODULE_B_TRANSITION.md) — Future path to Dashboard
+1. [MODULE_MODELS.md](MODULE_MODELS.md) — Model A vs Model B vs Model C comparison
+2. [MODULE_TRANSITION.md](MODULE_TRANSITION.md) — Transition paths (A to B to C)
 3. [MODULE_ARCHITECTURE.md](MODULE_ARCHITECTURE.md) — Module responsibilities, flow, boundaries
 4. [MODULE_CONSTRAINTS.md](MODULE_CONSTRAINTS.md) — Constraint implementation details
 5. [MODULE_PUBLIC_API.md](MODULE_PUBLIC_API.md) — Job registration, IPC surface

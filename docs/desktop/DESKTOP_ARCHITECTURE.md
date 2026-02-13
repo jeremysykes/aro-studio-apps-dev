@@ -90,9 +90,10 @@ Desktop loads the **active module** in the main process after creating Core (on 
 
 ## Future extension points (Q7)
 
-1. **Renderer route for module UI** — Future (Model B): renderer could have routes like `/module/:moduleKey` that load module-specific UI. Model A uses a single active module; single view only.
+1. **Renderer route for module UI** — Future (Model B Sidebar): renderer could have routes like `/module/:moduleKey` that load module-specific UI. Model A (Standalone) uses a single active module; single view only.
 2. **IPC channel for module-invoked jobs** — Same as `job:run`; modules use the same IPC. No new channel needed.
-3. **Preload API extension** — When moving to Model B, the preload script could expose a `module` namespace for module-specific IPC. Model A uses only `workspace`, `job`, `runs`, `logs`, `artifacts`.
+3. **Preload API extension** — When moving to Model B (Sidebar) or C (Dashboard), the preload script exposes `getUIModel()` and `getEnabledModules()`. Model C also requires a `module` namespace for module-specific IPC. Model A uses only `workspace`, `job`, `runs`, `logs`, `artifacts`.
+4. **Dashboard grid** — Future (Model C Dashboard): renderer renders multiple module widgets simultaneously in a tiled grid. See [modules/MODULE_MODELS.md](../modules/MODULE_MODELS.md) for the full architecture.
 
 ---
 
