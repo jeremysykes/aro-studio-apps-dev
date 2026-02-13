@@ -7,7 +7,7 @@ import { join } from 'path';
 import { existsSync } from 'fs';
 import { registerIpcHandlers } from './ipc.js';
 import { initCore, shutdownCore, getLastWorkspacePath } from './state.js';
-import { loadActiveModule } from './moduleLoader.js';
+import { loadModules } from './moduleLoader.js';
 import { createCore } from '@aro/core';
 
 let mainWindow: BrowserWindow | null = null;
@@ -38,7 +38,7 @@ function createWindow(): void {
     const lastPath = await getLastWorkspacePath();
     if (lastPath && existsSync(lastPath)) {
       const c = initCore(lastPath, createCore);
-      loadActiveModule(c);
+      loadModules(c);
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send('workspace:changed', { path: lastPath });
       }

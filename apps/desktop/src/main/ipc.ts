@@ -8,8 +8,8 @@ import {
   addLogSubscription,
   removeLogSubscription,
 } from './state.js';
-import { loadActiveModule } from './moduleLoader.js';
-import { getActiveModuleKey } from './moduleRegistry.js';
+import { loadModules } from './moduleLoader.js';
+import { getActiveModuleKey, getUIModel, getEnabledModuleKeys } from './moduleRegistry.js';
 
 const NO_WORKSPACE = 'No workspace selected';
 
@@ -30,7 +30,7 @@ export function registerIpcHandlers(getMainWindow: () => BrowserWindow | null): 
     }
     const workspaceRoot = result.filePaths[0];
     const c = initCore(workspaceRoot, createCore);
-    loadActiveModule(c);
+    loadModules(c);
 
     const win = getMainWindow();
     if (win && !win.isDestroyed()) {
@@ -46,6 +46,14 @@ export function registerIpcHandlers(getMainWindow: () => BrowserWindow | null): 
 
   ipcMain.handle('app:getActiveModuleKey', async () => {
     return getActiveModuleKey();
+  });
+
+  ipcMain.handle('app:getUIModel', async () => {
+    return getUIModel();
+  });
+
+  ipcMain.handle('app:getEnabledModules', async () => {
+    return getEnabledModuleKeys();
   });
 
   ipcMain.handle('job:run', async (_, jobKey: string, input?: unknown) => {
