@@ -14,28 +14,41 @@ This document defines three architectural models for how Modules integrate with 
 | IPC namespacing | Recommended (`moduleKey:jobKey`) | Required | Required |
 | Module UI exports | `default` (root component) | `default` (root component) | `default` (root component) + `Widget` |
 | Layout responsibility | Module | Desktop shell | Desktop shell + layout engine |
-| Config key | `ARO_ACTIVE_MODULE` | `ARO_UI_MODEL=sidebar` + `ARO_ENABLED_MODULES` | `ARO_UI_MODEL=dashboard` + `ARO_ENABLED_MODULES` |
+| Config key | `ARO_UI_MODEL=standalone` + `ARO_ACTIVE_MODULE` | `ARO_UI_MODEL=sidebar` + `ARO_ENABLED_MODULES` | `ARO_UI_MODEL=dashboard` + `ARO_ENABLED_MODULES` |
 | Use case | "Aro Studio Tokens", "Aro Studio Figma" | Single "Aro Studio" app, switch between features | Single "Aro Studio" app, see everything at a glance |
 
 ---
 
 ## Selecting the Active Model
 
-The active model is controlled by the `ARO_UI_MODEL` environment variable (or `.env` at the project root). When unset, Model A (Standalone) is the default for backwards compatibility.
+The active model is controlled by the `ARO_UI_MODEL` environment variable (or `.env` at the project root).
 
 | `ARO_UI_MODEL` value | Model | Behaviour |
 |----------------------|-------|-----------|
-| (unset or empty) | A — Standalone | Current MVP behaviour. `ARO_ACTIVE_MODULE` selects the single module. |
+| `standalone` | A — Standalone | Current MVP behaviour. `ARO_ACTIVE_MODULE` selects the single module. |
 | `sidebar` | B — Sidebar | Desktop shell renders sidebar + content slot. All modules in `ARO_ENABLED_MODULES` are loaded. |
 | `dashboard` | C — Dashboard | Extends Sidebar. Adds a dashboard home view with module widget tiles. |
 
 ### Configuration variables
 
-| Variable | Model A | Model B | Model C |
-|----------|---------|---------|---------|
-| `ARO_UI_MODEL` | (unset) | `sidebar` | `dashboard` |
-| `ARO_ACTIVE_MODULE` | Required (default `hello-world`) | Ignored (all enabled modules load) | Ignored |
-| `ARO_ENABLED_MODULES` | Not used | Comma-separated list of module keys (e.g. `inspect,tokens`) | Same as B |
+`ARO_UI_MODEL` and `ARO_ACTIVE_MODULE` are independent variables:
+
+- **`ARO_UI_MODEL`** — which shell layout to use (`standalone`, `sidebar`, or `dashboard`).
+- **`ARO_ACTIVE_MODULE`** — which single module to load (only used in standalone mode, e.g. `inspect`).
+- **`ARO_ENABLED_MODULES`** — which modules to load (used in sidebar and dashboard modes).
+
+| Variable | Model A (Standalone) | Model B (Sidebar) | Model C (Dashboard) |
+|----------|----------------------|---------------------|---------------------|
+| `ARO_UI_MODEL` | `standalone` | `sidebar` | `dashboard` |
+| `ARO_ACTIVE_MODULE` | Required (default `hello-world`) | Ignored | Ignored |
+| `ARO_ENABLED_MODULES` | Not used | Comma-separated list (e.g. `inspect,tokens`) | Same as Sidebar |
+
+**`.env` example for Model A:**
+
+```bash
+ARO_UI_MODEL=standalone
+ARO_ACTIVE_MODULE=inspect
+```
 
 **`.env` example for Model B:**
 

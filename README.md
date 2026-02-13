@@ -122,7 +122,7 @@ flowchart LR
     Shell --> Engine
 ```
 
-**Config:** `ARO_ACTIVE_MODULE=inspect` (one module selected at build/config time).
+**Config:** `ARO_UI_MODEL=standalone` + `ARO_ACTIVE_MODULE=inspect`
 
 ---
 
@@ -208,7 +208,7 @@ flowchart LR
 | Best for | Single-purpose apps | Multi-feature product | Overview + deep-dive |
 | Modules visible | 1 | 1 (switch via sidebar) | Many (tiles) + 1 (full view) |
 | Complexity | Low | Medium | High |
-| Config | `ARO_ACTIVE_MODULE` | `ARO_UI_MODEL=sidebar` | `ARO_UI_MODEL=dashboard` |
+| Config | `ARO_UI_MODEL=standalone` | `ARO_UI_MODEL=sidebar` | `ARO_UI_MODEL=dashboard` |
 
 Core and the module contract remain the same across all three. Only the Desktop shell changes.
 
