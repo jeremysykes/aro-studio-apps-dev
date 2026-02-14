@@ -131,9 +131,9 @@ export interface AroCore {
 
 export type UIModel = 'standalone' | 'sidebar' | 'dashboard' | 'tabs' | 'carousel';
 
-// ─── Tenant / brand configuration ───────────────────────────────────────────
+// ─── Tenant configuration ────────────────────────────────────────────────────
 
-export interface TenantConfig {
+export interface TenantBrand {
   /** Application name displayed in title bar, headers, and meta tags. */
   appName: string;
   /** URL or data-URI for the brand logo. Used in sidebar headers and splash. */
@@ -147,9 +147,23 @@ export interface TenantConfig {
   splashComponent?: string;
 }
 
+export interface TenantConfig {
+  /** Which UI model to render. */
+  uiModel: UIModel;
+  /** Which module keys are enabled (order matters for sidebar/dashboard). */
+  enabledModules: string[];
+  /** Brand identity. */
+  brand: TenantBrand;
+  /** Theme token overrides (CSS custom property name → value). */
+  theme: Record<string, string>;
+  /** Feature flags (flag name → enabled). */
+  features: Record<string, boolean>;
+}
+
 // ─── Preload API (window.aro contract) ───────────────────────────────────────
 
 export interface AroPreloadAPI {
+  getTenantConfig(): Promise<TenantConfig>;
   getUIModel(): Promise<UIModel>;
   getEnabledModules(): Promise<string[]>;
   workspace: {

@@ -17,24 +17,27 @@ function AppShell() {
   useEffect(() => {
     let cancelled = false;
 
-    Promise.all([window.aro.getUIModel(), window.aro.getEnabledModules()]).then(
-      ([model, enabledKeys]) => {
-        if (cancelled) return;
+    window.aro.getTenantConfig().then((config) => {
+      if (cancelled) return;
 
-        const entries = enabledKeys
-          .map((key) => moduleRegistry.find((m) => m.key === key))
-          .filter((entry): entry is ModuleRegistryEntry => !!entry);
+      // Standalone mode loads only the first module
+      const enabledKeys = config.uiModel === 'standalone'
+        ? config.enabledModules.slice(0, 1)
+        : config.enabledModules;
 
-        if (entries.length === 0) {
-          setError('No enabled modules found. Set ARO_ENABLED_MODULES in .env.');
-          return;
-        }
+      const entries = enabledKeys
+        .map((key) => moduleRegistry.find((m) => m.key === key))
+        .filter((entry): entry is ModuleRegistryEntry => !!entry);
 
-        setUIModel(model);
-        setEnabledModules(entries);
-        setActiveKey(entries[0].key);
-      },
-    );
+      if (entries.length === 0) {
+        setError('No enabled modules found. Set ARO_ENABLED_MODULES in .env.');
+        return;
+      }
+
+      setUIModel(config.uiModel);
+      setEnabledModules(entries);
+      setActiveKey(entries[0].key);
+    });
 
     return () => {
       cancelled = true;

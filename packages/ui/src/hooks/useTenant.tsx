@@ -4,7 +4,11 @@ import type { TenantConfig } from '@aro/types';
 // ─── Defaults ────────────────────────────────────────────────────────────────
 
 const DEFAULT_TENANT: TenantConfig = {
-  appName: 'Aro Studio',
+  uiModel: 'standalone',
+  enabledModules: [],
+  brand: { appName: 'Aro Studio' },
+  theme: {},
+  features: {},
 };
 
 // ─── Context ─────────────────────────────────────────────────────────────────
@@ -19,13 +23,17 @@ export interface TenantProviderProps {
 }
 
 /**
- * Provides tenant brand configuration to the component tree.
+ * Provides tenant configuration to the component tree.
  * Merges the supplied partial config over sensible defaults so
  * every consumer always sees a complete TenantConfig.
  */
 export function TenantProvider({ config, children }: TenantProviderProps) {
   const merged = useMemo<TenantConfig>(
-    () => ({ ...DEFAULT_TENANT, ...config }),
+    () => ({
+      ...DEFAULT_TENANT,
+      ...config,
+      brand: { ...DEFAULT_TENANT.brand, ...config?.brand },
+    }),
     [config],
   );
 
@@ -34,7 +42,7 @@ export function TenantProvider({ config, children }: TenantProviderProps) {
 
 // ─── Hook ────────────────────────────────────────────────────────────────────
 
-/** Returns the active tenant brand configuration. */
+/** Returns the active tenant configuration. */
 export function useTenant(): TenantConfig {
   return useContext(TenantContext);
 }

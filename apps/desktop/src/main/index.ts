@@ -1,6 +1,7 @@
 import path from 'path';
 import { config as loadDotenv } from 'dotenv';
-loadDotenv({ path: path.resolve(__dirname, '../../../../.env') });
+const projectRoot = path.resolve(__dirname, '../../../../');
+loadDotenv({ path: path.join(projectRoot, '.env') });
 
 import { app, BrowserWindow, shell } from 'electron';
 import { join } from 'path';
@@ -8,7 +9,17 @@ import { existsSync } from 'fs';
 import { registerIpcHandlers } from './ipc.js';
 import { initCore, shutdownCore, getLastWorkspacePath } from './state.js';
 import { loadModules } from './moduleLoader.js';
+import { resolveConfig } from './moduleRegistry.js';
 import { createCore } from '@aro/core';
+
+// Resolve tenant config (reads tenant.config.json + env var overrides).
+// Fails fast with structured error if invalid.
+try {
+  resolveConfig(projectRoot);
+} catch (err) {
+  console.error(err instanceof Error ? err.message : err);
+  process.exit(1);
+}
 
 let mainWindow: BrowserWindow | null = null;
 

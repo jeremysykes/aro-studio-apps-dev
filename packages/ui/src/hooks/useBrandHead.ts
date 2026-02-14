@@ -8,12 +8,12 @@ import type { TenantConfig } from '@aro/types';
 export function useBrandHead(config: TenantConfig): void {
   // ── Document title ────────────────────────────────────────────────────────
   useEffect(() => {
-    document.title = config.appName;
-  }, [config.appName]);
+    document.title = config.brand.appName;
+  }, [config.brand.appName]);
 
   // ── Favicon ───────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!config.faviconUrl) return;
+    if (!config.brand.faviconUrl) return;
 
     let link = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
     if (!link) {
@@ -21,6 +21,6 @@ export function useBrandHead(config: TenantConfig): void {
       link.rel = 'icon';
       document.head.appendChild(link);
     }
-    link.href = config.faviconUrl;
-  }, [config.faviconUrl]);
+    link.href = config.brand.faviconUrl;
+  }, [config.brand.faviconUrl]);
 }

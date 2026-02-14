@@ -15,7 +15,7 @@ interface DashboardLayoutProps {
  * module view with a back button.
  */
 export function DashboardLayout({ modules }: DashboardLayoutProps) {
-  const { appName } = useTenant();
+  const { brand: { appName } } = useTenant();
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
 
   const handleExpand = useCallback((key: string) => {

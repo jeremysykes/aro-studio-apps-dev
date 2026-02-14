@@ -1,4 +1,5 @@
 import type { AroCore } from '@aro/core';
+import { loadTenantConfig, type TenantConfig } from '@aro/config';
 
 export type ModuleInit = (core: AroCore) => string[];
 
@@ -14,33 +15,46 @@ import { init as inspectInit } from '@aro/module-inspect';
 register('hello-world', helloWorldInit);
 register('inspect', inspectInit);
 
+// ─── Config state ────────────────────────────────────────────────────────────
+
+let resolvedConfig: TenantConfig | null = null;
+
+/**
+ * Load and validate tenant config from config file + env vars.
+ * Must be called once at startup, after dotenv is loaded.
+ */
+export function resolveConfig(configDir: string): TenantConfig {
+  resolvedConfig = loadTenantConfig({ configDir });
+  return resolvedConfig;
+}
+
+export function getResolvedConfig(): TenantConfig {
+  if (!resolvedConfig) throw new Error('Config not resolved. Call resolveConfig() first.');
+  return resolvedConfig;
+}
+
+// ─── Derived accessors (backward compat) ─────────────────────────────────────
+
 import type { UIModel } from '@aro/types';
 export type { UIModel };
 
-const VALID_UI_MODELS: UIModel[] = ['standalone', 'sidebar', 'dashboard', 'tabs', 'carousel'];
-
 export function getUIModel(): UIModel {
-  const raw = process.env.ARO_UI_MODEL?.trim().toLowerCase();
-  if (raw && VALID_UI_MODELS.includes(raw as UIModel)) return raw as UIModel;
-  if (raw) console.warn('Invalid ARO_UI_MODEL:', raw, '- valid:', VALID_UI_MODELS.join(', '), '- falling back to standalone');
-  return 'standalone';
+  return getResolvedConfig().uiModel;
 }
 
 export function getEnabledModuleKeys(): string[] {
-  const raw = process.env.ARO_ENABLED_MODULES ?? '';
-  const keys = raw.split(',').map((k) => k.trim()).filter(Boolean);
-  if (keys.length === 0) {
-    console.warn('ARO_ENABLED_MODULES is empty — no modules will be loaded');
-    return [];
-  }
+  const config = getResolvedConfig();
   const registered = getRegisteredModuleKeys();
   const valid: string[] = [];
-  for (const key of keys) {
+  for (const key of config.enabledModules) {
     if (inits.has(key)) {
       valid.push(key);
     } else {
-      console.warn('ARO_ENABLED_MODULES: unknown module key:', key, '- valid:', registered.join(', '));
+      console.warn('enabledModules: unknown module key:', key, '- valid:', registered.join(', '));
     }
+  }
+  if (valid.length === 0) {
+    console.warn('No enabled modules found — no modules will be loaded');
   }
   return valid;
 }

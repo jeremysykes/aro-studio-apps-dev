@@ -7,11 +7,21 @@ import { createCore } from '@aro/core';
 import { createServer as createHttpServer } from 'http';
 import { initCore, shutdownCore } from './state.js';
 import { loadModules } from './moduleLoader.js';
+import { resolveConfig } from './moduleRegistry.js';
 import { createApiRouter, attachLogWebSocket } from './api.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, '../../../../');
 loadDotenv({ path: path.join(projectRoot, '.env') });
+
+// Resolve tenant config (reads tenant.config.json + env var overrides).
+// Fails fast with structured error if invalid.
+try {
+  resolveConfig(projectRoot);
+} catch (err) {
+  console.error(err instanceof Error ? err.message : err);
+  process.exit(1);
+}
 
 const workspaceRoot = process.env.ARO_WORKSPACE_ROOT || projectRoot;
 const core = initCore(workspaceRoot, createCore);

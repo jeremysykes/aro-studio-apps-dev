@@ -9,7 +9,7 @@ import {
   addLogSubscription,
   removeLogSubscription,
 } from './state.js';
-import { getUIModel, getEnabledModuleKeys } from './moduleRegistry.js';
+import { getUIModel, getEnabledModuleKeys, getResolvedConfig } from './moduleRegistry.js';
 
 const NO_WORKSPACE = 'No workspace selected';
 
@@ -25,6 +25,10 @@ export function createApiRouter(): Router {
   router.get('/workspace/current', (_req, res) => {
     const path = getCurrentWorkspacePath();
     res.json(path ? { path } : null);
+  });
+
+  router.get('/app/tenant-config', (_req, res) => {
+    res.json(getResolvedConfig());
   });
 
   router.get('/app/ui-model', (_req, res) => {

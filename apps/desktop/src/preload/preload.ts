@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('aro', {
+  getTenantConfig: () => ipcRenderer.invoke('app:getTenantConfig'),
   getUIModel: () => ipcRenderer.invoke('app:getUIModel'),
   getEnabledModules: () => ipcRenderer.invoke('app:getEnabledModules'),
   workspace: {

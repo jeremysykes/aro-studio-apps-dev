@@ -1,0 +1,73 @@
+/*
+ * Aro Design Token Defaults
+ * ──────────────────────────────────────────────────────────────
+ * CSS custom properties that define the visual identity of the
+ * application. Values match the Tailwind v4 zinc palette so
+ * existing components render identically.
+ *
+ * Tenants override these in their TenantConfig `theme` map:
+ *   { "--aro-background": "#1a1a2e", "--aro-foreground": "#eaeaea" }
+ *
+ * Component migration to consume var(--aro-*) is a separate effort
+ * tracked in WHITE_LABEL.md.
+ */
+
+:root {
+  /* ── Backgrounds ───────────────────────────────────────────── */
+  --aro-background: #ffffff;
+  --aro-background-muted: #fafafa;      /* zinc-50 */
+  --aro-background-subtle: #f4f4f5;     /* zinc-100 */
+
+  /* ── Surfaces ──────────────────────────────────────────────── */
+  --aro-surface: #ffffff;
+  --aro-surface-muted: #f4f4f5;         /* zinc-100 */
+  --aro-surface-raised: #e4e4e7;        /* zinc-200 */
+  --aro-surface-overlay: #18181b;       /* zinc-900 */
+
+  /* ── Foreground / text ─────────────────────────────────────── */
+  --aro-foreground: #09090b;            /* zinc-950 */
+  --aro-foreground-default: #18181b;    /* zinc-900 */
+  --aro-foreground-muted: #71717a;      /* zinc-500 */
+  --aro-foreground-subtle: #a1a1aa;     /* zinc-400 */
+  --aro-foreground-on-emphasis: #fafafa;/* zinc-50 */
+
+  /* ── Borders ───────────────────────────────────────────────── */
+  --aro-border-default: #e4e4e7;        /* zinc-200 */
+  --aro-border-muted: #f4f4f5;          /* zinc-100 */
+  --aro-border-emphasis: #27272a;       /* zinc-800 */
+
+  /* ── Focus rings ───────────────────────────────────────────── */
+  --aro-ring: #18181b;                  /* zinc-900 */
+  --aro-ring-muted: #a1a1aa;            /* zinc-400 */
+  --aro-ring-offset: #ffffff;
+
+  /* ── Primary action (default buttons) ──────────────────────── */
+  --aro-primary: #18181b;               /* zinc-900 */
+  --aro-primary-hover: #27272a;         /* zinc-800 */
+  --aro-primary-foreground: #fafafa;    /* zinc-50 */
+
+  /* ── Secondary action ──────────────────────────────────────── */
+  --aro-secondary: #f4f4f5;             /* zinc-100 */
+  --aro-secondary-hover: #e4e4e7;       /* zinc-200 */
+  --aro-secondary-foreground: #18181b;  /* zinc-900 */
+
+  /* ── Destructive / error ───────────────────────────────────── */
+  --aro-destructive: #dc2626;           /* red-600 */
+  --aro-destructive-hover: #b91c1c;     /* red-700 */
+  --aro-destructive-foreground: #ffffff;
+  --aro-destructive-muted: #fef2f2;     /* red-50 */
+  --aro-destructive-muted-foreground: #991b1b; /* red-800 */
+  --aro-destructive-border: #fecaca;    /* red-200 */
+
+  /* ── Interactive states ────────────────────────────────────── */
+  --aro-hover: #f4f4f5;                 /* zinc-100 — ghost/link hover bg */
+  --aro-active: #e4e4e7;                /* zinc-200 */
+
+  /* ── Sidebar / shell ───────────────────────────────────────── */
+  --aro-sidebar-background: #18181b;    /* zinc-900 */
+  --aro-sidebar-foreground: #fafafa;    /* zinc-50 */
+  --aro-sidebar-muted: #a1a1aa;         /* zinc-400 */
+  --aro-sidebar-hover: #27272a;         /* zinc-800 */
+  --aro-sidebar-active: #3f3f46;        /* zinc-700 */
+  --aro-sidebar-border: #27272a;        /* zinc-800 */
+}

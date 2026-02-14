@@ -9,7 +9,7 @@ import {
   removeLogSubscription,
 } from './state.js';
 import { loadModules } from './moduleLoader.js';
-import { getUIModel, getEnabledModuleKeys } from './moduleRegistry.js';
+import { getUIModel, getEnabledModuleKeys, getResolvedConfig } from './moduleRegistry.js';
 
 const NO_WORKSPACE = 'No workspace selected';
 
@@ -42,6 +42,10 @@ export function registerIpcHandlers(getMainWindow: () => BrowserWindow | null): 
   ipcMain.handle('workspace:getCurrent', async () => {
     const path = getCurrentWorkspacePath();
     return path ? { path } : null;
+  });
+
+  ipcMain.handle('app:getTenantConfig', async () => {
+    return getResolvedConfig();
   });
 
   ipcMain.handle('app:getUIModel', async () => {

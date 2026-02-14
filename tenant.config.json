@@ -1,0 +1,7 @@
+{
+  "uiModel": "standalone",
+  "enabledModules": ["inspect"],
+  "brand": {
+    "appName": "Aro Studio"
+  }
+}

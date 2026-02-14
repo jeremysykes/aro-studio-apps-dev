@@ -1,4 +1,4 @@
-import type { Run, LogEntry, Artifact } from '@aro/types';
+import type { Run, LogEntry, Artifact, TenantConfig } from '@aro/types';
 
 const API_BASE = '';
 
@@ -19,6 +19,7 @@ function getWsUrl(path: string): string {
 
 export function createAroApiClient() {
   return {
+    getTenantConfig: () => fetchJson<TenantConfig>('/api/app/tenant-config'),
     getUIModel: () =>
       fetchJson<{ model: 'standalone' | 'sidebar' | 'dashboard' | 'tabs' | 'carousel' }>('/api/app/ui-model').then(
         (r) => r.model,

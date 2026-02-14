@@ -1,5 +1,5 @@
 import type { AroCore, LogEntry } from '../types.js';
-import type { AroPreloadAPI, UIModel } from '@aro/types';
+import type { AroPreloadAPI, TenantConfig, UIModel } from '@aro/types';
 
 export interface CoreAdapterOptions {
   uiModel: UIModel;
@@ -27,6 +27,13 @@ export function createCoreAdapter(
   };
 
   return {
+    getTenantConfig: () => Promise.resolve<TenantConfig>({
+      uiModel: opts.uiModel,
+      enabledModules: opts.enabledModules,
+      brand: { appName: 'Aro Studio' },
+      theme: {},
+      features: {},
+    }),
     getUIModel: () => Promise.resolve(opts.uiModel),
     getEnabledModules: () =>
       Promise.resolve(
