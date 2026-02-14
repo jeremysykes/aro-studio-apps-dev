@@ -1,7 +1,15 @@
-import { Router } from 'express';
+import { Router, type Request, type Response, type NextFunction } from 'express';
 import { WebSocketServer } from 'ws';
 import type { WebSocket } from 'ws';
 import type { Server as HttpServer } from 'http';
+import type { ZodType } from 'zod';
+import {
+  JobRunPayload,
+  JobCancelPayload,
+  RunIdParam,
+  ArtifactReadParams,
+  LogSubscribeQuery,
+} from '@aro/types';
 import {
   getCore,
   getCurrentWorkspacePath,
@@ -17,6 +25,29 @@ function requireCore() {
   const c = getCore();
   if (!c) throw new Error(NO_WORKSPACE);
   return c;
+}
+
+/** Express middleware: validate req.body with a Zod schema, respond 400 on failure. */
+function validateBody<T>(schema: ZodType<T>) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.body);
+    if (!result.success) {
+      res.status(400).json({ error: 'Validation failed', issues: result.error.errors });
+      return;
+    }
+    req.body = result.data;
+    next();
+  };
+}
+
+/** Validate a route param; returns 400 on failure. */
+function parseParam(res: Response, schema: ZodType<string>, value: string): string | null {
+  const result = schema.safeParse(value);
+  if (!result.success) {
+    res.status(400).json({ error: 'Validation failed', issues: result.error.errors });
+    return null;
+  }
+  return result.data;
 }
 
 export function createApiRouter(): Router {
@@ -46,15 +77,15 @@ export function createApiRouter(): Router {
     res.json(getRegisteredJobKeys());
   });
 
-  router.post('/job/run', (req, res) => {
-    const { jobKey, input, traceId } = req.body as { jobKey: string; input?: unknown; traceId?: string };
+  router.post('/job/run', validateBody(JobRunPayload), (req, res) => {
+    const { jobKey, input, traceId } = req.body as JobRunPayload;
     const c = requireCore();
     const { runId } = c.jobs.run(jobKey, input, traceId ? { traceId } : undefined);
     res.json({ runId });
   });
 
-  router.post('/job/cancel', (req, res) => {
-    const { runId } = req.body as { runId: string };
+  router.post('/job/cancel', validateBody(JobCancelPayload), (req, res) => {
+    const { runId } = req.body as JobCancelPayload;
     requireCore().jobs.cancel(runId);
     res.status(204).send();
   });
@@ -65,7 +96,9 @@ export function createApiRouter(): Router {
   });
 
   router.get('/runs/:runId', (req, res) => {
-    const run = requireCore().runs.getRun(req.params.runId);
+    const runId = parseParam(res, RunIdParam, req.params.runId);
+    if (!runId) return;
+    const run = requireCore().runs.getRun(runId);
     if (!run) {
       res.status(404).json(null);
       return;
@@ -74,18 +107,29 @@ export function createApiRouter(): Router {
   });
 
   router.get('/logs/:runId', (req, res) => {
-    const logs = requireCore().logs.listLogs(req.params.runId);
+    const runId = parseParam(res, RunIdParam, req.params.runId);
+    if (!runId) return;
+    const logs = requireCore().logs.listLogs(runId);
     res.json(logs);
   });
 
   router.get('/artifacts/:runId', (req, res) => {
+    const runId = parseParam(res, RunIdParam, req.params.runId);
+    if (!runId) return;
+
     const pathParam = req.query.path;
     if (typeof pathParam === 'string') {
-      const content = requireCore().workspace.readText(`.aro/artifacts/${req.params.runId}/${pathParam}`);
+      // Validate path to prevent directory traversal
+      const params = ArtifactReadParams.safeParse({ runId, path: pathParam });
+      if (!params.success) {
+        res.status(400).json({ error: 'Validation failed', issues: params.error.errors });
+        return;
+      }
+      const content = requireCore().workspace.readText(`.aro/artifacts/${params.data.runId}/${params.data.path}`);
       res.type('text/plain').send(content);
       return;
     }
-    const artifacts = requireCore().artifacts.listArtifacts(req.params.runId);
+    const artifacts = requireCore().artifacts.listArtifacts(runId);
     res.json(artifacts);
   });
 
@@ -107,11 +151,15 @@ export function attachLogWebSocket(server: HttpServer): void {
   });
 
   wss.on('connection', (ws: WebSocket, _request: Request, params: URLSearchParams) => {
-    const runId = params.get('runId');
-    if (!runId) {
-      ws.close(4000, 'runId required');
+    // Validate runId query parameter
+    const rawRunId = params.get('runId');
+    const parsed = LogSubscribeQuery.safeParse({ runId: rawRunId ?? '' });
+    if (!parsed.success) {
+      ws.close(4000, 'Invalid runId');
       return;
     }
+    const { runId } = parsed.data;
+
     const c = getCore();
     if (!c) {
       ws.close(4001, 'No workspace');
@@ -131,7 +179,7 @@ export function attachLogWebSocket(server: HttpServer): void {
           removeLogSubscription(subscriptionId);
         }
       } catch {
-        // ignore
+        // ignore malformed messages
       }
     });
     ws.on('close', () => {

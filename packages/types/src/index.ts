@@ -189,3 +189,14 @@ export interface AroPreloadAPI {
     read(runId: string, path: string): Promise<string>;
   };
 }
+
+// ─── API payload schemas ────────────────────────────────────────────────────
+
+export {
+  RunIdParam,
+  SafeRelativePath,
+  JobRunPayload,
+  JobCancelPayload,
+  ArtifactReadParams,
+  LogSubscribeQuery,
+} from './api-schemas.js';

@@ -87,6 +87,8 @@ Detail: [diagrams/application-flow.md](diagrams/application-flow.md) | [diagrams
 - **Desktop MVP:** Complete — workspace selection, jobs, runs, logs, artifacts, IPC, module loading. See [docs/desktop/DESKTOP_MVP_CHECKLIST.md](docs/desktop/DESKTOP_MVP_CHECKLIST.md).
 - **Module MVP:** hello-world and inspect modules — job registration, UI, logs and artifacts; no module-to-module imports or direct DB/filesystem access. See [docs/modules/MODULE_MVP_CHECKLIST.md](docs/modules/MODULE_MVP_CHECKLIST.md). Inspect: design-system diagnostic (tokens, components, health report); see [docs/modules/inspect/Design-spec.md](docs/modules/inspect/Design-spec.md).
 - **Web MVP:** Complete — browser UI + Node API; workspace from env, jobs, runs, logs, artifacts, WebSocket; same Core and modules as Desktop. See [docs/web/WEB_MVP_CHECKLIST.md](docs/web/WEB_MVP_CHECKLIST.md).
+- **Tenant configuration:** Structured config system (`@aro/config`) with Zod validation, optional `tenant.config.json`, and `.env` overrides. Covers UI model, enabled modules, brand identity, theme tokens, and feature flags. See [docs/architecture/TENANT_CONFIGURATION.md](docs/architecture/TENANT_CONFIGURATION.md).
+- **CI & quality gates:** GitHub Actions CI (lint, build, test on every PR). Pre-commit hook via husky + lint-staged runs ESLint on staged files. IPC/API payloads validated with Zod schemas at the boundary.
 - **Stack:** Core (Node, SQLite, Zod); Desktop (Electron, React, TypeScript, shadcn + Tailwind); Modules (React; use `@aro/ui/components` for the shared design system).
 
 ## Run / build
@@ -97,9 +99,11 @@ Detail: [diagrams/application-flow.md](diagrams/application-flow.md) | [diagrams
 |--------|---------|--------------|
 | `build` | `pnpm build` | Build all packages (Core, Desktop, Web). Run before production. |
 | `test` | `pnpm test` | Run Core tests. |
+| `lint` | `pnpm lint` | Run ESLint across the entire monorepo. Enforces architectural boundary rules. |
 | `desktop` | `pnpm desktop` | Launch the **Desktop** (Electron) app with workspace picker, jobs, logs, artifacts. |
 | `start` | `pnpm start` | Same as `desktop` — launches the Desktop app. |
 | `web` | `pnpm web` | Start the **Web** app. Runs a dev orchestrator: cleans up its own prior run if any, starts API (3001), waits for readiness, then starts Vite (port 5173). Open http://localhost:5173 in the browser. |
+| `prepare` | `pnpm prepare` | Runs automatically after `pnpm install`. Initializes husky git hooks so the pre-commit hook (lint-staged) is wired into `.git/hooks/`. |
 
 **Before first run:** `pnpm install` to install dependencies.
 
@@ -115,9 +119,10 @@ pnpm web       # Launch Web app — API on 3001, Vite on 5173 (open http://local
 
 If `pnpm web` fails with `EADDRINUSE: port 3001`, an unrelated process owns the port. The orchestrator only cleans up its own prior runs; stop the other process or use a different port.
 
-**Configure modules:** Set `ARO_UI_MODEL` and `ARO_ENABLED_MODULES` in a `.env` file at the project root. The Desktop app loads `.env` at startup. Valid module IDs: **`hello-world`** and **`inspect`**.
+**Configure modules:** Set `ARO_UI_MODEL` and `ARO_ENABLED_MODULES` in a `.env` file at the project root. Both Desktop and Web load `.env` at startup. Valid module IDs: **`hello-world`** and **`inspect`**.
 
 - **`.env` for development:** Set `ARO_UI_MODEL=standalone` and `ARO_ENABLED_MODULES=inspect`, then restart the app. No rebuild needed. Shell/inline env vars override `.env` if both are set.
+- **`tenant.config.json` (optional):** A structured JSON config file at the project root. Env vars in `.env` always override it. See [docs/architecture/TENANT_CONFIGURATION.md](docs/architecture/TENANT_CONFIGURATION.md) for the full config system (brand, theme tokens, feature flags).
 - **Env example file:** Copy `.env.example` to `.env` and edit as needed: `cp .env.example .env`
 
 See [docs/desktop/ACTIVE_MODULE_SWITCH.md](docs/desktop/ACTIVE_MODULE_SWITCH.md) for full details.
@@ -288,7 +293,7 @@ flowchart LR
 | Complexity | Low | Medium | High | Low | Low |
 | Config | `standalone` | `sidebar` | `dashboard` | `tabs` | `carousel` |
 
-Core and the module contract remain the same across all models. Only the Desktop shell changes.
+Core and the module contract remain the same across all models. Both Desktop and Web support all five — only the shell layout changes.
 
 Full detail: [docs/modules/MODULE_MODELS.md](docs/modules/MODULE_MODELS.md) | [docs/modules/MODULE_TRANSITION.md](docs/modules/MODULE_TRANSITION.md) | [diagrams/module-models.md](diagrams/module-models.md)
 
@@ -305,6 +310,8 @@ Agent roles and execution order: [AGENTS.md](AGENTS.md).
 Documentation lives in this repo:
 
 - **Architecture and API:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/core/CORE_PUBLIC_API.md](docs/core/CORE_PUBLIC_API.md). See [docs/README.md](docs/README.md) for the full index by layer (core/, desktop/, web/, modules/, meta/).
+- **Tenant configuration:** [docs/architecture/TENANT_CONFIGURATION.md](docs/architecture/TENANT_CONFIGURATION.md) — config resolution, schema reference, brand, theme, feature flags.
+- **White-label architecture:** [docs/architecture/WHITE_LABEL.md](docs/architecture/WHITE_LABEL.md) — design principles and roadmap for the white-label system.
 - **Checklists:** [docs/desktop/DESKTOP_MVP_CHECKLIST.md](docs/desktop/DESKTOP_MVP_CHECKLIST.md), [docs/modules/MODULE_MVP_CHECKLIST.md](docs/modules/MODULE_MVP_CHECKLIST.md).
 - **UI/UX and a11y:** [docs/meta/UI_UX_ACCESSIBILITY.md](docs/meta/UI_UX_ACCESSIBILITY.md).
 - **Agent roles and execution order:** [AGENTS.md](AGENTS.md).

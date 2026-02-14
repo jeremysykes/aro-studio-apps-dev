@@ -7,7 +7,11 @@
     "test": "pnpm -r test",
     "desktop": "pnpm --filter @aro/desktop start",
     "start": "pnpm --filter @aro/desktop start",
-    "web": "tsx dev/dev-web.ts"
+    "web": "tsx dev/dev-web.ts",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": ["eslint --fix"]
   },
   "pnpm": {
     "onlyBuiltDependencies": [
@@ -18,6 +22,8 @@
   "devDependencies": {
     "@eslint/js": "^9.39.2",
     "eslint": "^9.39.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
     "tsx": "^4.21.0",
     "typescript-eslint": "^8.55.0"
   }
