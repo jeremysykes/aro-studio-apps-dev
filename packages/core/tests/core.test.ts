@@ -154,7 +154,7 @@ describe('Core MVP', () => {
     it('can write an artifact to .aro/artifacts/<runId>/...', () => {
       const core = createCore({ workspaceRoot });
       const { runId } = core.runs.startRun();
-      core.artifacts.writeArtifact({ runId, path: 'out.json', content: '{"x":1}' });
+      core.artifacts.writeArtifact({ runId, path: 'out.json', content: '{"x":1}', jobKey: 'test', inputHash: 'abc123' });
       const p = join(workspaceRoot, '.aro', 'artifacts', runId, 'out.json');
       expect(existsSync(p)).toBe(true);
       expect(readFileSync(p, 'utf-8')).toBe('{"x":1}');
@@ -164,7 +164,7 @@ describe('Core MVP', () => {
     it('artifacts are indexed in SQLite', () => {
       const core = createCore({ workspaceRoot });
       const { runId } = core.runs.startRun();
-      core.artifacts.writeArtifact({ runId, path: 'a.txt', content: 'a' });
+      core.artifacts.writeArtifact({ runId, path: 'a.txt', content: 'a', jobKey: 'test', inputHash: 'abc123' });
       const list = core.artifacts.listArtifacts(runId);
       expect(list.length).toBe(1);
       expect(list[0].path).toBe('a.txt');
@@ -174,8 +174,8 @@ describe('Core MVP', () => {
     it('can list artifacts for a run', () => {
       const core = createCore({ workspaceRoot });
       const { runId } = core.runs.startRun();
-      core.artifacts.writeArtifact({ runId, path: 'x', content: 'x' });
-      core.artifacts.writeArtifact({ runId, path: 'y', content: 'y' });
+      core.artifacts.writeArtifact({ runId, path: 'x', content: 'x', jobKey: 'test', inputHash: 'abc123' });
+      core.artifacts.writeArtifact({ runId, path: 'y', content: 'y', jobKey: 'test', inputHash: 'abc123' });
       const list = core.artifacts.listArtifacts(runId);
       expect(list.length).toBe(2);
       core.shutdown();
