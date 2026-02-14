@@ -20,6 +20,8 @@ export interface Artifact {
   id: string;
   runId: string;
   path: string;
+  jobKey: string;
+  inputHash: string;
   createdAt: number;
 }
 

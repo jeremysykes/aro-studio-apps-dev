@@ -4,6 +4,7 @@ import type { LogsService } from './logs.js';
 import type { ArtifactsService } from './artifacts.js';
 import type { WorkspaceService } from './workspace.js';
 import { createJobContext } from '../execution/JobContext.js';
+import { stableInputHash } from '../kernel/hash.js';
 
 export function createJobsService(
   runs: RunsService,
@@ -32,8 +33,15 @@ export function createJobsService(
         logs.appendLog({ runId, level, message });
       };
 
+      const inputHash = stableInputHash(input);
       const artifactWriter = (params: { path: string; content: string }) => {
-        return artifacts.writeArtifact({ runId, path: params.path, content: params.content });
+        return artifacts.writeArtifact({
+          runId,
+          path: params.path,
+          content: params.content,
+          jobKey,
+          inputHash,
+        });
       };
 
       const ctx = createJobContext(

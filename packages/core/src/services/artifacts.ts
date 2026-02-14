@@ -10,6 +10,8 @@ function rowToArtifact(r: stmt.ArtifactRow): Artifact {
     id: r.id,
     runId: r.run_id,
     path: r.path,
+    jobKey: r.job_key,
+    inputHash: r.input_hash,
     createdAt: r.created_at,
   };
 }
@@ -18,6 +20,8 @@ export interface WriteArtifactParams {
   runId: string;
   path: string;
   content: string;
+  jobKey: string;
+  inputHash: string;
 }
 
 export function createArtifactsService(db: Db, workspaceRoot: string) {
@@ -34,9 +38,18 @@ export function createArtifactsService(db: Db, workspaceRoot: string) {
         id,
         run_id: params.runId,
         path: params.path,
+        job_key: params.jobKey,
+        input_hash: params.inputHash,
         created_at: createdAt,
       });
-      return { id, runId: params.runId, path: params.path, createdAt };
+      return {
+        id,
+        runId: params.runId,
+        path: params.path,
+        jobKey: params.jobKey,
+        inputHash: params.inputHash,
+        createdAt,
+      };
     },
 
     listArtifacts(runId: string): Artifact[] {

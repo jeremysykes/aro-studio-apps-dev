@@ -65,17 +65,19 @@ export interface ArtifactRow {
   id: string;
   run_id: string;
   path: string;
+  job_key: string;
+  input_hash: string;
   created_at: number;
 }
 
 export function artifactInsert(
   db: Db,
-  row: { id: string; run_id: string; path: string; created_at: number }
+  row: { id: string; run_id: string; path: string; job_key: string; input_hash: string; created_at: number }
 ): void {
   const stmt = db.prepare(
-    `INSERT INTO artifacts (id, run_id, path, created_at) VALUES (?, ?, ?, ?)`
+    `INSERT INTO artifacts (id, run_id, path, job_key, input_hash, created_at) VALUES (?, ?, ?, ?, ?, ?)`
   );
-  stmt.run(row.id, row.run_id, row.path, row.created_at);
+  stmt.run(row.id, row.run_id, row.path, row.job_key, row.input_hash, row.created_at);
 }
 
 export function artifactListByRunId(db: Db, runId: string): ArtifactRow[] {
