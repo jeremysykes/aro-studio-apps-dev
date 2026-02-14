@@ -131,6 +131,22 @@ export interface AroCore {
 
 export type UIModel = 'standalone' | 'sidebar' | 'dashboard' | 'tabs' | 'carousel';
 
+// ─── Tenant / brand configuration ───────────────────────────────────────────
+
+export interface TenantConfig {
+  /** Application name displayed in title bar, headers, and meta tags. */
+  appName: string;
+  /** URL or data-URI for the brand logo. Used in sidebar headers and splash. */
+  logoUrl?: string;
+  /** URL or data-URI for the browser/app favicon. */
+  faviconUrl?: string;
+  /**
+   * Key of a React component registered for the splash/loading screen.
+   * When set, the shell renders this instead of the default "Loading…" text.
+   */
+  splashComponent?: string;
+}
+
 // ─── Preload API (window.aro contract) ───────────────────────────────────────
 
 export interface AroPreloadAPI {

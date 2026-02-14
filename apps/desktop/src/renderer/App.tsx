@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import type { UIModel } from '@aro/types';
+import { TenantProvider, useTenant, useBrandHead } from '@aro/ui/hooks';
 import { moduleRegistry, type ModuleRegistryEntry } from './moduleRegistry';
 import { ShellLayout } from './ShellLayout';
 import { DashboardLayout, TabsLayout, CarouselLayout, ModuleErrorBoundary } from '@aro/ui/shell';
 
-function App() {
+function AppShell() {
+  const tenant = useTenant();
+  useBrandHead(tenant);
+
   const [uiModel, setUIModel] = useState<UIModel | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [enabledModules, setEnabledModules] = useState<ModuleRegistryEntry[]>([]);
@@ -95,6 +99,14 @@ function App() {
         </ModuleErrorBoundary>
       ) : null}
     </ShellLayout>
+  );
+}
+
+function App() {
+  return (
+    <TenantProvider>
+      <AppShell />
+    </TenantProvider>
   );
 }
 

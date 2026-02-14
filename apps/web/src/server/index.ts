@@ -27,7 +27,7 @@ if (process.env.NODE_ENV !== 'production') {
     res.status(200).type('html').send(`
 <!DOCTYPE html>
 <html>
-<head><title>Aro Studio API</title></head>
+<head><title>API Server</title></head>
 <body>
   <p>This is the API server. Open <a href="http://localhost:5173">http://localhost:5173</a> for the web app.</p>
   <p>Vite proxies <code>/api</code> and <code>/ws</code> to this server.</p>

@@ -127,6 +127,6 @@ Every architectural decision must be documented. This file and the files it refe
 ## What Needs Work (Roadmap)
 
 1. **Design token system** — define CSS custom property contract, create Tailwind theme resolver
-2. **Brand config files** — per-brand JSON/YAML with logo, palette, typography, app name
+2. ~~**Brand config files**~~ — **Done.** `TenantConfig` provides `appName`, `logoUrl`, `faviconUrl`, and `splashComponent`. See [TENANT_CONFIGURATION.md](TENANT_CONFIGURATION.md) for setup and usage.
 3. **Migrate shadcn components** — replace hardcoded colors with token references
 4. **Theme preview tool** — live theme switching for development and demos

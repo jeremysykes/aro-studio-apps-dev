@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Button } from '../components/ui/button';
+import { useTenant } from '../hooks/useTenant';
 import { ModuleErrorBoundary } from './ModuleErrorBoundary';
 import { WidgetCard } from './WidgetCard';
 import type { ModuleRegistryEntry } from './Sidebar';
@@ -14,6 +15,7 @@ interface DashboardLayoutProps {
  * module view with a back button.
  */
 export function DashboardLayout({ modules }: DashboardLayoutProps) {
+  const { appName } = useTenant();
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
 
   const handleExpand = useCallback((key: string) => {
@@ -35,7 +37,7 @@ export function DashboardLayout({ modules }: DashboardLayoutProps) {
       <div className="flex flex-col h-full overflow-hidden">
         <header className="flex items-center gap-3 h-14 px-6 border-b border-zinc-200 bg-white shrink-0">
           <Button variant="ghost" size="xs" onClick={handleCollapse}>
-            &larr; Dashboard
+            &larr; {appName}
           </Button>
           <span className="text-lg font-semibold">{expandedModule.label}</span>
         </header>
@@ -52,7 +54,7 @@ export function DashboardLayout({ modules }: DashboardLayoutProps) {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <header className="flex items-center h-14 px-6 border-b border-zinc-200 shrink-0">
-        <h1 className="text-lg font-semibold">Dashboard</h1>
+        <h1 className="text-lg font-semibold">{appName}</h1>
       </header>
       <main className="flex-1 p-6 overflow-auto">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[minmax(200px,auto)]">
