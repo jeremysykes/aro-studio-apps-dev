@@ -34,7 +34,7 @@ export function runGet(db: Db, runId: string): RunRow | undefined {
 }
 
 export function runList(db: Db, _filter?: unknown): RunRow[] {
-  const stmt = db.prepare(`SELECT * FROM runs ORDER BY started_at DESC`);
+  const stmt = db.prepare(`SELECT * FROM runs ORDER BY started_at DESC, rowid DESC`);
   return stmt.all() as RunRow[];
 }
 
