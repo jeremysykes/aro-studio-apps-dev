@@ -18,7 +18,7 @@ function rgbaToHex(r: number, g: number, b: number, a?: number): string {
   return `#${rr}${gg}${bb}`;
 }
 
-function resolveFigmaValue(val: unknown, resolvedType: string): string {
+function resolveFigmaValue(val: unknown, _resolvedType: string): string {
   if (typeof val === 'string') return val;
   if (typeof val === 'number') return String(val);
   if (typeof val === 'boolean') return String(val);

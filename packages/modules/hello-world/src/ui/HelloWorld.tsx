@@ -1,4 +1,3 @@
-/// <reference path="./window.d.ts" />
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Run, LogEntry, Artifact } from '@aro/types';
 import { Button } from '@aro/ui/components';

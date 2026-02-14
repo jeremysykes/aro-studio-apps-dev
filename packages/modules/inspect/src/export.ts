@@ -2,7 +2,7 @@
  * inspect:export — read report artifact for a run, export as CSV, markdown, or PDF.
  */
 import type { JobContext } from '@aro/core';
-import type { ExportInput, InspectReport } from './types.js';
+import type { InspectReport } from './types.js';
 import { ExportInputSchema } from './schemas.js';
 import PDFDocument from 'pdfkit';
 

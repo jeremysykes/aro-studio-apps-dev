@@ -27,7 +27,7 @@ export function createAroApiClient() {
     workspace: {
       select: () => Promise.resolve(null as { path: string } | null),
       getCurrent: () => fetchJson<{ path: string } | null>('/api/workspace/current'),
-      onChanged: (callback: (data: { path: string } | null) => void) => {
+      onChanged: (_callback: (data: { path: string } | null) => void) => {
         return () => {};
       },
     },
