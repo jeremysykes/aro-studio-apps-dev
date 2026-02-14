@@ -13,7 +13,7 @@ contextBridge.exposeInMainWorld('aro', {
     },
   },
   job: {
-    run: (jobKey: string, input?: unknown) => ipcRenderer.invoke('job:run', jobKey, input),
+    run: (jobKey: string, input?: unknown, opts?: { traceId?: string }) => ipcRenderer.invoke('job:run', jobKey, input, opts),
     cancel: (runId: string) => ipcRenderer.invoke('job:cancel', runId),
     listRegistered: () => ipcRenderer.invoke('job:listRegistered'),
   },

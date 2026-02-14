@@ -43,9 +43,9 @@ export function createApiRouter(): Router {
   });
 
   router.post('/job/run', (req, res) => {
-    const { jobKey, input } = req.body as { jobKey: string; input?: unknown };
+    const { jobKey, input, traceId } = req.body as { jobKey: string; input?: unknown; traceId?: string };
     const c = requireCore();
-    const { runId } = c.jobs.run(jobKey, input);
+    const { runId } = c.jobs.run(jobKey, input, traceId ? { traceId } : undefined);
     res.json({ runId });
   });
 

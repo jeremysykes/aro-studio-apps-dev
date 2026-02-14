@@ -5,6 +5,7 @@ import type { ArtifactsService } from './artifacts.js';
 import type { WorkspaceService } from './workspace.js';
 import { createJobContext } from '../execution/JobContext.js';
 import { stableInputHash } from '../kernel/hash.js';
+import { createId } from '../kernel/ids.js';
 
 export function createJobsService(
   runs: RunsService,
@@ -21,22 +22,24 @@ export function createJobsService(
       registry.set(jobDef.key, jobDef);
     },
 
-    run(jobKey: string, input: unknown): { runId: string } {
+    run(jobKey: string, input: unknown, opts?: { traceId?: string }): { runId: string } {
       const jobDef = registry.get(jobKey);
       if (!jobDef) throw new Error(`Job not found: ${jobKey}`);
 
-      const { runId } = runs.startRun();
+      const traceId = opts?.traceId ?? createId();
+      const { runId } = runs.startRun({ traceId });
       const ac = new AbortController();
       abortControllers.set(runId, ac);
 
       const logger: (level: string, message: string) => void = (level, message) => {
-        logs.appendLog({ runId, level, message });
+        logs.appendLog({ runId, traceId, level, message });
       };
 
       const inputHash = stableInputHash(input);
       const artifactWriter = (params: { path: string; content: string }) => {
         return artifacts.writeArtifact({
           runId,
+          traceId,
           path: params.path,
           content: params.content,
           jobKey,

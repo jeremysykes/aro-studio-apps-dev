@@ -104,7 +104,8 @@ export const useInspectStore = create<InspectState>((set, get) => ({
 		set({ error: null });
 		try {
 			const input = buildScanInput(config);
-			const { runId } = await window.aro.job.run(JOB_SCAN, input);
+			const traceId = crypto.randomUUID();
+			const { runId } = await window.aro.job.run(JOB_SCAN, input, { traceId });
 			set({ runningRunId: runId, selectedRunId: runId, view: 'run', reportTab: 'health' });
 			_loadRuns();
 		} catch (e) {
@@ -136,10 +137,11 @@ export const useInspectStore = create<InspectState>((set, get) => ({
 				set({ error: 'Report not available for this run. Cannot export.' });
 				return;
 			}
+			const exportTraceId = crypto.randomUUID();
 			const { runId } = await window.aro.job.run(JOB_EXPORT, {
 				runId: selectedRunId,
 				format,
-			});
+			}, { traceId: exportTraceId });
 			let run = await window.aro.runs.get(runId);
 			while (run?.status === 'running') {
 				await new Promise((r) => setTimeout(r, 100));

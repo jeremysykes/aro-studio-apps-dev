@@ -42,8 +42,8 @@ export function createCoreAdapter(
     },
 
     job: {
-      run: (jobKey: string, input?: unknown) => {
-        const { runId } = core.jobs.run(jobKey, input ?? undefined);
+      run: (jobKey: string, input?: unknown, opts?: { traceId?: string }) => {
+        const { runId } = core.jobs.run(jobKey, input ?? undefined, opts);
         return Promise.resolve({ runId });
       },
       cancel: (runId: string) => {

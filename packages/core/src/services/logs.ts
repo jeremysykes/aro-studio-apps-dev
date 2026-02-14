@@ -8,6 +8,7 @@ function rowToLog(r: stmt.LogRow): LogEntry {
   return {
     id: r.id,
     runId: r.run_id,
+    traceId: r.trace_id,
     level: r.level,
     message: r.message,
     createdAt: r.created_at,
@@ -16,6 +17,7 @@ function rowToLog(r: stmt.LogRow): LogEntry {
 
 export interface AppendLogEntry {
   runId: string;
+  traceId: string;
   level: string;
   message: string;
 }
@@ -41,6 +43,7 @@ export function createLogsService(db: Db) {
       stmt.logInsert(db, {
         id,
         run_id: entry.runId,
+        trace_id: entry.traceId,
         level: entry.level,
         message: entry.message,
         created_at: createdAt,
@@ -48,6 +51,7 @@ export function createLogsService(db: Db) {
       const logEntry: LogEntry = {
         id,
         runId: entry.runId,
+        traceId: entry.traceId,
         level: entry.level,
         message: entry.message,
         createdAt,

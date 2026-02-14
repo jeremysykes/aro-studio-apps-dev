@@ -32,10 +32,10 @@ export function createAroApiClient() {
       },
     },
     job: {
-      run: (jobKey: string, input?: unknown) =>
+      run: (jobKey: string, input?: unknown, opts?: { traceId?: string }) =>
         fetchJson<{ runId: string }>('/api/job/run', {
           method: 'POST',
-          body: JSON.stringify({ jobKey, input }),
+          body: JSON.stringify({ jobKey, input, traceId: opts?.traceId }),
         }).then((r) => r),
       cancel: (runId: string) =>
         fetch('/api/job/cancel', {

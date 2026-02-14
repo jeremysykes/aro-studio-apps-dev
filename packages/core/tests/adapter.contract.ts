@@ -185,6 +185,8 @@ export function runContractSuite(factory: ContractFactory): void {
         expect(artifact).toBeDefined();
         expect(typeof artifact.id).toBe('string');
         expect(artifact.runId).toBe(runId);
+        expect(typeof artifact.traceId).toBe('string');
+        expect(artifact.traceId.length).toBeGreaterThan(0);
         expect(artifact.path).toBe('out.json');
         expect(artifact.jobKey).toBe('test-job');
         expect(typeof artifact.inputHash).toBe('string');
@@ -219,6 +221,52 @@ export function runContractSuite(factory: ContractFactory): void {
         const [a1] = await api.artifacts.list(r1);
         const [a2] = await api.artifacts.list(r2);
         expect(a1.inputHash).not.toBe(a2.inputHash);
+      });
+    });
+
+    // ── Trace ID ──────────────────────────────────────────────────────────
+
+    describe('Trace ID', () => {
+      it('run, logs, and artifacts share the same traceId', async () => {
+        const { runId } = await api.job.run('test-job', { data: 'trace-test' });
+        await sleep(30);
+        const run = await api.runs.get(runId);
+        expect(run).not.toBeNull();
+        expect(typeof run!.traceId).toBe('string');
+        expect(run!.traceId.length).toBeGreaterThan(0);
+
+        const logs = await api.logs.list(runId);
+        expect(logs.length).toBeGreaterThan(0);
+        for (const log of logs) {
+          expect(log.traceId).toBe(run!.traceId);
+        }
+
+        const artifacts = await api.artifacts.list(runId);
+        expect(artifacts.length).toBe(1);
+        expect(artifacts[0].traceId).toBe(run!.traceId);
+      });
+
+      it('UI-supplied traceId is used when provided', async () => {
+        const myTraceId = 'ui-trace-' + Date.now();
+        const { runId } = await api.job.run('test-job', { data: 'custom-trace' }, { traceId: myTraceId });
+        await sleep(30);
+        const run = await api.runs.get(runId);
+        expect(run!.traceId).toBe(myTraceId);
+
+        const logs = await api.logs.list(runId);
+        for (const log of logs) {
+          expect(log.traceId).toBe(myTraceId);
+        }
+
+        const [artifact] = await api.artifacts.list(runId);
+        expect(artifact.traceId).toBe(myTraceId);
+      });
+
+      it('auto-generated traceId is a valid UUID when not supplied', async () => {
+        const { runId } = await api.job.run('test-job', { data: 'auto-trace' });
+        await sleep(30);
+        const run = await api.runs.get(runId);
+        expect(run!.traceId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
       });
     });
   });

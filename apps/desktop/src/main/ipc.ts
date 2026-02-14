@@ -54,9 +54,9 @@ export function registerIpcHandlers(getMainWindow: () => BrowserWindow | null): 
     return getUIModel() === 'standalone' ? keys.slice(0, 1) : keys;
   });
 
-  ipcMain.handle('job:run', async (_, jobKey: string, input?: unknown) => {
+  ipcMain.handle('job:run', async (_, jobKey: string, input?: unknown, opts?: { traceId?: string }) => {
     const c = requireCore();
-    const { runId } = c.jobs.run(jobKey, input ?? undefined);
+    const { runId } = c.jobs.run(jobKey, input ?? undefined, opts);
     return { runId };
   });
 

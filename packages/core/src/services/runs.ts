@@ -6,6 +6,7 @@ import type { Run } from '../types.js';
 function rowToRun(r: stmt.RunRow): Run {
   return {
     id: r.id,
+    traceId: r.trace_id,
     status: r.status,
     startedAt: r.started_at,
     finishedAt: r.finished_at,
@@ -14,7 +15,7 @@ function rowToRun(r: stmt.RunRow): Run {
 }
 
 export interface StartRunParams {
-  // no required params; runId is generated
+  traceId?: string;
 }
 
 export interface FinishRunParams {
@@ -24,11 +25,12 @@ export interface FinishRunParams {
 
 export function createRunsService(db: Db) {
   return {
-    startRun(_params?: StartRunParams): { runId: string } {
+    startRun(params?: StartRunParams): { runId: string } {
       const runId = createId();
       const now = Date.now();
       stmt.runInsert(db, {
         id: runId,
+        trace_id: params?.traceId ?? '',
         status: 'running',
         started_at: now,
         created_at: now,

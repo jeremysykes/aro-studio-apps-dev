@@ -2,6 +2,7 @@
 
 export interface Run {
   id: string;
+  traceId: string;
   status: string;
   startedAt: number;
   finishedAt: number | null;
@@ -11,6 +12,7 @@ export interface Run {
 export interface LogEntry {
   id: string;
   runId: string;
+  traceId: string;
   level: string;
   message: string;
   createdAt: number;
@@ -19,6 +21,7 @@ export interface LogEntry {
 export interface Artifact {
   id: string;
   runId: string;
+  traceId: string;
   path: string;
   jobKey: string;
   inputHash: string;
@@ -92,23 +95,23 @@ export interface AroCore {
     mkdirp(relDir: string): void;
   };
   runs: {
-    startRun(params?: unknown): { runId: string };
+    startRun(params?: { traceId?: string }): { runId: string };
     finishRun(params: { runId: string; status: 'success' | 'error' | 'cancelled' }): void;
     getRun(runId: string): Run | null;
     listRuns(filter?: unknown): Run[];
   };
   logs: {
-    appendLog(entry: { runId: string; level: string; message: string }): void;
+    appendLog(entry: { runId: string; traceId: string; level: string; message: string }): void;
     listLogs(runId: string): LogEntry[];
     subscribe(runId: string, handler: (entry: LogEntry) => void): () => void;
   };
   artifacts: {
-    writeArtifact(params: { runId: string; path: string; content: string }): Artifact;
+    writeArtifact(params: { runId: string; traceId: string; path: string; content: string }): Artifact;
     listArtifacts(runId: string): Artifact[];
   };
   jobs: {
     register(jobDef: JobDefinition): void;
-    run(jobKey: string, input: unknown): { runId: string };
+    run(jobKey: string, input: unknown, opts?: { traceId?: string }): { runId: string };
     cancel(runId: string): void;
   };
   tokens: {
@@ -137,7 +140,7 @@ export interface AroPreloadAPI {
     onChanged(callback: (data: { path: string } | null) => void): () => void;
   };
   job: {
-    run(jobKey: string, input?: unknown): Promise<{ runId: string }>;
+    run(jobKey: string, input?: unknown, opts?: { traceId?: string }): Promise<{ runId: string }>;
     cancel(runId: string): Promise<void>;
     listRegistered(): Promise<string[]>;
   };

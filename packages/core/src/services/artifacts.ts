@@ -9,6 +9,7 @@ function rowToArtifact(r: stmt.ArtifactRow): Artifact {
   return {
     id: r.id,
     runId: r.run_id,
+    traceId: r.trace_id,
     path: r.path,
     jobKey: r.job_key,
     inputHash: r.input_hash,
@@ -18,6 +19,7 @@ function rowToArtifact(r: stmt.ArtifactRow): Artifact {
 
 export interface WriteArtifactParams {
   runId: string;
+  traceId: string;
   path: string;
   content: string;
   jobKey: string;
@@ -37,6 +39,7 @@ export function createArtifactsService(db: Db, workspaceRoot: string) {
       stmt.artifactInsert(db, {
         id,
         run_id: params.runId,
+        trace_id: params.traceId,
         path: params.path,
         job_key: params.jobKey,
         input_hash: params.inputHash,
@@ -45,6 +48,7 @@ export function createArtifactsService(db: Db, workspaceRoot: string) {
       return {
         id,
         runId: params.runId,
+        traceId: params.traceId,
         path: params.path,
         jobKey: params.jobKey,
         inputHash: params.inputHash,

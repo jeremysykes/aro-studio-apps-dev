@@ -77,7 +77,8 @@ export default function HelloWorld() {
 	const handleRunJob = async () => {
 		setError(null);
 		try {
-			const { runId } = await window.aro.job.run(JOB_KEY);
+			const traceId = crypto.randomUUID();
+			const { runId } = await window.aro.job.run(JOB_KEY, undefined, { traceId });
 			setRunningRunId(runId);
 			setSelectedRunId(runId);
 			loadRuns();

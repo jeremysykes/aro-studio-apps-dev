@@ -2,6 +2,7 @@ import type { Db } from './schema.js';
 
 export interface RunRow {
   id: string;
+  trace_id: string;
   status: string;
   started_at: number;
   finished_at: number | null;
@@ -10,12 +11,12 @@ export interface RunRow {
 
 export function runInsert(
   db: Db,
-  row: { id: string; status: string; started_at: number; created_at: number }
+  row: { id: string; trace_id: string; status: string; started_at: number; created_at: number }
 ): void {
   const stmt = db.prepare(
-    `INSERT INTO runs (id, status, started_at, finished_at, created_at) VALUES (?, ?, ?, NULL, ?)`
+    `INSERT INTO runs (id, trace_id, status, started_at, finished_at, created_at) VALUES (?, ?, ?, ?, NULL, ?)`
   );
-  stmt.run(row.id, row.status, row.started_at, row.created_at);
+  stmt.run(row.id, row.trace_id, row.status, row.started_at, row.created_at);
 }
 
 export function runUpdateStatus(
@@ -41,6 +42,7 @@ export function runList(db: Db, _filter?: unknown): RunRow[] {
 export interface LogRow {
   id: string;
   run_id: string;
+  trace_id: string;
   level: string;
   message: string;
   created_at: number;
@@ -48,12 +50,12 @@ export interface LogRow {
 
 export function logInsert(
   db: Db,
-  row: { id: string; run_id: string; level: string; message: string; created_at: number }
+  row: { id: string; run_id: string; trace_id: string; level: string; message: string; created_at: number }
 ): void {
   const stmt = db.prepare(
-    `INSERT INTO logs (id, run_id, level, message, created_at) VALUES (?, ?, ?, ?, ?)`
+    `INSERT INTO logs (id, run_id, trace_id, level, message, created_at) VALUES (?, ?, ?, ?, ?, ?)`
   );
-  stmt.run(row.id, row.run_id, row.level, row.message, row.created_at);
+  stmt.run(row.id, row.run_id, row.trace_id, row.level, row.message, row.created_at);
 }
 
 export function logListByRunId(db: Db, runId: string): LogRow[] {
@@ -64,6 +66,7 @@ export function logListByRunId(db: Db, runId: string): LogRow[] {
 export interface ArtifactRow {
   id: string;
   run_id: string;
+  trace_id: string;
   path: string;
   job_key: string;
   input_hash: string;
@@ -72,15 +75,31 @@ export interface ArtifactRow {
 
 export function artifactInsert(
   db: Db,
-  row: { id: string; run_id: string; path: string; job_key: string; input_hash: string; created_at: number }
+  row: { id: string; run_id: string; trace_id: string; path: string; job_key: string; input_hash: string; created_at: number }
 ): void {
   const stmt = db.prepare(
-    `INSERT INTO artifacts (id, run_id, path, job_key, input_hash, created_at) VALUES (?, ?, ?, ?, ?, ?)`
+    `INSERT INTO artifacts (id, run_id, trace_id, path, job_key, input_hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`
   );
-  stmt.run(row.id, row.run_id, row.path, row.job_key, row.input_hash, row.created_at);
+  stmt.run(row.id, row.run_id, row.trace_id, row.path, row.job_key, row.input_hash, row.created_at);
 }
 
 export function artifactListByRunId(db: Db, runId: string): ArtifactRow[] {
   const stmt = db.prepare(`SELECT * FROM artifacts WHERE run_id = ? ORDER BY created_at ASC`);
   return stmt.all(runId) as ArtifactRow[];
+}
+
+// ── Trace query ─────────────────────────────────────────────────────────────
+
+export interface TraceResult {
+  run: RunRow | undefined;
+  logs: LogRow[];
+  artifacts: ArtifactRow[];
+}
+
+/** Given a traceId, return the full chain: run + all logs + all artifacts. */
+export function traceByTraceId(db: Db, traceId: string): TraceResult {
+  const run = db.prepare(`SELECT * FROM runs WHERE trace_id = ?`).get(traceId) as RunRow | undefined;
+  const logs = db.prepare(`SELECT * FROM logs WHERE trace_id = ? ORDER BY created_at ASC`).all(traceId) as LogRow[];
+  const artifacts = db.prepare(`SELECT * FROM artifacts WHERE trace_id = ? ORDER BY created_at ASC`).all(traceId) as ArtifactRow[];
+  return { run, logs, artifacts };
 }
