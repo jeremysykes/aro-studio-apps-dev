@@ -1,11 +1,11 @@
-import type { AroCore } from '@aro/core';
+import type { AroCore, ModuleInit } from '@aro/types';
 import { runScan } from './scan.js';
 import { runExport } from './export.js';
 
 const JOB_SCAN = 'inspect:scan';
 const JOB_EXPORT = 'inspect:export';
 
-export function init(core: AroCore): string[] {
+export const init: ModuleInit = (core: AroCore): string[] => {
   core.jobs.register({
     key: JOB_SCAN,
     run: async (ctx, input) => {
@@ -22,4 +22,4 @@ export function init(core: AroCore): string[] {
     },
   });
   return [JOB_SCAN, JOB_EXPORT];
-}
+};

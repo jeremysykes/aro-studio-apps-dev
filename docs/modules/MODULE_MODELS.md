@@ -1,19 +1,19 @@
 # Module Models
 
-This document defines the architectural models for how Modules integrate with Core and Desktop. Each multi-module model builds on the same core contract. This is the authoritative reference for module model design.
+This document defines the architectural models for how Modules integrate with Core and the host shell. Each multi-module model builds on the same core contract. Both Desktop and Web use the same shell components from `@aro/ui/shell`. This is the authoritative reference for module model design.
 
 ## Summary Table
 
 | Aspect | Standalone | Sidebar | Dashboard | Tabs | Carousel |
 |--------|------------|---------|-----------|------|----------|
 | Module = ? | Application (owns main content) | Full-screen view behind a nav item | Tile / widget in a grid layout | Full-screen view behind a tab | Full-screen view with arrow nav |
-| UI ownership | Module owns main content | Desktop shell (sidebar + content slot) | Desktop shell (grid layout + tile slots) | Desktop shell (tab bar + content slot) | Desktop shell (content + nav footer) |
+| UI ownership | Module owns main content | Host shell (sidebar + content slot) | Host shell (grid layout + tile slots) | Host shell (tab bar + content slot) | Host shell (content + nav footer) |
 | Modules visible at once | 1 | 1 (switch via sidebar) | Many (tiles rendered simultaneously) | 1 (switch via tabs) | 1 (swipe / arrows) |
 | Modules loaded at once | 1 | All enabled | All enabled | All enabled | All enabled |
 | Enable/disable | Build/config only | Per-user or per-workspace config | Per-user or per-workspace config | Per-user or per-workspace config | Per-user or per-workspace config |
 | IPC namespacing | Recommended (`moduleKey:jobKey`) | Required | Required | Required | Required |
 | Module UI exports | `default` (root component) | `default` (root component) | `default` (root component) + `Widget` | `default` (root component) | `default` (root component) |
-| Layout responsibility | Module | Desktop shell | Desktop shell + layout engine | Desktop shell | Desktop shell |
+| Layout responsibility | Module | Host shell | Host shell + layout engine | Host shell | Host shell |
 | Config key | `ARO_UI_MODEL=standalone` | `ARO_UI_MODEL=sidebar` | `ARO_UI_MODEL=dashboard` | `ARO_UI_MODEL=tabs` | `ARO_UI_MODEL=carousel` |
 | Use case | Single-purpose apps | Multi-feature product, switch between features | Overview + deep-dive | Browser-like navigation, 2–4 modules | Presentations, demos, mobile-first |
 
@@ -118,7 +118,7 @@ App.tsx
 
 ### Implementation requirements
 
-**1. Desktop shell layout (`apps/desktop/src/renderer/`)**
+**1. Host shell layout (`apps/desktop/src/renderer/`)**
 
 Create a `ShellLayout` component that wraps the content area:
 

@@ -1,4 +1,5 @@
 import React, { Component, type ReactNode } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '../components/ui/alert';
 import { Button } from '../components/ui/button';
 
 interface Props {
@@ -32,16 +33,16 @@ export class WidgetErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex flex-col items-center justify-center h-full gap-2 p-4 text-center">
-          <p className="text-sm font-medium text-destructive">
-            {this.props.moduleLabel} encountered an error
-          </p>
-          <p className="text-xs text-muted-foreground truncate max-w-full">
-            {this.state.error?.message}
-          </p>
-          <Button variant="outline" size="xs" onClick={this.handleReset}>
-            Retry
-          </Button>
+        <div className="flex flex-col items-center justify-center h-full p-4">
+          <Alert variant="destructive" className="max-w-full">
+            <AlertTitle>{this.props.moduleLabel} encountered an error</AlertTitle>
+            <AlertDescription className="truncate">
+              {this.state.error?.message}
+            </AlertDescription>
+            <Button variant="outline" size="xs" onClick={this.handleReset} className="mt-2">
+              Retry
+            </Button>
+          </Alert>
         </div>
       );
     }

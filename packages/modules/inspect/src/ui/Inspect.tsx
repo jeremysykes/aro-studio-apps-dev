@@ -1,6 +1,9 @@
 import React, { useEffect } from 'react';
 import {
 	Alert,
+	AlertDescription,
+	AlertTitle,
+	AlertTriangleIcon,
 	Tabs,
 	TabsContent,
 	TabsList,
@@ -69,7 +72,9 @@ export default function Inspect() {
 					<>
 						{error && (
 							<Alert variant='destructive' className='mb-4'>
-								{error}
+								<AlertTriangleIcon />
+								<AlertTitle>Error</AlertTitle>
+								<AlertDescription>{error}</AlertDescription>
 							</Alert>
 						)}
 

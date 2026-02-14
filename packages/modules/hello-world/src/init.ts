@@ -1,8 +1,8 @@
-import type { AroCore } from '@aro/core';
+import type { AroCore, ModuleInit } from '@aro/types';
 
 const JOB_KEY = 'hello-world:greet';
 
-export function init(core: AroCore): string[] {
+export const init: ModuleInit = (core: AroCore): string[] => {
   core.jobs.register({
     key: JOB_KEY,
     run: async (ctx) => {
@@ -11,4 +11,4 @@ export function init(core: AroCore): string[] {
     },
   });
   return [JOB_KEY];
-}
+};

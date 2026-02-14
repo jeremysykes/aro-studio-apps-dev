@@ -98,11 +98,12 @@ Detail: [diagrams/application-flow.md](diagrams/application-flow.md) | [diagrams
 | Script | Command | What it does |
 |--------|---------|--------------|
 | `build` | `pnpm build` | Build all packages (Core, Desktop, Web). Run before production. |
-| `test` | `pnpm test` | Run Core tests. |
+| `test` | `pnpm test` | Run all tests (Core contract tests + Inspect determinism tests). |
 | `lint` | `pnpm lint` | Run ESLint across the entire monorepo. Enforces architectural boundary rules. |
 | `desktop` | `pnpm desktop` | Launch the **Desktop** (Electron) app with workspace picker, jobs, logs, artifacts. |
 | `start` | `pnpm start` | Same as `desktop` — launches the Desktop app. |
 | `web` | `pnpm web` | Start the **Web** app. Runs a dev orchestrator: cleans up its own prior run if any, starts API (3001), waits for readiness, then starts Vite (port 5173). Open http://localhost:5173 in the browser. |
+| `reset-db` | `pnpm reset-db [workspace-path]` | **Dev only.** Reset the workspace SQLite database to a clean baseline. Deletes all rows from `runs`, `logs`, `artifacts` tables; removes artifact files from disk; runs VACUUM. Accepts an optional workspace path argument (defaults to `ARO_WORKSPACE_ROOT` or cwd). Idempotent and safe to run multiple times. |
 | `prepare` | `pnpm prepare` | Runs automatically after `pnpm install`. Initializes husky git hooks so the pre-commit hook (lint-staged) is wired into `.git/hooks/`. |
 
 **Before first run:** `pnpm install` to install dependencies.

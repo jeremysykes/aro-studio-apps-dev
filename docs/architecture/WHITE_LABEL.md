@@ -16,7 +16,7 @@ Every asset in the project falls into one of three layers:
 
 | Layer | What it contains | Where it lives | Example |
 |-------|-----------------|----------------|---------|
-| **Core** | Business logic, API contracts, data models, layout structure, module loading | `packages/core`, `packages/ui/src/shell`, server-side registries | `createCore()`, `ShellLayout`, `DashboardLayout`, `loadModules()` |
+| **Core** | Business logic, API contracts, data models, layout structure, module loading | `packages/core`, `packages/ui/src/shell`, server-side registries | `createCore()`, `ShellLayout`, `ShellRouter`, `DashboardLayout`, `loadModules()` |
 | **Theme** | Colors, typography, spacing, motion, border radii, shadows — resolved through design tokens | CSS custom properties in root stylesheets, Tailwind config | `--color-background`, `--color-foreground`, `--radius` |
 | **Brand** | Logos, imagery, app name, marketing tone, product personality | Per-brand config files (future), environment variables | App title, favicon, splash screen |
 
@@ -103,7 +103,7 @@ Modules must:
 
 ## Layout Resilience
 
-Layout systems must support multiple density modes, typography scales, and spacing systems. No layout should collapse when theme variables change. Shell components (`ShellLayout`, `DashboardLayout`, `Sidebar`) must be tested with varying content sizes.
+Layout systems must support multiple density modes, typography scales, and spacing systems. No layout should collapse when theme variables change. Shell components (`ShellLayout`, `ShellRouter`, `DashboardLayout`, `Sidebar`) must be tested with varying content sizes.
 
 ---
 

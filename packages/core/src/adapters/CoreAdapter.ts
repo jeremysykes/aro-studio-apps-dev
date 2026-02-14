@@ -5,35 +5,52 @@ export interface CoreAdapterOptions {
   uiModel: UIModel;
   enabledModules: string[];
   workspaceRoot: string;
+  /**
+   * When provided, getTenantConfig() returns this full config object
+   * instead of constructing a minimal one from uiModel/enabledModules.
+   */
+  tenantConfig?: TenantConfig;
+  /**
+   * When provided, job.listRegistered() calls this function to get
+   * registered job keys. Without it, falls back to enabledModules
+   * (suitable for contract tests where job keys === module keys).
+   */
+  getRegisteredJobKeys?: () => string[];
 }
 
 /**
  * Reference adapter: wraps AroCore to produce an AroPreloadAPI-compatible
- * object. Mirrors the exact mapping that both desktop (ipc.ts) and web
- * (api.ts) implement — without any transport layer.
+ * object. Both desktop (ipc.ts) and web (api.ts) delegate their Core
+ * operations through this adapter — the transport layer remains host-specific,
+ * but the operation logic is defined once here.
  *
- * Use this for contract tests or as the canonical spec of how hosts
- * should translate AroPreloadAPI → AroCore calls.
+ * Also usable directly for contract tests (the canonical spec of how hosts
+ * translate AroPreloadAPI → AroCore calls).
  */
 export function createCoreAdapter(
   core: AroCore,
   opts: CoreAdapterOptions,
 ): AroPreloadAPI {
   const registeredKeys = (): string[] => {
-    // In both hosts this comes from state.getRegisteredJobKeys(), which is
-    // populated by moduleLoader after core.jobs.register(). For the adapter
-    // we derive it from the options since we don't have the module loader.
+    if (opts.getRegisteredJobKeys) return opts.getRegisteredJobKeys();
+    // Fallback for contract tests where job keys match module keys
     return opts.enabledModules;
   };
 
-  return {
-    getTenantConfig: () => Promise.resolve<TenantConfig>({
+  const tenantConfig = (): TenantConfig => {
+    if (opts.tenantConfig) return opts.tenantConfig;
+    // Minimal fallback for contract tests
+    return {
       uiModel: opts.uiModel,
       enabledModules: opts.enabledModules,
       brand: { appName: 'Aro Studio' },
       theme: {},
       features: {},
-    }),
+    };
+  };
+
+  return {
+    getTenantConfig: () => Promise.resolve(tenantConfig()),
     getUIModel: () => Promise.resolve(opts.uiModel),
     getEnabledModules: () =>
       Promise.resolve(
@@ -49,8 +66,8 @@ export function createCoreAdapter(
     },
 
     job: {
-      run: (jobKey: string, input?: unknown, opts?: { traceId?: string }) => {
-        const { runId } = core.jobs.run(jobKey, input ?? undefined, opts);
+      run: (jobKey: string, input?: unknown, runOpts?: { traceId?: string }) => {
+        const { runId } = core.jobs.run(jobKey, input ?? undefined, runOpts);
         return Promise.resolve({ runId });
       },
       cancel: (runId: string) => {

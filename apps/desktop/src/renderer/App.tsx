@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import type { UIModel } from '@aro/types';
+import { Alert, AlertDescription } from '@aro/ui/components';
 import { TenantProvider, useTenant, useBrandHead } from '@aro/ui/hooks';
 import { moduleRegistry, type ModuleRegistryEntry } from './moduleRegistry';
-import { ShellLayout } from './ShellLayout';
-import { DashboardLayout, TabsLayout, CarouselLayout, ModuleErrorBoundary } from '@aro/ui/shell';
+import { ShellRouter } from '@aro/ui/shell';
 
 function AppShell() {
   const tenant = useTenant();
@@ -12,7 +12,6 @@ function AppShell() {
   const [uiModel, setUIModel] = useState<UIModel | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [enabledModules, setEnabledModules] = useState<ModuleRegistryEntry[]>([]);
-  const [activeKey, setActiveKey] = useState<string>('');
 
   useEffect(() => {
     let cancelled = false;
@@ -36,7 +35,6 @@ function AppShell() {
 
       setUIModel(config.uiModel);
       setEnabledModules(entries);
-      setActiveKey(entries[0].key);
     });
 
     return () => {
@@ -47,7 +45,9 @@ function AppShell() {
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center p-6">
-        <p className="text-destructive">{error}</p>
+        <Alert variant="destructive" className="max-w-md">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       </div>
     );
   }
@@ -61,48 +61,7 @@ function AppShell() {
     );
   }
 
-  const activeEntry = enabledModules.find((m) => m.key === activeKey);
-  const ActiveModule = activeEntry?.component;
-
-  // Standalone mode — no shell, module owns the full screen
-  if (uiModel === 'standalone') {
-    return activeEntry && ActiveModule ? (
-      <ModuleErrorBoundary key={activeKey} moduleKey={activeKey} moduleLabel={activeEntry.label}>
-        <ActiveModule />
-      </ModuleErrorBoundary>
-    ) : null;
-  }
-
-  // Dashboard mode — responsive grid of widget cards with expand
-  if (uiModel === 'dashboard') {
-    return <DashboardLayout modules={enabledModules} />;
-  }
-
-  // Tabs mode — horizontal tab bar, one module visible at a time
-  if (uiModel === 'tabs') {
-    return <TabsLayout modules={enabledModules} />;
-  }
-
-  // Carousel mode — swipe/arrow navigation with dot indicators
-  // Wrapper constrains viewport so footer stays at bottom; only main content scrolls
-  if (uiModel === 'carousel') {
-    return (
-      <div className="h-full min-h-0 flex flex-col overflow-hidden">
-        <CarouselLayout modules={enabledModules} />
-      </div>
-    );
-  }
-
-  // Sidebar mode — vertical nav, one module visible at a time
-  return (
-    <ShellLayout modules={enabledModules} activeKey={activeKey} onSelect={setActiveKey}>
-      {activeEntry && ActiveModule ? (
-        <ModuleErrorBoundary key={activeKey} moduleKey={activeKey} moduleLabel={activeEntry.label}>
-          <ActiveModule />
-        </ModuleErrorBoundary>
-      ) : null}
-    </ShellLayout>
-  );
+  return <ShellRouter uiModel={uiModel} modules={enabledModules} />;
 }
 
 function App() {

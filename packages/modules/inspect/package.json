@@ -9,7 +9,8 @@
     "./ui": "./src/ui/Inspect.tsx"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest run"
   },
   "dependencies": {
     "@aro/core": "workspace:*",

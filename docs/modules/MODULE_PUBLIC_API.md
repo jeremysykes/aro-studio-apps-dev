@@ -34,6 +34,27 @@ core.jobs.register({
 
 ---
 
+## Module init contract
+
+Every module exports an `init` function matching the `ModuleInit` type from `@aro/types`:
+
+```ts
+import type { AroCore, ModuleInit } from '@aro/types';
+
+export const init: ModuleInit = (core: AroCore): string[] => {
+  core.jobs.register({ key: 'my-module:my-job', run: async (ctx, input) => { /* ... */ } });
+  return ['my-module:my-job'];
+};
+```
+
+**Contract:**
+- Receives an `AroCore` instance
+- Registers jobs with `core.jobs.register()`
+- Returns an array of registered job key strings
+- Must be synchronous (no async init)
+
+---
+
 ## Renderer API (Standalone MVP)
 
 **Context:** Module UI runs in the renderer (Desktop) or browser (Web). It receives the same intent-based API from the host: Desktop exposes `window.aro` via IPC; Web exposes `window.aro` via HTTP/WS API. Same capability surface in both hosts.

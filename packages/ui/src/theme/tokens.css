@@ -59,6 +59,18 @@
   --aro-destructive-muted-foreground: #991b1b; /* red-800 */
   --aro-destructive-border: #fecaca;    /* red-200 */
 
+  /* ── shadcn theme tokens (HSL channel values) ─────────────────── */
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+
+  --border: 240 5.9% 90%;
+
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+
   /* ── Interactive states ────────────────────────────────────── */
   --aro-hover: #f4f4f5;                 /* zinc-100 — ghost/link hover bg */
   --aro-active: #e4e4e7;                /* zinc-200 */
@@ -70,4 +82,27 @@
   --aro-sidebar-hover: #27272a;         /* zinc-800 */
   --aro-sidebar-active: #3f3f46;        /* zinc-700 */
   --aro-sidebar-border: #27272a;        /* zinc-800 */
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+
+  --border: 240 3.7% 15.9%;
+
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
 }

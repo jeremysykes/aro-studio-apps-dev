@@ -1,4 +1,4 @@
-export { Alert, alertVariants, AlertTitle, AlertDescription } from './ui/alert';
+export { Alert, alertVariants, AlertTitle, AlertDescription, AlertCircleIcon, AlertTriangleIcon } from './ui/alert';
 export { Badge, badgeVariants } from './ui/badge';
 export { Button, buttonVariants } from './ui/button';
 export { Input } from './ui/input';

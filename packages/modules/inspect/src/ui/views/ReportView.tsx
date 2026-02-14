@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import {
+	Alert,
+	AlertDescription,
 	Button,
 	Card,
 	CardContent,
 	CardFooter,
 	CardTitle,
 	Input,
-	Skeleton,
 	Tabs,
 	TabsList,
 	TabsTrigger,
 } from '@aro/ui/components';
 import { RunsTable } from '../components/RunsTable';
+import { TableSkeleton } from '../components/TableSkeleton';
+import { ReportContentSkeleton } from '../report/ReportContentSkeleton';
 import {
 	TwoColumnLayout,
 	CARD_CLASS,
@@ -59,13 +62,11 @@ export function ReportView() {
 				className={`${CARD_CONTENT_CLASS} p-0 max-h-[50vh] overflow-y-auto min-[900px]:max-h-none`}
 			>
 				{runsWithReportLoading ? (
-					<ul className='list-none space-y-1 min-w-0 p-2'>
-						{Array.from({ length: 6 }, (_, i) => (
-							<li key={i} className='min-w-0'>
-								<Skeleton className='h-8 w-full rounded-md' />
-							</li>
-						))}
-					</ul>
+					<TableSkeleton
+						columns={2}
+						rows={5}
+						ariaLabel="Loading runs"
+					/>
 				) : (
 					<RunsTable runs={reportRuns} />
 				)}
@@ -123,12 +124,12 @@ export function ReportView() {
 				className={`${CARD_CONTENT_CLASS} flex-1 min-h-0 overflow-y-auto ${reportTab === 'health' ? 'p-6' : 'p-0'}`}
 			>
 				{reportLoadState === 'loading' && (
-					<p className='text-sm text-zinc-500'>Loading report…</p>
+					<ReportContentSkeleton reportTab={reportTab} />
 				)}
 				{reportLoadState === 'error' && (
-					<p className='text-sm text-zinc-500'>
-						Report not available for this run.
-					</p>
+					<Alert variant='destructive'>
+						<AlertDescription>Report not available for this run.</AlertDescription>
+					</Alert>
 				)}
 				{reportLoadState === 'success' && report && (
 					<ReportContent

@@ -227,6 +227,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@aro/config':
+        specifier: workspace:*
+        version: link:../config
       '@aro/types':
         specifier: workspace:*
         version: link:../types
@@ -315,6 +318,12 @@ importers:
 
   packages/ui:
     dependencies:
+      '@aro/module-hello-world':
+        specifier: workspace:*
+        version: link:../modules/hello-world
+      '@aro/module-inspect':
+        specifier: workspace:*
+        version: link:../modules/inspect
       '@radix-ui/react-progress':
         specifier: ^1.1.8
         version: 1.1.8(@types/react-dom@18.3.7(@types/react@18.3.28))(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

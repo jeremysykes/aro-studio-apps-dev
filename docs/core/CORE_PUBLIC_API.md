@@ -203,9 +203,93 @@ interface TokenDiff {
 
 ---
 
+## Module Registry
+
+Shared server-side registry for module initialization. Both hosts register their modules with these functions; all registry logic lives in `@aro/core`.
+
+```ts
+import { registerModule, resolveConfig, loadModules } from '@aro/core';
+import { init as inspectInit } from '@aro/module-inspect';
+
+// 1. Register modules
+registerModule('inspect', inspectInit);
+
+// 2. Resolve tenant config
+resolveConfig(configDir);
+
+// 3. Load modules into a Core instance
+loadModules(core, setRegisteredJobKeys);
+```
+
+### Registry API
+
+| Function | Description |
+|----------|-------------|
+| `registerModule(key, init)` | Registers a `ModuleInit` function under the given key |
+| `getInit(key)` | Returns the `ModuleInit` for a key, or `undefined` |
+| `getRegisteredModuleKeys()` | Returns all registered module keys |
+| `resolveConfig(configDir)` | Loads tenant config via `@aro/config`; caches result |
+| `getResolvedConfig()` | Returns the cached config (throws if not yet resolved) |
+| `getUIModel()` | Returns the current UI model from resolved config |
+| `getEnabledModuleKeys()` | Returns enabled module keys (with unknown-key warnings) |
+
+### Module Loader
+
+| Function | Description |
+|----------|-------------|
+| `loadModules(core, setRegisteredJobKeys)` | Initializes enabled modules on a Core instance. Standalone mode loads only the first module. Calls `setRegisteredJobKeys` with accumulated job keys. |
+
+---
+
+## CoreAdapter
+
+Reference adapter that wraps `AroCore` to produce an `AroPreloadAPI`-compatible object. Both Desktop (IPC) and Web (HTTP/WS) delegate their Core operations through this adapter — the transport layer remains host-specific, but operation logic is defined once here. Also usable directly for contract tests.
+
+```ts
+import { createCoreAdapter } from '@aro/core';
+
+// Contract test usage (minimal options)
+const api = createCoreAdapter(core, {
+  uiModel: 'standalone',
+  enabledModules: ['inspect'],
+  workspaceRoot: '/path/to/workspace',
+});
+
+// Host usage (full options)
+const api = createCoreAdapter(core, {
+  uiModel: config.uiModel,
+  enabledModules: config.enabledModules,
+  workspaceRoot: getCurrentWorkspacePath()!,
+  tenantConfig: config,
+  getRegisteredJobKeys,
+});
+```
+
+**Options (`CoreAdapterOptions`):**
+
+| Property | Type | Required | Description |
+|----------|------|----------|-------------|
+| `uiModel` | UIModel | Yes | Which UI model the adapter reports |
+| `enabledModules` | string[] | Yes | Module keys the adapter reports as enabled |
+| `workspaceRoot` | string | Yes | Absolute path to the workspace |
+| `tenantConfig` | TenantConfig | No | Full config; when set, `getTenantConfig()` returns it verbatim |
+| `getRegisteredJobKeys` | () => string[] | No | Job key accessor; when set, `job.listRegistered()` uses it instead of `enabledModules` |
+
+---
+
+## Versioning
+
+`AroCore_v1` is a type alias for the current `AroCore` interface (exported from `@aro/types`). When a breaking change lands, a new alias (`AroCore_v2`) will be introduced while the old version remains available during migration. Additive, non-breaking changes (new optional methods) do not bump the version.
+
+---
+
 ## Exports
 
 From `@aro/core`:
 
 - `createCore`
-- Types: `AroCore`, `AroCoreOptions`, `Run`, `LogEntry`, `Artifact`, `ValidationIssue`, `ValidationResult`, `TokenDiff`, `JobDefinition`, `JobContext`
+- `createCoreAdapter`
+- `registerModule`, `getInit`, `getRegisteredModuleKeys`
+- `resolveConfig`, `getResolvedConfig`, `getUIModel`, `getEnabledModuleKeys`
+- `loadModules`
+- Types: `AroCore`, `AroCore_v1`, `AroCoreOptions`, `CoreAdapterOptions`, `ModuleInit`, `Run`, `LogEntry`, `Artifact`, `ValidationIssue`, `ValidationResult`, `TokenDiff`, `JobDefinition`, `JobContext`

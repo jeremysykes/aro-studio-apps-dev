@@ -8,6 +8,7 @@
     "desktop": "pnpm --filter @aro/desktop start",
     "start": "pnpm --filter @aro/desktop start",
     "web": "tsx dev/dev-web.ts",
+    "reset-db": "tsx scripts/reset-db.ts",
     "prepare": "husky"
   },
   "lint-staged": {

@@ -1,4 +1,5 @@
 import React, { Component, type ReactNode } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@aro/ui/components';
 
 interface Props {
   children: ReactNode;
@@ -22,9 +23,11 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError && this.state.error) {
       return (
-        <div className="flex min-h-screen flex-col items-center justify-center p-6" role="alert">
-          <h1 className="text-lg font-semibold text-destructive">Something went wrong</h1>
-          <p className="mt-2 text-sm text-muted-foreground">{this.state.error.message}</p>
+        <div className="flex min-h-screen flex-col items-center justify-center p-6">
+          <Alert variant="destructive" className="max-w-lg">
+            <AlertTitle>Something went wrong</AlertTitle>
+            <AlertDescription>{this.state.error.message}</AlertDescription>
+          </Alert>
         </div>
       );
     }

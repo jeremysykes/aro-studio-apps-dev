@@ -1,4 +1,5 @@
 import React from 'react';
+import { Alert, AlertDescription, AlertTitle, AlertTriangleIcon } from '../components/ui/alert';
 import { Button } from '../components/ui/button';
 import type { ConnectionStatus } from '../hooks/useConnectionStatus';
 
@@ -18,24 +19,17 @@ export function ConnectionStatusBar({
   if (status === 'connected') return null;
 
   return (
-    <div
-      role="status"
-      className="flex items-center gap-3 px-4 py-2 mb-4 text-sm bg-red-50 border border-red-200 text-red-800 rounded-md"
-    >
-      <span className="flex-1">
+    <Alert variant="destructive" className="mb-4">
+      <AlertTriangleIcon />
+      <AlertTitle>Failed to fetch</AlertTitle>
+      <AlertDescription>
         Something went wrong. Try again or restart the app.
-      </span>
-      {onRetry && (
-        <Button
-          type="button"
-          variant="outline"
-          size="xs"
-          onClick={onRetry}
-          className="border-red-300 text-red-700 hover:bg-red-100"
-        >
-          Try again
-        </Button>
-      )}
-    </div>
+        {onRetry && (
+          <Button type="button" variant="outline" size="xs" onClick={onRetry} className="mt-2">
+            Try again
+          </Button>
+        )}
+      </AlertDescription>
+    </Alert>
   );
 }

@@ -1,5 +1,6 @@
 @import '@aro/ui/theme/tokens.css';
 @import 'tailwindcss';
+@source "../../../../packages/ui/src/**/*.tsx";
 @source "../../../../packages/modules/**/*.tsx";
 @source "../../../../apps/desktop/src/renderer/components/**/*.tsx";
 

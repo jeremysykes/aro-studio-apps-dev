@@ -3,14 +3,14 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../../lib/utils';
 
 const alertVariants = cva(
-	'relative w-full rounded-lg border p-4',
+	'relative w-full rounded-lg border px-4 py-3 text-sm grid has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr] grid-cols-[0_1fr] has-[>svg]:gap-x-3 gap-y-0.5 items-start [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current',
 	{
 		variants: {
 			variant: {
 				default:
-					'bg-white text-zinc-950 border-zinc-200 dark:bg-zinc-950 dark:text-zinc-50 dark:border-zinc-800',
+					'bg-background text-foreground border-border',
 				destructive:
-					'border-red-200 bg-red-50 text-red-800 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-200',
+					'border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive *:data-[slot=alert-description]:text-destructive/90',
 			},
 		},
 		defaultVariants: {
@@ -19,41 +19,98 @@ const alertVariants = cva(
 	}
 );
 
-const Alert = React.forwardRef<
-	HTMLDivElement,
-	React.HTMLAttributes<HTMLDivElement> & VariantProps<typeof alertVariants>
->(({ className, variant, role = 'alert', ...props }, ref) => (
-	<div
-		ref={ref}
-		role={role}
-		className={cn(alertVariants({ variant }), className)}
-		{...props}
-	/>
-));
-Alert.displayName = 'Alert';
+function Alert({
+	className,
+	variant,
+	...props
+}: React.ComponentProps<'div'> & VariantProps<typeof alertVariants>) {
+	return (
+		<div
+			data-slot="alert"
+			role="alert"
+			className={cn(alertVariants({ variant }), className)}
+			{...props}
+		/>
+	);
+}
 
-const AlertTitle = React.forwardRef<
-	HTMLParagraphElement,
-	React.HTMLAttributes<HTMLHeadingElement>
->(({ className, ...props }, ref) => (
-	<h5
-		ref={ref}
-		className={cn('mb-1 font-medium leading-none tracking-tight', className)}
-		{...props}
-	/>
-));
-AlertTitle.displayName = 'AlertTitle';
+function AlertTitle({ className, ...props }: React.ComponentProps<'div'>) {
+	return (
+		<div
+			data-slot="alert-title"
+			className={cn(
+				'col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight',
+				className
+			)}
+			{...props}
+		/>
+	);
+}
 
-const AlertDescription = React.forwardRef<
-	HTMLParagraphElement,
-	React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...props }, ref) => (
-	<div
-		ref={ref}
-		className={cn('text-sm [&_p]:leading-relaxed', className)}
-		{...props}
-	/>
-));
-AlertDescription.displayName = 'AlertDescription';
+function AlertDescription({
+	className,
+	...props
+}: React.ComponentProps<'div'>) {
+	return (
+		<div
+			data-slot="alert-description"
+			className={cn(
+				'text-muted-foreground col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed',
+				className
+			)}
+			{...props}
+		/>
+	);
+}
 
-export { Alert, alertVariants, AlertTitle, AlertDescription };
+/**
+ * Circle-alert icon (matches Lucide's CircleAlert).
+ * Drop-in replacement so we don't need lucide-react as a dependency.
+ */
+function AlertCircleIcon(props: React.SVGProps<SVGSVGElement>) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="16"
+			height="16"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			{...props}
+		>
+			<circle cx="12" cy="12" r="10" />
+			<line x1="12" x2="12" y1="8" y2="12" />
+			<line x1="12" x2="12.01" y1="16" y2="16" />
+		</svg>
+	);
+}
+
+/**
+ * Triangle-alert icon (matches Lucide's TriangleAlert).
+ * Drop-in replacement so we don't need lucide-react as a dependency.
+ */
+function AlertTriangleIcon(props: React.SVGProps<SVGSVGElement>) {
+	return (
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="16"
+			height="16"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			strokeWidth="2"
+			strokeLinecap="round"
+			strokeLinejoin="round"
+			{...props}
+		>
+			<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+			<line x1="12" x2="12" y1="9" y2="13" />
+			<line x1="12" x2="12.01" y1="17" y2="17" />
+		</svg>
+	);
+}
+
+export { Alert, alertVariants, AlertTitle, AlertDescription, AlertCircleIcon, AlertTriangleIcon };

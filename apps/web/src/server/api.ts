@@ -3,6 +3,8 @@ import { WebSocketServer } from 'ws';
 import type { WebSocket } from 'ws';
 import type { Server as HttpServer } from 'http';
 import type { ZodType } from 'zod';
+import { createCoreAdapter } from '@aro/core';
+import type { AroPreloadAPI } from '@aro/types';
 import {
   JobRunPayload,
   JobCancelPayload,
@@ -17,14 +19,27 @@ import {
   addLogSubscription,
   removeLogSubscription,
 } from './state.js';
-import { getUIModel, getEnabledModuleKeys, getResolvedConfig } from './moduleRegistry.js';
+import { getResolvedConfig } from './moduleRegistry.js';
 
 const NO_WORKSPACE = 'No workspace selected';
 
-function requireCore() {
+/**
+ * Build a CoreAdapter from current host state.
+ * All Core operation logic is defined once in the adapter —
+ * the API layer only handles transport (Express/WS) and host-specific
+ * operations (WebSocket log subscription).
+ */
+function requireAdapter(): AroPreloadAPI {
   const c = getCore();
   if (!c) throw new Error(NO_WORKSPACE);
-  return c;
+  const config = getResolvedConfig();
+  return createCoreAdapter(c, {
+    uiModel: config.uiModel,
+    enabledModules: config.enabledModules,
+    workspaceRoot: getCurrentWorkspacePath()!,
+    tenantConfig: config,
+    getRegisteredJobKeys,
+  });
 }
 
 /** Express middleware: validate req.body with a Zod schema, respond 400 on failure. */
@@ -58,47 +73,51 @@ export function createApiRouter(): Router {
     res.json(path ? { path } : null);
   });
 
-  router.get('/app/tenant-config', (_req, res) => {
-    res.json(getResolvedConfig());
+  // ── Delegated through CoreAdapter ──────────────────────────────────────
+  router.get('/app/tenant-config', async (_req, res) => {
+    const api = requireAdapter();
+    res.json(await api.getTenantConfig());
   });
 
-  router.get('/app/ui-model', (_req, res) => {
-    res.json({ model: getUIModel() });
+  router.get('/app/ui-model', async (_req, res) => {
+    const api = requireAdapter();
+    res.json({ model: await api.getUIModel() });
   });
 
-  router.get('/app/enabled-modules', (_req, res) => {
-    const keys = getEnabledModuleKeys();
-    // Standalone mode only exposes the first module
-    res.json(getUIModel() === 'standalone' ? keys.slice(0, 1) : keys);
+  router.get('/app/enabled-modules', async (_req, res) => {
+    const api = requireAdapter();
+    res.json(await api.getEnabledModules());
   });
 
-  router.get('/job/registered', (_req, res) => {
-    requireCore();
-    res.json(getRegisteredJobKeys());
+  router.get('/job/registered', async (_req, res) => {
+    const api = requireAdapter();
+    res.json(await api.job.listRegistered());
   });
 
-  router.post('/job/run', validateBody(JobRunPayload), (req, res) => {
+  router.post('/job/run', validateBody(JobRunPayload), async (req, res) => {
     const { jobKey, input, traceId } = req.body as JobRunPayload;
-    const c = requireCore();
-    const { runId } = c.jobs.run(jobKey, input, traceId ? { traceId } : undefined);
-    res.json({ runId });
+    const api = requireAdapter();
+    const result = await api.job.run(jobKey, input, traceId ? { traceId } : undefined);
+    res.json(result);
   });
 
-  router.post('/job/cancel', validateBody(JobCancelPayload), (req, res) => {
+  router.post('/job/cancel', validateBody(JobCancelPayload), async (req, res) => {
     const { runId } = req.body as JobCancelPayload;
-    requireCore().jobs.cancel(runId);
+    const api = requireAdapter();
+    await api.job.cancel(runId);
     res.status(204).send();
   });
 
-  router.get('/runs', (_req, res) => {
-    const runs = requireCore().runs.listRuns();
-    res.json(runs);
+  router.get('/runs', async (_req, res) => {
+    const api = requireAdapter();
+    res.json(await api.runs.list());
   });
 
-  router.get('/runs/:runId', (req, res) => {
+  router.get('/runs/:runId', async (req, res) => {
     const runId = parseParam(res, RunIdParam, req.params.runId);
     if (!runId) return;
-    const run = requireCore().runs.getRun(runId);
+    const api = requireAdapter();
+    const run = await api.runs.get(runId);
     if (!run) {
       res.status(404).json(null);
       return;
@@ -106,14 +125,14 @@ export function createApiRouter(): Router {
     res.json(run);
   });
 
-  router.get('/logs/:runId', (req, res) => {
+  router.get('/logs/:runId', async (req, res) => {
     const runId = parseParam(res, RunIdParam, req.params.runId);
     if (!runId) return;
-    const logs = requireCore().logs.listLogs(runId);
-    res.json(logs);
+    const api = requireAdapter();
+    res.json(await api.logs.list(runId));
   });
 
-  router.get('/artifacts/:runId', (req, res) => {
+  router.get('/artifacts/:runId', async (req, res) => {
     const runId = parseParam(res, RunIdParam, req.params.runId);
     if (!runId) return;
 
@@ -125,16 +144,19 @@ export function createApiRouter(): Router {
         res.status(400).json({ error: 'Validation failed', issues: params.error.errors });
         return;
       }
-      const content = requireCore().workspace.readText(`.aro/artifacts/${params.data.runId}/${params.data.path}`);
+      const api = requireAdapter();
+      const content = await api.artifacts.read(params.data.runId, params.data.path);
       res.type('text/plain').send(content);
       return;
     }
-    const artifacts = requireCore().artifacts.listArtifacts(runId);
-    res.json(artifacts);
+    const api = requireAdapter();
+    res.json(await api.artifacts.list(runId));
   });
 
   return router;
 }
+
+// ── Host-specific: WebSocket log subscription ──────────────────────────────
 
 export function attachLogWebSocket(server: HttpServer): void {
   const wss = new WebSocketServer({ noServer: true });

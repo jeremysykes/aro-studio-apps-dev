@@ -127,6 +127,30 @@ export interface AroCore {
   shutdown(): void;
 }
 
+// ─── AroCore versioning ─────────────────────────────────────────────────────
+
+/**
+ * Version alias for the current AroCore interface.
+ * When AroCore gains breaking changes, bump to AroCore_v2 and keep v1 for
+ * backward compatibility during migration. Hosts and modules can pin to a
+ * specific version to detect incompatibility at compile time.
+ *
+ * Versioning policy: bump only for breaking changes (removed/renamed methods,
+ * changed signatures). Additive changes (new optional methods) do not require
+ * a new version.
+ */
+export type AroCore_v1 = AroCore;
+
+// ─── Module init contract ───────────────────────────────────────────────────
+
+/**
+ * Module initialiser function.
+ * Called by the host (Desktop main process or Web server) at startup.
+ * Receives an AroCore instance, registers jobs, and returns the list of
+ * registered job keys.
+ */
+export type ModuleInit = (core: AroCore) => string[];
+
 // ─── Shell / UI model ────────────────────────────────────────────────────────
 
 export type UIModel = 'standalone' | 'sidebar' | 'dashboard' | 'tabs' | 'carousel';

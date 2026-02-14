@@ -5,17 +5,31 @@ This document defines Modules' responsibilities, boundaries, and relationship to
 ## Dependency direction
 
 ```
-Core ──────────► Desktop
-                      ▲
-Modules ──────────────┘
+@aro/types ◄─── @aro/config
+    ▲               ▲
+    │               │
+@aro/core ──────────┘
+(registry, loader, adapter)
+    ▲
+    │
+@aro/modules/* ─── register via @aro/core
+    ▲
+    │
+Host (desktop / web)
+├── server: thin wrappers over @aro/core registry + loader
+├── transport: IPC (desktop) or HTTP/WS (web) — delegates through CoreAdapter
+└── renderer: shared shell from @aro/ui/shell (ShellRouter, moduleRegistry)
 ```
 
-- Modules MAY import Desktop (for composition, when Desktop loads them).
-- Modules access Core only via Desktop (Desktop holds Core; modules register jobs through Desktop).
+- Modules register jobs with Core via `core.jobs.register()` inside their `ModuleInit` function.
+- Module registration (which modules exist) and module loading (calling init) both live in `@aro/core`.
+- Hosts are thin wrappers: they call `registerModule()`, `resolveConfig()`, `loadModules()` from `@aro/core`.
+- Hosts delegate Core operations through `createCoreAdapter()` — only transport and host-specific operations (workspace dialog, log push) remain in host code.
+- Renderer-side module metadata (icons, components) lives in `@aro/ui/shell`; host renderer registries are thin re-exports.
 - Modules MUST NOT import each other.
-- Core MUST NOT import Desktop or Modules.
+- Core MUST NOT import hosts or modules.
 
-Desktop is the host; Modules and Core are dependencies. Dependency flow is one-way.
+Dependency flow is one-way: hosts → core → types.
 
 ---
 
@@ -31,12 +45,16 @@ The MVP uses the Standalone Model. See [MODULE_MODELS.md](MODULE_MODELS.md) for 
 
 ## Job registration flow
 
-1. User selects workspace; Desktop calls `createCore({ workspaceRoot })`.
-2. Desktop loads the active module (from `ARO_ACTIVE_MODULE` or **`.env`** at the project root; default `hello-world`).
-3. Desktop invokes the module's init function, passing Core (or a restricted facade).
-4. The module calls `core.jobs.register({ key, run })` for each job it provides.
-5. Registration happens in the main process only.
-6. The renderer uses `window.aro.job.run(key)`, `window.aro.runs.list()`, etc. — existing IPC; no new channels for the Standalone MVP.
+1. At startup, the host imports its `moduleRegistry.ts` which calls `registerModule(key, init)` from `@aro/core` for each built-in module.
+2. The host calls `resolveConfig(configDir)` from `@aro/core` to load tenant config.
+3. User selects workspace; host calls `createCore({ workspaceRoot })`.
+4. Host calls `loadModules(core, setRegisteredJobKeys)` from `@aro/core`. This:
+   - Reads enabled module keys from resolved config
+   - In standalone mode, loads only the first module
+   - Calls each module's `ModuleInit` function with Core
+   - Collects returned job keys into host state
+5. The module's init calls `core.jobs.register({ key, run })` for each job it provides.
+6. The renderer uses `window.aro.job.run(key)`, `window.aro.runs.list()`, etc. — transport is host-specific (IPC for desktop, HTTP/WS for web), but all operations delegate through `CoreAdapter`.
 
 ---
 

@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import type { Run, LogEntry, Artifact } from '@aro/types';
-import { Button } from '@aro/ui/components';
 import {
+	Alert,
+	AlertDescription,
+	AlertTitle,
+	AlertTriangleIcon,
+	Button,
 	Card,
 	CardContent,
 	CardHeader,
@@ -188,12 +192,11 @@ export default function HelloWorld() {
 			</Card>
 
 			{error && (
-				<div
-					role='alert'
-					className='rounded-lg border border-red-200 bg-red-50 p-4 text-red-800 mb-4'
-				>
-					{error}
-				</div>
+				<Alert variant='destructive' className='mb-4'>
+					<AlertTriangleIcon />
+					<AlertTitle>Error</AlertTitle>
+					<AlertDescription>{error}</AlertDescription>
+				</Alert>
 			)}
 
 			{workspacePath && (

@@ -12,12 +12,19 @@ const ROW_HEIGHT = 18;
 const PAGE_MARGIN = 50;
 const BOTTOM_MARGIN = 50;
 
+/** Format a health sub-score for export: -1 (internal N/A sentinel) → "N/A", otherwise the number. */
+function fmtScore(v: number): string {
+  return v === -1 ? 'N/A' : String(v);
+}
+
 function reportToCsv(report: InspectReport): string {
   const rows: string[] = [];
   rows.push('Section,Name,Value,Type,Source');
-  rows.push(`Health,Composite,${report.healthScore.composite},,`);
-  rows.push(`Health,Token consistency,${report.healthScore.tokenConsistency},,`);
-  rows.push(`Health,Component coverage,${report.healthScore.componentCoverage},,`);
+  rows.push(`Health,Composite,${fmtScore(report.healthScore.composite)},,`);
+  rows.push(`Health,Token consistency,${fmtScore(report.healthScore.tokenConsistency)},,`);
+  rows.push(`Health,Component coverage,${fmtScore(report.healthScore.componentCoverage)},,`);
+  rows.push(`Health,Naming alignment,${fmtScore(report.healthScore.namingAlignment)},,`);
+  rows.push(`Health,Value parity,${fmtScore(report.healthScore.valueParity)},,`);
   for (const t of report.tokens) {
     rows.push(`Token,${escapeCsv(t.name)},${escapeCsv(t.value)},${escapeCsv(t.type)},${escapeCsv(t.source)}`);
   }
@@ -40,7 +47,15 @@ function reportToMarkdown(report: InspectReport): string {
   const lines: string[] = [];
   lines.push('# Inspect Report');
   lines.push('');
-  lines.push(`**Composite score:** ${report.healthScore.composite}`);
+  lines.push('## Health Score');
+  lines.push('');
+  lines.push(`| Metric | Score |`);
+  lines.push(`|--------|-------|`);
+  lines.push(`| **Composite** | ${fmtScore(report.healthScore.composite)} |`);
+  lines.push(`| Token consistency (30%) | ${fmtScore(report.healthScore.tokenConsistency)} |`);
+  lines.push(`| Component coverage (30%) | ${fmtScore(report.healthScore.componentCoverage)} |`);
+  lines.push(`| Naming alignment (20%) | ${fmtScore(report.healthScore.namingAlignment)} |`);
+  lines.push(`| Value parity (20%) | ${fmtScore(report.healthScore.valueParity)} |`);
   lines.push('');
   lines.push('## Tokens');
   lines.push('| Name | Type | Value | Source |');
@@ -79,9 +94,13 @@ async function reportToPdf(report: InspectReport): Promise<Buffer> {
 
     doc.fontSize(20).text('Inspect Report', { align: 'center' });
     doc.moveDown();
-    doc.fontSize(12).text(`Composite score: ${report.healthScore.composite}`);
-    doc.text(`Token consistency: ${report.healthScore.tokenConsistency}`);
-    doc.text(`Component coverage: ${report.healthScore.componentCoverage}`);
+    doc.fontSize(14).text('Health Score');
+    doc.moveDown(0.3);
+    doc.fontSize(12).text(`Composite: ${fmtScore(report.healthScore.composite)}`);
+    doc.text(`Token consistency (30%): ${fmtScore(report.healthScore.tokenConsistency)}`);
+    doc.text(`Component coverage (30%): ${fmtScore(report.healthScore.componentCoverage)}`);
+    doc.text(`Naming alignment (20%): ${fmtScore(report.healthScore.namingAlignment)}`);
+    doc.text(`Value parity (20%): ${fmtScore(report.healthScore.valueParity)}`);
     doc.moveDown();
 
     const drawTable = (

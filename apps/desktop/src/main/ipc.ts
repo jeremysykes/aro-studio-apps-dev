@@ -1,5 +1,6 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron';
-import { createCore } from '@aro/core';
+import { createCore, createCoreAdapter } from '@aro/core';
+import type { AroPreloadAPI } from '@aro/types';
 import {
   JobRunPayload,
   RunIdParam,
@@ -14,17 +15,31 @@ import {
   removeLogSubscription,
 } from './state.js';
 import { loadModules } from './moduleLoader.js';
-import { getUIModel, getEnabledModuleKeys, getResolvedConfig } from './moduleRegistry.js';
+import { getResolvedConfig } from './moduleRegistry.js';
 
 const NO_WORKSPACE = 'No workspace selected';
 
-function requireCore(): NonNullable<ReturnType<typeof getCore>> {
+/**
+ * Build a CoreAdapter from current host state.
+ * All Core operation logic is defined once in the adapter —
+ * the IPC layer only handles transport (Electron IPC) and host-specific
+ * operations (workspace dialog, log push to renderer).
+ */
+function requireAdapter(): AroPreloadAPI {
   const c = getCore();
   if (!c) throw new Error(NO_WORKSPACE);
-  return c;
+  const config = getResolvedConfig();
+  return createCoreAdapter(c, {
+    uiModel: config.uiModel,
+    enabledModules: config.enabledModules,
+    workspaceRoot: getCurrentWorkspacePath()!,
+    tenantConfig: config,
+    getRegisteredJobKeys,
+  });
 }
 
 export function registerIpcHandlers(getMainWindow: () => BrowserWindow | null): void {
+  // ── Host-specific: workspace dialog ────────────────────────────────────
   ipcMain.handle('workspace:select', async () => {
     const result = await dialog.showOpenDialog({
       properties: ['openDirectory'],
@@ -49,58 +64,61 @@ export function registerIpcHandlers(getMainWindow: () => BrowserWindow | null): 
     return path ? { path } : null;
   });
 
+  // ── Delegated through CoreAdapter ──────────────────────────────────────
   ipcMain.handle('app:getTenantConfig', async () => {
-    return getResolvedConfig();
+    const api = requireAdapter();
+    return api.getTenantConfig();
   });
 
   ipcMain.handle('app:getUIModel', async () => {
-    return getUIModel();
+    const api = requireAdapter();
+    return api.getUIModel();
   });
 
   ipcMain.handle('app:getEnabledModules', async () => {
-    const keys = getEnabledModuleKeys();
-    // Standalone mode only exposes the first module
-    return getUIModel() === 'standalone' ? keys.slice(0, 1) : keys;
+    const api = requireAdapter();
+    return api.getEnabledModules();
   });
 
   ipcMain.handle('job:run', async (_, jobKey: string, input?: unknown, opts?: { traceId?: string }) => {
     const payload = JobRunPayload.parse({ jobKey, input, traceId: opts?.traceId });
-    const c = requireCore();
-    const { runId } = c.jobs.run(payload.jobKey, payload.input ?? undefined, payload.traceId ? { traceId: payload.traceId } : undefined);
-    return { runId };
+    const api = requireAdapter();
+    return api.job.run(payload.jobKey, payload.input ?? undefined, payload.traceId ? { traceId: payload.traceId } : undefined);
   });
 
   ipcMain.handle('job:cancel', async (_, runId: string) => {
     const validated = RunIdParam.parse(runId);
-    const c = requireCore();
-    c.jobs.cancel(validated);
+    const api = requireAdapter();
+    return api.job.cancel(validated);
   });
 
   ipcMain.handle('job:listRegistered', async () => {
-    requireCore();
-    return getRegisteredJobKeys();
+    const api = requireAdapter();
+    return api.job.listRegistered();
   });
 
   ipcMain.handle('runs:list', async () => {
-    const c = requireCore();
-    return c.runs.listRuns();
+    const api = requireAdapter();
+    return api.runs.list();
   });
 
   ipcMain.handle('runs:get', async (_, runId: string) => {
     const validated = RunIdParam.parse(runId);
-    const c = requireCore();
-    return c.runs.getRun(validated);
+    const api = requireAdapter();
+    return api.runs.get(validated);
   });
 
   ipcMain.handle('logs:list', async (_, runId: string) => {
     const validated = RunIdParam.parse(runId);
-    const c = requireCore();
-    return c.logs.listLogs(validated);
+    const api = requireAdapter();
+    return api.logs.list(validated);
   });
 
+  // ── Host-specific: log subscription via IPC event push ─────────────────
   ipcMain.handle('logs:subscribe', async (_, runId: string) => {
     const validated = RunIdParam.parse(runId);
-    const c = requireCore();
+    const c = getCore();
+    if (!c) throw new Error(NO_WORKSPACE);
     const subscriptionId = `logs:${validated}:${Date.now()}:${Math.random().toString(36).slice(2)}`;
     const unsubscribe = c.logs.subscribe(validated, (entry) => {
       const win = getMainWindow();
@@ -119,14 +137,13 @@ export function registerIpcHandlers(getMainWindow: () => BrowserWindow | null): 
 
   ipcMain.handle('artifacts:list', async (_, runId: string) => {
     const validated = RunIdParam.parse(runId);
-    const c = requireCore();
-    return c.artifacts.listArtifacts(validated);
+    const api = requireAdapter();
+    return api.artifacts.list(validated);
   });
 
   ipcMain.handle('artifacts:read', async (_, runId: string, path: string) => {
     const params = ArtifactReadParams.parse({ runId, path });
-    const c = requireCore();
-    const relPath = `.aro/artifacts/${params.runId}/${params.path}`;
-    return c.workspace.readText(relPath);
+    const api = requireAdapter();
+    return api.artifacts.read(params.runId, params.path);
   });
 }
