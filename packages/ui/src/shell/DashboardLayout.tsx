@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { Button } from '../components/ui/button';
+import { ModuleErrorBoundary } from './ModuleErrorBoundary';
 import { WidgetCard } from './WidgetCard';
 import type { ModuleRegistryEntry } from './Sidebar';
 
@@ -39,7 +40,9 @@ export function DashboardLayout({ modules }: DashboardLayoutProps) {
           <span className="text-lg font-semibold">{expandedModule.label}</span>
         </header>
         <main className="flex-1 min-h-0 overflow-auto">
-          <FullComponent />
+          <ModuleErrorBoundary key={expandedKey} moduleKey={expandedModule.key} moduleLabel={expandedModule.label}>
+            <FullComponent />
+          </ModuleErrorBoundary>
         </main>
       </div>
     );

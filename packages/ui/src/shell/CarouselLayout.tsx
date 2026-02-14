@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '../components/ui/button';
 import { cn } from '../lib/utils';
+import { ModuleErrorBoundary } from './ModuleErrorBoundary';
 import type { ModuleRegistryEntry } from './Sidebar';
 
 interface CarouselLayoutProps {
@@ -18,13 +19,18 @@ export function CarouselLayout({ modules }: CarouselLayoutProps) {
   const prev = () => setSelectedIndex((i) => (i - 1 + modules.length) % modules.length);
   const next = () => setSelectedIndex((i) => (i + 1) % modules.length);
 
-  const ActiveComponent = modules[selectedIndex]?.component;
+  const activeModule = modules[selectedIndex];
+  const ActiveComponent = activeModule?.component;
 
   return (
     <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
       {/* Slide viewport — only the active module is rendered */}
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-        {ActiveComponent ? <ActiveComponent /> : null}
+        {activeModule && ActiveComponent ? (
+          <ModuleErrorBoundary key={activeModule.key} moduleKey={activeModule.key} moduleLabel={activeModule.label}>
+            <ActiveComponent />
+          </ModuleErrorBoundary>
+        ) : null}
       </div>
 
       {/* Navigation bar — always at bottom */}

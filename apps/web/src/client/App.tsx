@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { UIModel } from '@aro/types';
 import { moduleRegistry, type ModuleRegistryEntry } from './moduleRegistry';
-import { ShellLayout, DashboardLayout, TabsLayout, CarouselLayout } from '@aro/ui/shell';
+import { ShellLayout, DashboardLayout, TabsLayout, CarouselLayout, ModuleErrorBoundary } from '@aro/ui/shell';
 
 function App() {
   const [uiModel, setUIModel] = useState<UIModel | null>(null);
@@ -53,11 +53,16 @@ function App() {
     );
   }
 
-  const ActiveModule = enabledModules.find((m) => m.key === activeKey)?.component;
+  const activeEntry = enabledModules.find((m) => m.key === activeKey);
+  const ActiveModule = activeEntry?.component;
 
   // Standalone mode — no shell, module owns the full screen
   if (uiModel === 'standalone') {
-    return ActiveModule ? <ActiveModule /> : null;
+    return activeEntry && ActiveModule ? (
+      <ModuleErrorBoundary key={activeKey} moduleKey={activeKey} moduleLabel={activeEntry.label}>
+        <ActiveModule />
+      </ModuleErrorBoundary>
+    ) : null;
   }
 
   // Dashboard mode — responsive grid of widget cards with expand
@@ -83,7 +88,11 @@ function App() {
   // Sidebar mode — vertical nav, one module visible at a time
   return (
     <ShellLayout modules={enabledModules} activeKey={activeKey} onSelect={setActiveKey}>
-      {ActiveModule ? <ActiveModule /> : null}
+      {activeEntry && ActiveModule ? (
+        <ModuleErrorBoundary key={activeKey} moduleKey={activeKey} moduleLabel={activeEntry.label}>
+          <ActiveModule />
+        </ModuleErrorBoundary>
+      ) : null}
     </ShellLayout>
   );
 }

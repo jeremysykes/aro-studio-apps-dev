@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { cn } from '../lib/utils';
+import { ModuleErrorBoundary } from './ModuleErrorBoundary';
 import type { ModuleRegistryEntry } from './Sidebar';
 
 interface TabsLayoutProps {
@@ -14,7 +15,8 @@ interface TabsLayoutProps {
 export function TabsLayout({ modules }: TabsLayoutProps) {
   const [activeKey, setActiveKey] = useState<string>(modules[0]?.key ?? '');
 
-  const ActiveModule = modules.find((m) => m.key === activeKey)?.component;
+  const activeModule = modules.find((m) => m.key === activeKey);
+  const ActiveComponent = activeModule?.component;
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -37,7 +39,11 @@ export function TabsLayout({ modules }: TabsLayoutProps) {
         ))}
       </nav>
       <main className="flex-1 min-h-0 overflow-auto">
-        {ActiveModule ? <ActiveModule /> : null}
+        {activeModule && ActiveComponent ? (
+          <ModuleErrorBoundary key={activeKey} moduleKey={activeKey} moduleLabel={activeModule.label}>
+            <ActiveComponent />
+          </ModuleErrorBoundary>
+        ) : null}
       </main>
     </div>
   );
