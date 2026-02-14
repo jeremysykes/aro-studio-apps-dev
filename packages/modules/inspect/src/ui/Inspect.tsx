@@ -90,6 +90,12 @@ export default function Inspect() {
 									</TabsTrigger>
 								))}
 							</TabsList>
+							{view === 'setup' && (
+								<p className='mt-2 mb-4 text-sm text-zinc-500'>
+									Configure at least one source (Figma, Code tokens, or Storybook)
+									to enable Run Inspect.
+								</p>
+							)}
 							{view === 'run' && (
 								<p className='mt-2 mb-4 text-sm text-zinc-500'>
 									Run Inspect from the Setup tab, then select a run here to view
@@ -98,8 +104,8 @@ export default function Inspect() {
 							)}
 							{view === 'report' && (
 								<p className='mt-2 mb-4 text-sm text-zinc-500'>
-									Select a completed run to view its health report, or export to
-									CSV, Markdown, or PDF.
+									Run Inspect from the Setup tab, then select a run here to view
+									reports.
 								</p>
 							)}
 							<TabsContent value='setup'>
