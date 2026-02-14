@@ -1,7 +1,7 @@
 .DS_Store
 .aro
 .dev-state
-.claude
+.claude/worktrees
 .env
 node_modules
 dist

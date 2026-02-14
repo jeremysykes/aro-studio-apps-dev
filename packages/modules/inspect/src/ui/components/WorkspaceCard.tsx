@@ -15,8 +15,12 @@ import {
 import { useInspectStore } from '../store';
 import { DirectoryBrowser } from './DirectoryBrowser';
 
- 
-type AroExt = { workspace: { set?: (p: string) => Promise<{ path: string }> }; filesystem?: { browse: (p?: string) => Promise<import('@aro/types').BrowseResult> } };
+type AroExt = {
+	workspace: { set?: (p: string) => Promise<{ path: string }> };
+	filesystem?: {
+		browse: (p?: string) => Promise<import('@aro/types').BrowseResult>;
+	};
+};
 
 /** Check whether the web-only filesystem API is available. */
 const hasFilesystemApi = () =>
@@ -58,9 +62,6 @@ export function WorkspaceCard() {
 				<CardContent className='p-0'>
 					{!workspacePath ? (
 						<div className='flex flex-wrap items-center gap-2'>
-							<p className='text-sm text-zinc-500'>
-								Select a workspace to configure sources and run Inspect.
-							</p>
 							<Button
 								type='button'
 								variant='secondary'
@@ -69,9 +70,20 @@ export function WorkspaceCard() {
 							>
 								Select workspace
 							</Button>
+							<p className='text-sm text-zinc-500'>
+								Select a workspace to configure sources and run Inspect.
+							</p>
 						</div>
 					) : (
 						<div className='flex flex-wrap items-center gap-x-4 gap-y-2'>
+							<Button
+								type='button'
+								variant='ghost'
+								size='xs'
+								onClick={handleClick}
+							>
+								Set workspace
+							</Button>
 							<span className='text-sm text-zinc-500 min-w-0 flex items-baseline gap-1'>
 								<Tooltip>
 									<TooltipTrigger asChild>
@@ -82,14 +94,6 @@ export function WorkspaceCard() {
 									<TooltipContent>{workspacePath}</TooltipContent>
 								</Tooltip>
 							</span>
-							<Button
-								type='button'
-								variant='ghost'
-								size='xs'
-								onClick={handleClick}
-							>
-								Set workspace
-							</Button>
 						</div>
 					)}
 				</CardContent>
@@ -100,7 +104,8 @@ export function WorkspaceCard() {
 					<DialogHeader>
 						<DialogTitle>Select workspace</DialogTitle>
 						<DialogDescription>
-							Browse and select a directory on the server to use as your workspace.
+							Browse and select a directory on the server to use as your
+							workspace.
 						</DialogDescription>
 					</DialogHeader>
 					<DirectoryBrowser

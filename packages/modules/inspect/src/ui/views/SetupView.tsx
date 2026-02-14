@@ -14,6 +14,7 @@ import { useInspectStore } from '../store';
 
 export interface SetupViewProps {
 	hasAtLeastOneSource: boolean;
+	hasWorkspace: boolean;
 }
 
 /** Derive which sources are configured from the current config. */
@@ -33,7 +34,7 @@ function configuredSources(config: {
 	return sources;
 }
 
-export function SetupView({ hasAtLeastOneSource }: SetupViewProps) {
+export function SetupView({ hasAtLeastOneSource, hasWorkspace }: SetupViewProps) {
 	const config = useInspectStore((s) => s.config);
 	const setConfig = useInspectStore((s) => s.setConfig);
 	const runScan = useInspectStore((s) => s.runScan);
@@ -49,9 +50,9 @@ export function SetupView({ hasAtLeastOneSource }: SetupViewProps) {
 				Setup sources
 			</h2>
 
-			{!hasAtLeastOneSource && (
+			{(!hasWorkspace || !hasAtLeastOneSource) && (
 				<p className='text-sm text-zinc-500 mb-4'>
-					Configure at least one source (Figma, Code tokens, or Storybook) to
+					Set your workspace and configure at least one source (Figma, Code tokens, or Storybook) to
 					enable Run Inspect.
 				</p>
 			)}
@@ -212,7 +213,7 @@ export function SetupView({ hasAtLeastOneSource }: SetupViewProps) {
 					type='button'
 					variant='default'
 					size='sm'
-					disabled={!hasAtLeastOneSource}
+					disabled={!hasWorkspace || !hasAtLeastOneSource}
 					onClick={runScan}
 				>
 					Run Inspect
