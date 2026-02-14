@@ -55,7 +55,9 @@ export function ReportView() {
 					Runs
 				</CardTitle>
 			</div>
-			<CardContent className={`${CARD_CONTENT_CLASS} p-0`}>
+			<CardContent
+				className={`${CARD_CONTENT_CLASS} p-0 max-h-[50vh] overflow-y-auto min-[900px]:max-h-none`}
+			>
 				{runsWithReportLoading ? (
 					<ul className='list-none space-y-1 min-w-0 p-2'>
 						{Array.from({ length: 6 }, (_, i) => (
@@ -183,7 +185,7 @@ export function ReportView() {
 			<h2 id='report-heading' className='sr-only'>
 				Report
 			</h2>
-			<TwoColumnLayout sidebar={sidebar} main={main} sidebarAside />
+			<TwoColumnLayout sidebar={sidebar} main={main} sidebarAside sidebarRight />
 		</section>
 	);
 }

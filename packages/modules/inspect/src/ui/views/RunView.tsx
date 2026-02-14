@@ -66,7 +66,9 @@ export function RunView() {
 						Runs
 					</CardTitle>
 				</div>
-				<CardContent className={`${CARD_CONTENT_CLASS} p-0`}>
+				<CardContent
+					className={`${CARD_CONTENT_CLASS} p-0 max-h-[50vh] overflow-y-auto min-[900px]:max-h-none`}
+				>
 					<RunsTable showStatus />
 				</CardContent>
 			</Card>
@@ -162,7 +164,7 @@ export function RunView() {
 			<h2 id='run-heading' className='sr-only'>
 				Run and logs
 			</h2>
-			<TwoColumnLayout sidebar={sidebar} main={main} />
+			<TwoColumnLayout sidebar={sidebar} main={main} sidebarRight />
 		</section>
 	);
 }

@@ -56,7 +56,7 @@ export function SetupView({ hasAtLeastOneSource }: SetupViewProps) {
 				</p>
 			)}
 
-			<div className='grid grid-cols-1 min-[900px]:grid-cols-3 gap-4'>
+			<div className='grid grid-cols-1 min-[640px]:grid-cols-2 min-[900px]:grid-cols-3 gap-4'>
 				{/* ── Figma ── */}
 				<Card>
 					<CardHeader>
