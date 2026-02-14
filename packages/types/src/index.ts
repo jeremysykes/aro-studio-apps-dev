@@ -223,4 +223,19 @@ export {
   JobCancelPayload,
   ArtifactReadParams,
   LogSubscribeQuery,
+  WorkspaceSelectPayload,
+  FileSystemBrowseQuery,
 } from './api-schemas.js';
+
+// ─── Filesystem browsing ────────────────────────────────────────────────────
+
+export interface DirectoryEntry {
+  name: string;
+  path: string;
+}
+
+export interface BrowseResult {
+  current: string;
+  parent: string | null;
+  entries: DirectoryEntry[];
+}

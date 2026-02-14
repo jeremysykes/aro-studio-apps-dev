@@ -1,4 +1,4 @@
-import type { Run, LogEntry, Artifact, TenantConfig } from '@aro/types';
+import type { Run, LogEntry, Artifact, TenantConfig, BrowseResult } from '@aro/types';
 
 const API_BASE = '';
 
@@ -18,6 +18,8 @@ function getWsUrl(path: string): string {
 }
 
 export function createAroApiClient() {
+  const changedCallbacks = new Set<(data: { path: string } | null) => void>();
+
   return {
     getTenantConfig: () => fetchJson<TenantConfig>('/api/app/tenant-config'),
     getUIModel: () =>
@@ -28,8 +30,24 @@ export function createAroApiClient() {
     workspace: {
       select: () => Promise.resolve(null as { path: string } | null),
       getCurrent: () => fetchJson<{ path: string } | null>('/api/workspace/current'),
-      onChanged: (_callback: (data: { path: string } | null) => void) => {
-        return () => {};
+      onChanged: (callback: (data: { path: string } | null) => void) => {
+        changedCallbacks.add(callback);
+        return () => { changedCallbacks.delete(callback); };
+      },
+      /** Web-only: set workspace to an absolute server path. */
+      set: (dirPath: string) =>
+        fetchJson<{ path: string }>('/api/workspace/select', {
+          method: 'POST',
+          body: JSON.stringify({ path: dirPath }),
+        }).then((result) => {
+          for (const cb of changedCallbacks) cb(result);
+          return result;
+        }),
+    },
+    filesystem: {
+      browse: (dirPath?: string) => {
+        const qs = dirPath ? `?path=${encodeURIComponent(dirPath)}` : '';
+        return fetchJson<BrowseResult>(`/api/filesystem/browse${qs}`);
       },
     },
     job: {

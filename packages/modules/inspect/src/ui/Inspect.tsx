@@ -53,75 +53,79 @@ export default function Inspect() {
 
 	return (
 		<InspectErrorBoundary>
-		<TooltipProvider delayDuration={300}>
-		<main className='p-6 font-sans' role='main'>
-			<ConnectionStatusBar status={status} onRetry={loadRuns} />
-			<div className='flex flex-col min-[900px]:flex-row min-[900px]:items-start min-[900px]:justify-between gap-4 mb-3 pb-4 border-b border-[#E4E4E7]'>
-					<div className='flex flex-col gap-1 min-w-0'>
-						<h1 className='text-xl font-semibold'>Aro Inspect</h1>
-						<p className='text-sm text-zinc-500'>
-							Design system inventory & health
-						</p>
+			<TooltipProvider delayDuration={300}>
+				<main className='p-6 font-sans' role='main'>
+					<ConnectionStatusBar status={status} onRetry={loadRuns} />
+					<div className='flex flex-col min-[900px]:flex-row min-[900px]:items-start min-[900px]:justify-between gap-4 mb-3 pb-4 border-b border-[#E4E4E7]'>
+						<div className='flex flex-col gap-1 min-w-0'>
+							<h1 className='flex items-center gap-1'>
+								<span className='text-xl font-semibold'>Aro Inspect</span>
+								<span className='text-sm text-zinc-500'>
+									Design system inventory & health
+								</span>
+							</h1>
+						</div>
+						<div className='min-w-0 min-[900px]:shrink-0'>
+							<WorkspaceCard />
+						</div>
 					</div>
-					<div className='min-w-0 min-[900px]:shrink-0'>
-						<WorkspaceCard />
-					</div>
-				</div>
 
-				{workspacePath && (
-					<>
-						{error && (
-							<Alert variant='destructive' className='mb-4'>
-								<AlertTriangleIcon />
-								<AlertTitle>Error</AlertTitle>
-								<AlertDescription>{error}</AlertDescription>
-							</Alert>
-						)}
+					{workspacePath && (
+						<>
+							{error && (
+								<Alert variant='destructive' className='mb-4'>
+									<AlertTriangleIcon />
+									<AlertTitle>Error</AlertTitle>
+									<AlertDescription>{error}</AlertDescription>
+								</Alert>
+							)}
 
-						<Tabs
-							value={view}
-							onValueChange={(value) => setView(value as View)}
-							className='mt-2'
-						>
-							<TabsList size='xs' className='mb-3' aria-label='Inspect views'>
-								{VIEW_TABS.map((tab) => (
-									<TabsTrigger key={tab.id} value={tab.id} size='xs'>
-										{tab.label}
-									</TabsTrigger>
-								))}
-							</TabsList>
-							{view === 'setup' && (
-								<p className='mt-2 mb-4 text-sm text-zinc-500'>
-									Configure at least one source (Figma, Code tokens, or Storybook)
-									to enable Run Inspect.
-								</p>
-							)}
-							{view === 'run' && (
-								<p className='mt-2 mb-4 text-sm text-zinc-500'>
-									Run Inspect from the Setup tab, then select a run here to view
-									logs and progress.
-								</p>
-							)}
-							{view === 'report' && (
-								<p className='mt-2 mb-4 text-sm text-zinc-500'>
-									Run Inspect from the Setup tab, then select a run here to view
-									reports.
-								</p>
-							)}
-							<TabsContent value='setup'>
-								<SetupView hasAtLeastOneSource={hasAtLeastOneSource(config)} />
-							</TabsContent>
-							<TabsContent value='run'>
-								<RunView />
-							</TabsContent>
-							<TabsContent value='report'>
-								<ReportView />
-							</TabsContent>
-						</Tabs>
-					</>
-				)}
-		</main>
-		</TooltipProvider>
+							<Tabs
+								value={view}
+								onValueChange={(value) => setView(value as View)}
+								className='mt-2'
+							>
+								<TabsList size='xs' className='mb-3' aria-label='Inspect views'>
+									{VIEW_TABS.map((tab) => (
+										<TabsTrigger key={tab.id} value={tab.id} size='xs'>
+											{tab.label}
+										</TabsTrigger>
+									))}
+								</TabsList>
+								{view === 'setup' && (
+									<p className='mt-2 mb-4 text-sm text-zinc-500'>
+										Configure at least one source (Figma, Code tokens, or
+										Storybook) to enable Run Inspect.
+									</p>
+								)}
+								{view === 'run' && (
+									<p className='mt-2 mb-4 text-sm text-zinc-500'>
+										Run Inspect from the Setup tab, then select a run here to
+										view logs and progress.
+									</p>
+								)}
+								{view === 'report' && (
+									<p className='mt-2 mb-4 text-sm text-zinc-500'>
+										Run Inspect from the Setup tab, then select a run here to
+										view reports.
+									</p>
+								)}
+								<TabsContent value='setup'>
+									<SetupView
+										hasAtLeastOneSource={hasAtLeastOneSource(config)}
+									/>
+								</TabsContent>
+								<TabsContent value='run'>
+									<RunView />
+								</TabsContent>
+								<TabsContent value='report'>
+									<ReportView />
+								</TabsContent>
+							</Tabs>
+						</>
+					)}
+				</main>
+			</TooltipProvider>
 		</InspectErrorBoundary>
 	);
 }

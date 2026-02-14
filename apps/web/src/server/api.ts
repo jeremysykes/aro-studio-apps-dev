@@ -1,9 +1,12 @@
+import { readdirSync, statSync } from 'fs';
+import os from 'os';
+import path from 'path';
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { WebSocketServer } from 'ws';
 import type { WebSocket } from 'ws';
 import type { Server as HttpServer } from 'http';
 import type { ZodType } from 'zod';
-import { createCoreAdapter } from '@aro/core';
+import { createCore, createCoreAdapter } from '@aro/core';
 import type { AroPreloadAPI } from '@aro/types';
 import {
   JobRunPayload,
@@ -11,6 +14,7 @@ import {
   RunIdParam,
   ArtifactReadParams,
   LogSubscribeQuery,
+  WorkspaceSelectPayload,
 } from '@aro/types';
 import {
   getCore,
@@ -18,7 +22,9 @@ import {
   getRegisteredJobKeys,
   addLogSubscription,
   removeLogSubscription,
+  switchWorkspace,
 } from './state.js';
+import { loadModules } from './moduleLoader.js';
 import { getResolvedConfig } from './moduleRegistry.js';
 
 const NO_WORKSPACE = 'No workspace selected';
@@ -69,8 +75,44 @@ export function createApiRouter(): Router {
   const router = Router();
 
   router.get('/workspace/current', (_req, res) => {
-    const path = getCurrentWorkspacePath();
-    res.json(path ? { path } : null);
+    const wsPath = getCurrentWorkspacePath();
+    res.json(wsPath ? { path: wsPath } : null);
+  });
+
+  router.post('/workspace/select', validateBody(WorkspaceSelectPayload), (req, res) => {
+    const { path: rawPath } = req.body as WorkspaceSelectPayload;
+    try {
+      const resolved = switchWorkspace(rawPath, createCore, loadModules);
+      res.json({ path: resolved });
+    } catch (e) {
+      res.status(400).json({ error: e instanceof Error ? e.message : 'Failed to set workspace' });
+    }
+  });
+
+  // ── Filesystem browsing (web-only) ────────────────────────────────────────
+  router.get('/filesystem/browse', (req, res) => {
+    const rawPath = typeof req.query.path === 'string' ? req.query.path : os.homedir();
+    const resolved = path.resolve(rawPath);
+    try {
+      const stat = statSync(resolved);
+      if (!stat.isDirectory()) {
+        res.status(400).json({ error: 'Path is not a directory' });
+        return;
+      }
+      const dirents = readdirSync(resolved, { withFileTypes: true });
+      const entries = dirents
+        .filter((d) => d.isDirectory() && !d.name.startsWith('.'))
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((d) => ({ name: d.name, path: path.join(resolved, d.name) }));
+      const parent = path.dirname(resolved);
+      res.json({
+        current: resolved,
+        parent: parent !== resolved ? parent : null,
+        entries,
+      });
+    } catch {
+      res.status(400).json({ error: 'Unable to read directory' });
+    }
   });
 
   // ── Delegated through CoreAdapter ──────────────────────────────────────

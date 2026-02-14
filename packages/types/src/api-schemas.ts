@@ -48,3 +48,15 @@ export const LogSubscribeQuery = z.object({
   runId: RunIdParam,
 });
 export type LogSubscribeQuery = z.infer<typeof LogSubscribeQuery>;
+
+/** POST /api/workspace/select — set workspace to an absolute path */
+export const WorkspaceSelectPayload = z.object({
+  path: z.string().min(1, 'path is required'),
+});
+export type WorkspaceSelectPayload = z.infer<typeof WorkspaceSelectPayload>;
+
+/** GET /api/filesystem/browse — browse directories on the server */
+export const FileSystemBrowseQuery = z.object({
+  path: z.string().min(1).optional(),
+});
+export type FileSystemBrowseQuery = z.infer<typeof FileSystemBrowseQuery>;

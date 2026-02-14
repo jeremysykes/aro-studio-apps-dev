@@ -4,6 +4,18 @@ export { Button, buttonVariants } from './ui/button';
 export { Input } from './ui/input';
 export { Textarea } from './ui/textarea';
 export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './ui/card';
+export {
+	Dialog,
+	DialogPortal,
+	DialogOverlay,
+	DialogClose,
+	DialogTrigger,
+	DialogContent,
+	DialogHeader,
+	DialogFooter,
+	DialogTitle,
+	DialogDescription,
+} from './ui/dialog';
 export { Skeleton } from './ui/skeleton';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 export {
