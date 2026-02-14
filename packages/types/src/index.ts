@@ -66,6 +66,8 @@ export interface ArtifactWriter {
 
 export interface JobDefinition {
   key: string;
+  /** Maximum time in ms the job is allowed to run before Core force-transitions it to error. */
+  maxRunDuration?: number;
   run: (ctx: JobContext, input: unknown) => void | Promise<void>;
 }
 

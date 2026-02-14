@@ -269,6 +269,33 @@ export function runContractSuite(factory: ContractFactory): void {
         expect(run!.traceId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
       });
     });
+
+    // ── Timeout enforcement ───────────────────────────────────────────────
+
+    describe('Timeout enforcement', () => {
+      it('job exceeding maxRunDuration is marked error with timeout log', async () => {
+        const { runId } = await api.job.run('timeout-job', null);
+        // timeout-job has maxRunDuration: 50ms, so wait enough for it to fire
+        await sleep(150);
+        const run = await api.runs.get(runId);
+        expect(run).not.toBeNull();
+        expect(run!.status).toBe('error');
+
+        const entries = await api.logs.list(runId);
+        const timeoutLog = entries.find((e) => e.message.includes('timed out'));
+        expect(timeoutLog).toBeDefined();
+        expect(timeoutLog!.level).toBe('error');
+        expect(timeoutLog!.message).toContain('50ms');
+      });
+
+      it('job that completes before timeout succeeds normally', async () => {
+        // test-job is sync and has no maxRunDuration — should succeed as before
+        const { runId } = await api.job.run('test-job', { data: 'fast' });
+        await sleep(30);
+        const run = await api.runs.get(runId);
+        expect(run!.status).toBe('success');
+      });
+    });
   });
 }
 

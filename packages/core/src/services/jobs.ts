@@ -16,6 +16,15 @@ export function createJobsService(
 ) {
   const registry = new Map<string, JobDefinition>();
   const abortControllers = new Map<string, AbortController>();
+  const timeoutTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+  function clearRunTimeout(runId: string): void {
+    const timer = timeoutTimers.get(runId);
+    if (timer) {
+      clearTimeout(timer);
+      timeoutTimers.delete(runId);
+    }
+  }
 
   return {
     register(jobDef: JobDefinition): void {
@@ -55,14 +64,33 @@ export function createJobsService(
         ac.signal
       );
 
+      // ── Timeout enforcement ───────────────────────────────────────────
+      if (jobDef.maxRunDuration != null && jobDef.maxRunDuration > 0) {
+        const timer = setTimeout(() => {
+          timeoutTimers.delete(runId);
+          if (getIsShutdown?.()) return;
+          const run = runs.getRun(runId);
+          if (run?.status !== 'running') return;
+
+          // Log the timeout reason before transitioning
+          logger('error', `Job timed out after ${jobDef.maxRunDuration}ms`);
+          ac.abort();
+          runs.finishRun({ runId, status: 'error' });
+          abortControllers.delete(runId);
+        }, jobDef.maxRunDuration);
+        timeoutTimers.set(runId, timer);
+      }
+
       void Promise.resolve(jobDef.run(ctx, input))
         .then(() => {
+          clearRunTimeout(runId);
           if (getIsShutdown?.()) return;
           if (runs.getRun(runId)?.status === 'running') {
             runs.finishRun({ runId, status: 'success' });
           }
         })
         .catch(() => {
+          clearRunTimeout(runId);
           if (getIsShutdown?.()) return;
           if (runs.getRun(runId)?.status === 'running') {
             runs.finishRun({ runId, status: 'error' });
@@ -76,6 +104,7 @@ export function createJobsService(
     },
 
     cancel(runId: string): void {
+      clearRunTimeout(runId);
       const ac = abortControllers.get(runId);
       if (ac) {
         ac.abort();

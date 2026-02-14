@@ -48,9 +48,21 @@ runContractSuite(() => {
     },
   });
 
+  // Job with a short timeout for timeout enforcement testing
+  core.jobs.register({
+    key: 'timeout-job',
+    maxRunDuration: 50,
+    run: async (ctx) => {
+      // Runs forever unless aborted — will be killed by the timeout
+      while (!ctx.abort.aborted) {
+        await new Promise((r) => setTimeout(r, 5));
+      }
+    },
+  });
+
   const adapter = createCoreAdapter(core, {
     uiModel: 'sidebar',
-    enabledModules: ['test-job', 'slow-job', 'fail-job', 'logging-job'],
+    enabledModules: ['test-job', 'slow-job', 'fail-job', 'logging-job', 'timeout-job'],
     workspaceRoot,
   });
 
