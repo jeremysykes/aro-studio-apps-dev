@@ -7,7 +7,6 @@ import {
 	CardHeader,
 	CardTitle,
 	Input,
-	Separator,
 	Textarea,
 } from '@aro/ui/components';
 import { useInspectStore } from '../store';
@@ -50,12 +49,27 @@ export function SetupView({ hasAtLeastOneSource, hasWorkspace }: SetupViewProps)
 				Setup sources
 			</h2>
 
-			{(!hasWorkspace || !hasAtLeastOneSource) && (
-				<p className='text-sm text-zinc-500 mb-4'>
-					Set your workspace and configure at least one source (Figma, Code tokens, or Storybook) to
-					enable Run Inspect.
-				</p>
-			)}
+			{/* Primary CTA — always visible without scrolling */}
+			<div className='flex items-center gap-3 mb-4'>
+				<Button
+					type='button'
+					variant='default'
+					size='sm'
+					disabled={!hasWorkspace || !hasAtLeastOneSource}
+					onClick={runScan}
+				>
+					Run Inspect
+				</Button>
+				{hasAtLeastOneSource ? (
+					<span className='text-xs text-zinc-500'>
+						Will scan: {sources.join(', ')}
+					</span>
+				) : (
+					<span className='text-xs text-zinc-500'>
+						Configure at least one source below to enable.
+					</span>
+				)}
+			</div>
 
 			<div className='grid grid-cols-1 min-[640px]:grid-cols-2 min-[900px]:grid-cols-3 gap-4'>
 				{/* ── Figma ── */}
@@ -205,25 +219,6 @@ export function SetupView({ hasAtLeastOneSource, hasWorkspace }: SetupViewProps)
 				</Card>
 			</div>
 
-			<Separator className='my-4' />
-
-			{/* Scan summary + Run button */}
-			<div className='flex items-center gap-3'>
-				<Button
-					type='button'
-					variant='default'
-					size='sm'
-					disabled={!hasWorkspace || !hasAtLeastOneSource}
-					onClick={runScan}
-				>
-					Run Inspect
-				</Button>
-				{hasAtLeastOneSource && (
-					<span className='text-xs text-zinc-500'>
-						Will scan: {sources.join(', ')}
-					</span>
-				)}
-			</div>
 		</section>
 	);
 }

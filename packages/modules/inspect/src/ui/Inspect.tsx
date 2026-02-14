@@ -54,12 +54,12 @@ export default function Inspect() {
 	return (
 		<InspectErrorBoundary>
 			<TooltipProvider delayDuration={300}>
-				<main className='p-6 font-sans' role='main'>
+				<main className='px-3 py-6 sm:px-6 max-w-5xl mx-auto font-sans' role='main'>
 					<ConnectionStatusBar status={status} onRetry={loadRuns} />
 
 					{/* Title — R2: no border, 24px spacing */}
 					<div className='mb-6'>
-						<h1 className='flex items-center gap-1'>
+						<h1 className='flex flex-wrap items-baseline gap-x-2 gap-y-0.5'>
 							<span className='text-xl font-semibold'>Aro Inspect</span>
 							<span className='text-sm text-zinc-500'>
 								Design system inventory & health
@@ -88,19 +88,13 @@ export default function Inspect() {
 								onValueChange={(value) => setView(value as View)}
 							>
 								{/* R3: 16px below tab list */}
-								<TabsList size='xs' className='mb-4' aria-label='Inspect views'>
+								<TabsList size='xs' className='mb-4 w-full sm:w-auto' aria-label='Inspect views'>
 									{VIEW_TABS.map((tab) => (
 										<TabsTrigger key={tab.id} value={tab.id} size='xs'>
 											{tab.label}
 										</TabsTrigger>
 									))}
 								</TabsList>
-								{view === 'setup' && (
-									<p className='mb-4 text-sm text-zinc-500'>
-										Configure at least one source (Figma, Code tokens, or
-										Storybook) to enable Run Inspect.
-									</p>
-								)}
 								{view === 'run' && (
 									<p className='mb-4 text-sm text-zinc-500'>
 										Run Inspect from the Setup tab, then select a run here to

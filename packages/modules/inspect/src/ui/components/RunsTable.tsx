@@ -67,7 +67,7 @@ export function RunsTable({
 				<TableRow>
 					<TableHead>Time</TableHead>
 					<TableHead>ID</TableHead>
-					{showStatus && <TableHead>Status</TableHead>}
+					{showStatus && <TableHead className='text-right'>Status</TableHead>}
 				</TableRow>
 			</TableHeader>
 			<TableBody>
@@ -91,7 +91,7 @@ export function RunsTable({
 									<TooltipContent>{run.id}</TooltipContent>
 								</Tooltip>
 							</TableCell>
-							{showStatus && <TableCell>{statusBadge(run.status)}</TableCell>}
+							{showStatus && <TableCell className='text-right'>{statusBadge(run.status)}</TableCell>}
 						</TableRow>
 					);
 				})}

@@ -61,7 +61,7 @@ export function WorkspaceCard() {
 			<Card className='mb-0 py-1.5 px-3'>
 				<CardContent className='p-0'>
 					{!workspacePath ? (
-						<div className='flex flex-wrap items-center gap-2'>
+						<div className='space-y-1'>
 							<Button
 								type='button'
 								variant='secondary'
@@ -70,12 +70,12 @@ export function WorkspaceCard() {
 							>
 								Select workspace
 							</Button>
-							<p className='text-sm text-zinc-500'>
+							<p className='text-xs text-zinc-500'>
 								Select a workspace to configure sources and run Inspect.
 							</p>
 						</div>
 					) : (
-						<div className='flex flex-wrap items-center gap-x-4 gap-y-2'>
+						<div className='space-y-1'>
 							<Button
 								type='button'
 								variant='ghost'
@@ -84,16 +84,14 @@ export function WorkspaceCard() {
 							>
 								Set workspace
 							</Button>
-							<span className='text-sm text-zinc-500 min-w-0 flex items-baseline gap-1'>
-								<Tooltip>
-									<TooltipTrigger asChild>
-										<span className='truncate text-[11px] cursor-default'>
-											{workspacePath}
-										</span>
-									</TooltipTrigger>
-									<TooltipContent>{workspacePath}</TooltipContent>
-								</Tooltip>
-							</span>
+							<Tooltip>
+								<TooltipTrigger asChild>
+									<p className='truncate text-[11px] text-zinc-500 cursor-default min-w-0'>
+										{workspacePath}
+									</p>
+								</TooltipTrigger>
+								<TooltipContent>{workspacePath}</TooltipContent>
+							</Tooltip>
 						</div>
 					)}
 				</CardContent>
