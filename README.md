@@ -14,15 +14,17 @@ Design-system application suite: Core (headless engine), Desktop (Electron host)
 
 ### UI Models
 
-The framework supports three ways to present modules. Set `ARO_UI_MODEL` in `.env` to choose.
+The framework supports five ways to present modules. Set `ARO_UI_MODEL` in `.env` to choose.
 
 | Model | What the user sees | When to use |
 |-------|-------------------|-------------|
 | **Standalone** | One module, full screen. No navigation chrome. | Single-purpose products (e.g. "Aro Inspect", "Aro Tokens"). |
 | **Sidebar** | A vertical sidebar to switch between modules. One module visible at a time. | Multi-feature product where users move between tools. |
 | **Dashboard** | A grid of widget cards showing all modules at a glance. Click a card to open the full module view. | Overview-first products where users need to see multiple summaries simultaneously. |
+| **Tabs** | A horizontal tab bar to switch between modules. One module visible at a time. | Compact multi-feature products where horizontal space is preferred over a sidebar. |
+| **Carousel** | A swipeable full-screen view with prev/next navigation. One module visible at a time. | Guided or sequential experiences where users step through modules in order. |
 
-All three models use the same Core, the same modules, and the same API. Only the shell layout changes.
+All five models use the same Core, the same modules, and the same API. Only the shell layout changes.
 
 ## How it works
 
