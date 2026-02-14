@@ -60,7 +60,7 @@ function getColumns(
 			header: 'Name',
 			render: (c) => {
 				const displayName =
-					c.coverage.includes('figma') && c.layerName
+					c.coverage.includes('figma') && c.layerName && c.layerName !== c.name
 						? `${c.layerName}, ${c.name}`
 						: c.name;
 				const hasStorybook =

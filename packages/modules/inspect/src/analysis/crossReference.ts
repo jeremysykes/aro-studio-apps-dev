@@ -89,7 +89,7 @@ export function crossReferenceComponents(
   storybookComponents: Component[],
   options?: ComponentMatchOptions
 ): Component[] {
-  const strategy = options?.namingStrategy ?? 'exact';
+  const strategy = options?.namingStrategy ?? 'fuzzy';
   const threshold = options?.fuzzyThreshold ?? 0.8;
 
   const byName = new Map<string, Component>();

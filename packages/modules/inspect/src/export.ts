@@ -30,7 +30,7 @@ function reportToCsv(report: InspectReport): string {
   }
   for (const c of report.components) {
     const displayName =
-      c.coverage.includes('figma') && c.layerName
+      c.coverage.includes('figma') && c.layerName && c.layerName !== c.name
         ? `${c.layerName}, ${c.name}`
         : c.name;
     rows.push(`Component,${escapeCsv(displayName)},${escapeCsv(c.coverage.join(';'))},,${c.isOrphan}`);
@@ -69,7 +69,7 @@ function reportToMarkdown(report: InspectReport): string {
   lines.push('|------|----------|--------|');
   for (const c of report.components) {
     const displayName =
-      c.coverage.includes('figma') && c.layerName
+      c.coverage.includes('figma') && c.layerName && c.layerName !== c.name
         ? `${c.layerName}, ${c.name}`
         : c.name;
     lines.push(`| ${displayName} | ${c.coverage.join(', ')} | ${c.isOrphan} |`);
