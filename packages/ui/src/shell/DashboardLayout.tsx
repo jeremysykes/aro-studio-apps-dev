@@ -31,8 +31,8 @@ export function DashboardLayout({ modules }: DashboardLayoutProps) {
   if (expandedModule) {
     const FullComponent = expandedModule.component;
     return (
-      <div className="flex flex-col h-screen overflow-hidden">
-        <header className="flex items-center gap-3 h-14 px-6 border-b border-zinc-200 shrink-0">
+      <div className="flex flex-col h-full overflow-hidden">
+        <header className="flex items-center gap-3 h-14 px-6 border-b border-zinc-200 bg-white shrink-0">
           <Button variant="ghost" size="xs" onClick={handleCollapse}>
             &larr; Dashboard
           </Button>
@@ -47,7 +47,7 @@ export function DashboardLayout({ modules }: DashboardLayoutProps) {
 
   // Grid: render all widgets
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
       <header className="flex items-center h-14 px-6 border-b border-zinc-200 shrink-0">
         <h1 className="text-lg font-semibold">Dashboard</h1>
       </header>

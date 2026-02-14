@@ -8,5 +8,14 @@ body,
   height: 100%;
   width: 100%;
   margin: 0;
-  overflow-x: hidden;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Hide scrollbar on carousel scroll-snap container */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
 }

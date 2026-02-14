@@ -24,7 +24,7 @@ interface SidebarProps {
 export function Sidebar({ modules, activeKey, onSelect }: SidebarProps) {
   return (
     <TooltipProvider delayDuration={200}>
-      <nav className="flex h-full w-14 flex-col items-center border-r border-zinc-200 bg-zinc-50 py-3 gap-1">
+      <nav className="flex h-full w-14 shrink-0 flex-col items-center border-r border-zinc-200 bg-zinc-50 py-3 gap-1 overflow-y-auto">
         {modules.map((mod, i) => (
           <React.Fragment key={mod.key}>
             {i > 0 && <Separator className="my-1 w-8" />}

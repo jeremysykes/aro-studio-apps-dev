@@ -17,7 +17,7 @@ export function TabsLayout({ modules }: TabsLayoutProps) {
   const ActiveModule = modules.find((m) => m.key === activeKey)?.component;
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-full overflow-hidden">
       <nav className="flex items-center gap-1 h-11 px-4 border-b border-zinc-200 bg-zinc-50 shrink-0">
         {modules.map((mod) => (
           <button
