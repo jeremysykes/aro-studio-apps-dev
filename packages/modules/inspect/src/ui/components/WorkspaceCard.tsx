@@ -58,7 +58,7 @@ export function WorkspaceCard() {
 
 	return (
 		<>
-			<Card className='mb-0 py-2 px-4'>
+			<Card className='mb-0 py-1.5 px-3'>
 				<CardContent className='p-0'>
 					{!workspacePath ? (
 						<div className='flex flex-wrap items-center gap-2'>

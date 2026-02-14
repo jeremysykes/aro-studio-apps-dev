@@ -57,8 +57,8 @@ export default function Inspect() {
 				<main className='p-6 font-sans' role='main'>
 					<ConnectionStatusBar status={status} onRetry={loadRuns} />
 
-					{/* Title */}
-					<div className='mb-4 pb-4 border-b border-[#E4E4E7]'>
+					{/* Title — R2: no border, 24px spacing */}
+					<div className='mb-6'>
 						<h1 className='flex items-center gap-1'>
 							<span className='text-xl font-semibold'>Aro Inspect</span>
 							<span className='text-sm text-zinc-500'>
@@ -67,15 +67,13 @@ export default function Inspect() {
 						</h1>
 					</div>
 
-					{/* Workspace picker */}
-					<div className='mb-6 w-fit'>
-						<p className='mb-2 text-sm text-zinc-500'>
-							Set your workspace to where you want to Inspect.
-						</p>
+					{/* Workspace picker — R1: no standalone helper text; R3: 24px below */}
+					<div className='mb-6'>
 						<WorkspaceCard />
 					</div>
 
-					{workspacePath ? (
+					{/* R4: no fallback text when no workspace — card handles it */}
+					{workspacePath && (
 						<>
 							{error && (
 								<Alert variant='destructive' className='mb-4'>
@@ -89,7 +87,8 @@ export default function Inspect() {
 								value={view}
 								onValueChange={(value) => setView(value as View)}
 							>
-								<TabsList size='xs' className='mb-3' aria-label='Inspect views'>
+								{/* R3: 16px below tab list */}
+								<TabsList size='xs' className='mb-4' aria-label='Inspect views'>
 									{VIEW_TABS.map((tab) => (
 										<TabsTrigger key={tab.id} value={tab.id} size='xs'>
 											{tab.label}
@@ -128,11 +127,6 @@ export default function Inspect() {
 								</TabsContent>
 							</Tabs>
 						</>
-					) : (
-						<p className='text-sm text-zinc-500'>
-							Configure at least one source to enable Run Inspect (Figma, Code
-							tokens, or Storybook).
-						</p>
 					)}
 				</main>
 			</TooltipProvider>
