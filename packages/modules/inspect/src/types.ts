@@ -90,13 +90,4 @@ export interface ExportInput {
   format: 'csv' | 'markdown' | 'pdf';
 }
 
-export type WorkspaceFacet = {
-  resolve: (path: string) => string;
-  readText: (path: string) => string;
-  writeText: (path: string, content: string) => void;
-  exists: (path: string) => boolean;
-  mkdirp: (path: string) => void;
-};
-
-export type ArtifactWriter = (params: { path: string; content: string }) => unknown;
-export type RunLogger = (level: string, message: string) => void;
+export type { WorkspaceFacet, ArtifactWriter, RunLogger } from '@aro/types';

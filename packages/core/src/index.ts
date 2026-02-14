@@ -10,4 +10,7 @@ export type {
   TokenDiff,
   JobDefinition,
   JobContext,
+  RunLogger,
+  WorkspaceFacet,
+  ArtifactWriter,
 } from './types.js';

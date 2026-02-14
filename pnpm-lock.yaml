@@ -23,6 +23,9 @@ importers:
       '@aro/module-inspect':
         specifier: workspace:*
         version: link:../../packages/modules/inspect
+      '@aro/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@aro/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -111,6 +114,9 @@ importers:
       '@aro/module-inspect':
         specifier: workspace:*
         version: link:../../packages/modules/inspect
+      '@aro/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@aro/ui':
         specifier: workspace:*
         version: link:../../packages/ui
@@ -187,6 +193,9 @@ importers:
 
   packages/core:
     dependencies:
+      '@aro/types':
+        specifier: workspace:*
+        version: link:../types
       better-sqlite3:
         specifier: ^11.6.0
         version: 11.10.0
@@ -209,6 +218,9 @@ importers:
       '@aro/core':
         specifier: workspace:*
         version: link:../../core
+      '@aro/types':
+        specifier: workspace:*
+        version: link:../../types
       '@aro/ui':
         specifier: workspace:*
         version: link:../../ui
@@ -228,6 +240,9 @@ importers:
       '@aro/core':
         specifier: workspace:*
         version: link:../../core
+      '@aro/types':
+        specifier: workspace:*
+        version: link:../../types
       '@aro/ui':
         specifier: workspace:*
         version: link:../../ui
@@ -250,6 +265,12 @@ importers:
       '@types/pdfkit':
         specifier: ^0.17.0
         version: 0.17.5
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+
+  packages/types:
+    devDependencies:
       typescript:
         specifier: ^5.6.3
         version: 5.9.3

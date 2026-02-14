@@ -2,11 +2,8 @@
  * Code token scanner: DTCG v1 and Style Dictionary.
  * All reads via workspace.readText. Output normalized Token[].
  */
-import type { Token } from '../types.js';
-import type { WorkspaceFacet } from '../types.js';
+import type { Token, WorkspaceFacet, RunLogger } from '../types.js';
 import { isPathSafe } from '../schemas.js';
-
-export type RunLogger = (level: string, message: string) => void;
 
 const CANONICAL_TYPES = new Set([
   'color',

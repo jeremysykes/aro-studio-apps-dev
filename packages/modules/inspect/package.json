@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@aro/core": "workspace:*",
+    "@aro/types": "workspace:*",
     "@aro/ui": "workspace:*",
     "pdfkit": "^0.15.0",
     "zod": "^3.25.76",

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import type { UIModel } from '@aro/types';
 import { moduleRegistry, type ModuleRegistryEntry } from './moduleRegistry';
 import { ShellLayout, DashboardLayout, TabsLayout, CarouselLayout } from '@aro/ui/shell';
-
-type UIModel = 'standalone' | 'sidebar' | 'dashboard' | 'tabs' | 'carousel';
 
 function App() {
   const [uiModel, setUIModel] = useState<UIModel | null>(null);

@@ -1,3 +1,5 @@
+import type { Run, LogEntry as CanonicalLogEntry } from '@aro/types';
+
 /** UI view: Setup, Run (logs), or Report. */
 export type View = 'setup' | 'run' | 'report';
 
@@ -10,19 +12,11 @@ export interface ScanConfig {
 	storybookPath: string;
 }
 
-/** Run list item from runs.list(). */
-export interface RunItem {
-	id: string;
-	status: string;
-	startedAt: number;
-}
+/** Run list item from runs.list() — subset of canonical Run. */
+export type RunItem = Pick<Run, 'id' | 'status' | 'startedAt'>;
 
-/** Log entry from logs.list() / logs.subscribe(). */
-export interface LogEntry {
-	id: string;
-	level: string;
-	message: string;
-}
+/** Log entry for UI display — subset of canonical LogEntry. */
+export type LogEntry = Pick<CanonicalLogEntry, 'id' | 'level' | 'message'>;
 
 /** Report tab: Health Dashboard, Token Inventory, or Component Inventory. */
 export type ReportTab = 'health' | 'tokens' | 'components';

@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@aro/core": "workspace:*",
+    "@aro/types": "workspace:*",
     "@aro/ui": "workspace:*"
   },
   "peerDependencies": {

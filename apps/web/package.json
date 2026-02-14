@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@aro/core": "workspace:*",
+    "@aro/types": "workspace:*",
     "@aro/module-hello-world": "workspace:*",
     "@aro/module-inspect": "workspace:*",
     "@aro/ui": "workspace:*",

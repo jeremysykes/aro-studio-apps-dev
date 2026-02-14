@@ -1,4 +1,4 @@
-import type { Run, LogEntry, Artifact } from './types';
+import type { Run, LogEntry, Artifact } from '@aro/types';
 
 const API_BASE = '';
 
