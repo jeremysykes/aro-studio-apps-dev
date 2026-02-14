@@ -7,6 +7,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@aro/ui/components';
+import { useConnectionStatus } from '@aro/ui/hooks';
+import { ConnectionStatusBar } from '@aro/ui/shell';
 
 const JOB_KEY = 'hello-world:greet';
 
@@ -19,6 +21,7 @@ export default function HelloWorld() {
 	const [artifactContent, setArtifactContent] = useState<string | null>(null);
 	const [runningRunId, setRunningRunId] = useState<string | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const { status, reportSuccess, reportFailure } = useConnectionStatus();
 
 	const loadWorkspace = useCallback(async () => {
 		try {
@@ -54,10 +57,12 @@ export default function HelloWorld() {
 		try {
 			const list = await window.aro.runs.list();
 			setRuns(list);
+			reportSuccess();
 		} catch {
 			setRuns([]);
+			reportFailure();
 		}
-	}, [workspacePath]);
+	}, [workspacePath, reportSuccess, reportFailure]);
 
 	useEffect(() => {
 		loadRuns();
@@ -148,6 +153,7 @@ export default function HelloWorld() {
 
 	return (
 		<main className='p-4 font-sans'>
+			<ConnectionStatusBar status={status} onRetry={loadRuns} />
 			<h1 className='text-2xl font-semibold mb-4'>Aro Studio — Hello World</h1>
 			<p className='text-sm text-muted-foreground mb-4'>
 				Starter module for testing the platform. Configure modules via

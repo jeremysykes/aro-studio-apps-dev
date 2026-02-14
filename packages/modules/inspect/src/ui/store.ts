@@ -31,6 +31,8 @@ export interface InspectState {
 	reportTab: ReportTab;
 	runsWithReport: string[];
 	runsWithReportLoading: boolean;
+	/** Incremented on every fetch completion; sign indicates outcome (+ok, −error). */
+	_fetchSeq: number;
 
 	// -- Actions --
 	setView: (view: View) => void;
@@ -71,6 +73,7 @@ export const useInspectStore = create<InspectState>((set, get) => ({
 	reportTab: 'health',
 	runsWithReport: [],
 	runsWithReportLoading: false,
+	_fetchSeq: 0,
 
 	// -- Actions --
 	setView: (view) => set({ view }),
@@ -181,9 +184,9 @@ export const useInspectStore = create<InspectState>((set, get) => ({
 		if (!workspacePath) return;
 		try {
 			const list = await window.aro.runs.list();
-			set({ runs: list });
+			set((s) => ({ runs: list, _fetchSeq: Math.abs(s._fetchSeq) + 1 }));
 		} catch {
-			set({ runs: [] });
+			set((s) => ({ runs: [], _fetchSeq: -(Math.abs(s._fetchSeq) + 1) }));
 		}
 	},
 

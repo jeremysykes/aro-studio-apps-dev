@@ -5,7 +5,8 @@
   "exports": {
     "./components": "./src/components/index.ts",
     "./lib/utils": "./src/lib/utils.ts",
-    "./shell": "./src/shell/index.ts"
+    "./shell": "./src/shell/index.ts",
+    "./hooks": "./src/hooks/index.ts"
   },
   "peerDependencies": {
     "react": "^18.3.1",

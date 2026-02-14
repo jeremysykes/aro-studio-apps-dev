@@ -7,6 +7,8 @@ import {
 	TabsTrigger,
 	TooltipProvider,
 } from '@aro/ui/components';
+import { useConnectionStatus } from '@aro/ui/hooks';
+import { ConnectionStatusBar } from '@aro/ui/shell';
 import { useInspectStore, initInspectSubscriptions } from './store';
 import { WorkspaceCard } from './components/WorkspaceCard';
 import { SetupView } from './views/SetupView';
@@ -28,16 +30,29 @@ export default function Inspect() {
 	const config = useInspectStore((s) => s.config);
 	const workspacePath = useInspectStore((s) => s.workspacePath);
 	const error = useInspectStore((s) => s.error);
+	const fetchSeq = useInspectStore((s) => s._fetchSeq);
+	const loadRuns = useInspectStore((s) => s._loadRuns);
+
+	const { status, reportSuccess, reportFailure } = useConnectionStatus();
 
 	useEffect(() => {
 		const cleanup = initInspectSubscriptions();
 		return cleanup;
 	}, []);
 
+	// Bridge store fetch status → connection hook
+	// _fetchSeq: positive = success, negative = failure, 0 = no fetch yet
+	useEffect(() => {
+		if (fetchSeq === 0) return;
+		if (fetchSeq > 0) reportSuccess();
+		else reportFailure();
+	}, [fetchSeq, reportSuccess, reportFailure]);
+
 	return (
 		<InspectErrorBoundary>
 		<TooltipProvider delayDuration={300}>
 		<main className='p-6 font-sans' role='main'>
+			<ConnectionStatusBar status={status} onRetry={loadRuns} />
 			<div className='flex flex-col min-[900px]:flex-row min-[900px]:items-start min-[900px]:justify-between gap-4 mb-3 pb-4 border-b border-[#E4E4E7]'>
 					<div className='flex flex-col gap-1 min-w-0'>
 						<h1 className='text-xl font-semibold'>Aro Inspect</h1>

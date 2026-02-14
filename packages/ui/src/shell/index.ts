@@ -7,3 +7,5 @@ export { CarouselLayout } from './CarouselLayout';
 export { WidgetCard } from './WidgetCard';
 export { WidgetErrorBoundary } from './WidgetErrorBoundary';
 export { ModuleErrorBoundary } from './ModuleErrorBoundary';
+export { ConnectionStatusBar } from './ConnectionStatusBar';
+export type { ConnectionStatusBarProps } from './ConnectionStatusBar';
