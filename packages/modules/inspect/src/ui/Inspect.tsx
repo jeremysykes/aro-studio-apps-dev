@@ -78,19 +78,6 @@ export default function Inspect() {
 							</Alert>
 						)}
 
-						{view === 'run' && (
-							<p className='mb-4 text-[11px] text-zinc-500'>
-								Run Inspect from the Setup tab, then select a run here to view
-								logs and progress.
-							</p>
-						)}
-						{view === 'report' && (
-							<p className='mb-4 text-[11px] text-zinc-500'>
-								Select a completed run to view its health report, or export to
-								CSV, Markdown, or PDF.
-							</p>
-						)}
-
 						<Tabs
 							value={view}
 							onValueChange={(value) => setView(value as View)}
@@ -103,6 +90,18 @@ export default function Inspect() {
 									</TabsTrigger>
 								))}
 							</TabsList>
+							{view === 'run' && (
+								<p className='mt-2 mb-4 text-sm text-zinc-500'>
+									Run Inspect from the Setup tab, then select a run here to view
+									logs and progress.
+								</p>
+							)}
+							{view === 'report' && (
+								<p className='mt-2 mb-4 text-sm text-zinc-500'>
+									Select a completed run to view its health report, or export to
+									CSV, Markdown, or PDF.
+								</p>
+							)}
 							<TabsContent value='setup'>
 								<SetupView hasAtLeastOneSource={hasAtLeastOneSource(config)} />
 							</TabsContent>

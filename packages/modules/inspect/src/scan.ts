@@ -141,7 +141,7 @@ export async function runScan(
   if (codeTokens.length) tokenLists.push({ source: codeTokens[0]?.source ?? 'code', tokens: codeTokens });
   const { merged: tokens, duplicateNames: dupNames, driftCandidates: drift } = crossReferenceTokens(tokenLists);
 
-  const components = crossReferenceComponents(figmaComponents, storybookComponents);
+  const components = crossReferenceComponents(figmaComponents, storybookComponents, config.options);
   const findings = generateFindings(tokens, components, dupNames, drift);
   const findingsBySev = findingsBySeverity(findings);
   const healthScore = computeHealthScore(

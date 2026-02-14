@@ -16,7 +16,8 @@ import {
   computeHealthScore,
   type HealthMetrics,
 } from '../src/analysis/healthScore.js';
-import type { Token, Component } from '../src/types.js';
+import type { Token, Component, FigmaComponent } from '../src/types.js';
+import { crossReferenceComponents } from '../src/analysis/crossReference.js';
 
 // ── Test fixtures ───────────────────────────────────────────────────────────
 
@@ -446,6 +447,306 @@ describe('Health score determinism', () => {
       expect(findings1.map(f => f.id)).toStrictEqual(findings2.map(f => f.id));
       // IDs should start at 1 for each call
       expect(findings1[0]?.id).toBe('finding-1');
+    });
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPONENT CROSS-REFERENCE NAMING STRATEGIES
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── Fixtures ──────────────────────────────────────────────────────────────
+
+function makeFigmaComponentFixtures(): FigmaComponent[] {
+  return [
+    // Component set variants sharing layerName "Button"
+    { name: 'Text Only', layerName: 'Button' },
+    { name: 'Tertiary', layerName: 'Button' },
+    { name: 'Secondary', layerName: 'Button' },
+    { name: 'Primary', layerName: 'Button' },
+    // Component set variants sharing layerName "Card"
+    { name: 'Primary', layerName: 'Card' },
+    // Standalone component (no layerName)
+    { name: 'Avatar' },
+    // Another standalone
+    { name: 'Tooltip' },
+  ];
+}
+
+function makeStorybookComponentFixtures(): Component[] {
+  return [
+    {
+      name: 'Button',
+      surfaces: { figma: false, storybook: true, code: false },
+      coverage: ['storybook'],
+      isOrphan: false,
+      storyIds: ['atoms-button--default'],
+      category: 'Atoms',
+    },
+    {
+      name: 'Card',
+      surfaces: { figma: false, storybook: true, code: false },
+      coverage: ['storybook'],
+      isOrphan: false,
+      storyIds: ['molecules-card--default'],
+      category: 'Molecules',
+    },
+    {
+      name: 'Avatar',
+      surfaces: { figma: false, storybook: true, code: false },
+      coverage: ['storybook'],
+      isOrphan: false,
+      storyIds: ['atoms-avatar--default'],
+    },
+    {
+      name: 'Badge',
+      surfaces: { figma: false, storybook: true, code: false },
+      coverage: ['storybook'],
+      isOrphan: false,
+      storyIds: ['atoms-badge--default'],
+    },
+  ];
+}
+
+describe('Component cross-reference naming strategies', () => {
+  // ── exact (default) ────────────────────────────────────────────────────
+  describe('exact (default)', () => {
+    it('layerName/name key prevents Figma variants from matching flat Storybook names', () => {
+      const result = crossReferenceComponents(
+        makeFigmaComponentFixtures(),
+        makeStorybookComponentFixtures()
+      );
+      // "Button/Primary" !== "Button", so Button appears as separate figma + storybook entries
+      const sbButton = result.find((c) => c.name === 'Button' && c.surfaces.storybook);
+      expect(sbButton).toBeDefined();
+      expect(sbButton!.surfaces.figma).toBeFalsy();
+
+      // Figma variants stay separate
+      const figmaEntries = result.filter((c) => c.surfaces.figma && c.layerName === 'Button');
+      expect(figmaEntries.length).toBe(4);
+      for (const f of figmaEntries) {
+        expect(f.surfaces.storybook).toBe(false);
+      }
+    });
+
+    it('undefined options produces same result as explicit exact', () => {
+      const noOpts = crossReferenceComponents(
+        makeFigmaComponentFixtures(),
+        makeStorybookComponentFixtures()
+      );
+      const explicitExact = crossReferenceComponents(
+        makeFigmaComponentFixtures(),
+        makeStorybookComponentFixtures(),
+        { namingStrategy: 'exact' }
+      );
+      expect(noOpts).toStrictEqual(explicitExact);
+    });
+  });
+
+  // ── prefix-strip ──────────────────────────────────────────────────────
+  describe('prefix-strip', () => {
+    const opts = { namingStrategy: 'prefix-strip' as const };
+
+    it('Figma layerName components match Storybook flat names', () => {
+      const result = crossReferenceComponents(
+        makeFigmaComponentFixtures(),
+        makeStorybookComponentFixtures(),
+        opts
+      );
+      const button = result.find((c) => c.name === 'Button');
+      expect(button).toBeDefined();
+      expect(button!.surfaces.figma).toBe(true);
+      expect(button!.surfaces.storybook).toBe(true);
+      expect(button!.coverage).toContain('figma');
+      expect(button!.coverage).toContain('storybook');
+      expect(button!.isOrphan).toBe(false);
+    });
+
+    it('collapses multiple Figma variants into one entry per layerName', () => {
+      const result = crossReferenceComponents(
+        makeFigmaComponentFixtures(),
+        makeStorybookComponentFixtures(),
+        opts
+      );
+      const buttonEntries = result.filter((c) => c.name === 'Button');
+      expect(buttonEntries).toHaveLength(1);
+
+      const cardEntries = result.filter((c) => c.name === 'Card');
+      expect(cardEntries).toHaveLength(1);
+      expect(cardEntries[0].surfaces.figma).toBe(true);
+      expect(cardEntries[0].surfaces.storybook).toBe(true);
+    });
+
+    it('standalone Figma components (no layerName) still match exactly', () => {
+      const result = crossReferenceComponents(
+        makeFigmaComponentFixtures(),
+        makeStorybookComponentFixtures(),
+        opts
+      );
+      const avatar = result.find((c) => c.name === 'Avatar');
+      expect(avatar).toBeDefined();
+      expect(avatar!.surfaces.figma).toBe(true);
+      expect(avatar!.surfaces.storybook).toBe(true);
+      expect(avatar!.isOrphan).toBe(false);
+    });
+
+    it('unmatched components remain as orphans', () => {
+      const result = crossReferenceComponents(
+        makeFigmaComponentFixtures(),
+        makeStorybookComponentFixtures(),
+        opts
+      );
+      const tooltip = result.find((c) => c.name === 'Tooltip');
+      expect(tooltip).toBeDefined();
+      expect(tooltip!.isOrphan).toBe(true);
+
+      const badge = result.find((c) => c.name === 'Badge');
+      expect(badge).toBeDefined();
+      expect(badge!.isOrphan).toBe(true);
+    });
+
+    it('preserves storybook metadata (category, storyIds) on match', () => {
+      const result = crossReferenceComponents(
+        makeFigmaComponentFixtures(),
+        makeStorybookComponentFixtures(),
+        opts
+      );
+      const button = result.find((c) => c.name === 'Button');
+      expect(button!.category).toBe('Atoms');
+      expect(button!.storyIds).toEqual(['atoms-button--default']);
+    });
+
+    it('produces same output 100 times (determinism)', () => {
+      const reference = crossReferenceComponents(
+        makeFigmaComponentFixtures(),
+        makeStorybookComponentFixtures(),
+        opts
+      );
+      for (let i = 0; i < 100; i++) {
+        const result = crossReferenceComponents(
+          makeFigmaComponentFixtures(),
+          makeStorybookComponentFixtures(),
+          opts
+        );
+        expect(result).toStrictEqual(reference);
+      }
+    });
+  });
+
+  // ── fuzzy ─────────────────────────────────────────────────────────────
+  describe('fuzzy', () => {
+    it('similar names match above threshold after normalization', () => {
+      const figma: FigmaComponent[] = [{ name: 'PrimaryButton' }];
+      const storybook: Component[] = [{
+        name: 'Primary Button',
+        surfaces: { figma: false, storybook: true, code: false },
+        coverage: ['storybook'],
+        isOrphan: false,
+      }];
+      // After normalization: "primarybutton" vs "primarybutton" -> similarity 1.0
+      const result = crossReferenceComponents(figma, storybook, {
+        namingStrategy: 'fuzzy',
+        fuzzyThreshold: 0.7,
+      });
+      const entry = result.find((c) => c.name === 'PrimaryButton');
+      expect(entry).toBeDefined();
+      expect(entry!.surfaces.figma).toBe(true);
+      expect(entry!.surfaces.storybook).toBe(true);
+    });
+
+    it('dissimilar names do not match', () => {
+      const figma: FigmaComponent[] = [{ name: 'NavigationBar' }];
+      const storybook: Component[] = [{
+        name: 'Footer',
+        surfaces: { figma: false, storybook: true, code: false },
+        coverage: ['storybook'],
+        isOrphan: false,
+      }];
+      const result = crossReferenceComponents(figma, storybook, {
+        namingStrategy: 'fuzzy',
+        fuzzyThreshold: 0.8,
+      });
+      const nav = result.find((c) => c.name === 'NavigationBar');
+      expect(nav).toBeDefined();
+      expect(nav!.surfaces.storybook).toBe(false);
+
+      const footer = result.find((c) => c.name === 'Footer');
+      expect(footer).toBeDefined();
+      expect(footer!.surfaces.figma).toBeFalsy();
+    });
+
+    it('builds on prefix-strip (layerName matching first)', () => {
+      const result = crossReferenceComponents(
+        makeFigmaComponentFixtures(),
+        makeStorybookComponentFixtures(),
+        { namingStrategy: 'fuzzy', fuzzyThreshold: 0.8 }
+      );
+      // Button and Card match via prefix-strip key matching before fuzzy pass
+      const button = result.find((c) => c.name === 'Button');
+      expect(button!.surfaces.figma).toBe(true);
+      expect(button!.surfaces.storybook).toBe(true);
+    });
+
+    it('respects threshold — high threshold prevents marginal matches', () => {
+      const figma: FigmaComponent[] = [{ name: 'Btn' }];
+      const storybook: Component[] = [{
+        name: 'Button',
+        surfaces: { figma: false, storybook: true, code: false },
+        coverage: ['storybook'],
+        isOrphan: false,
+      }];
+      // "btn" vs "button": distance 3, max length 6 → similarity 0.5
+      const highThreshold = crossReferenceComponents(figma, storybook, {
+        namingStrategy: 'fuzzy',
+        fuzzyThreshold: 0.8,
+      });
+      const btn1 = highThreshold.find((c) => c.name === 'Btn');
+      expect(btn1!.surfaces.storybook).toBe(false);
+
+      const lowThreshold = crossReferenceComponents(figma, storybook, {
+        namingStrategy: 'fuzzy',
+        fuzzyThreshold: 0.4,
+      });
+      const btn2 = lowThreshold.find((c) => c.name === 'Btn');
+      expect(btn2!.surfaces.storybook).toBe(true);
+    });
+
+    it('tie-break uses lexicographic ordering', () => {
+      const figma: FigmaComponent[] = [
+        { name: 'Zebra' },
+        { name: 'Alpha' },
+      ];
+      const storybook: Component[] = [{
+        name: 'Alphb', // distance 1 from "Alpha", far from "Zebra"
+        surfaces: { figma: false, storybook: true, code: false },
+        coverage: ['storybook'],
+        isOrphan: false,
+      }];
+      const result = crossReferenceComponents(figma, storybook, {
+        namingStrategy: 'fuzzy',
+        fuzzyThreshold: 0.5,
+      });
+      const alpha = result.find((c) => c.name === 'Alpha');
+      expect(alpha!.surfaces.storybook).toBe(true);
+
+      const zebra = result.find((c) => c.name === 'Zebra');
+      expect(zebra!.surfaces.storybook).toBe(false);
+    });
+
+    it('produces same output 100 times (determinism)', () => {
+      const reference = crossReferenceComponents(
+        makeFigmaComponentFixtures(),
+        makeStorybookComponentFixtures(),
+        { namingStrategy: 'fuzzy', fuzzyThreshold: 0.8 }
+      );
+      for (let i = 0; i < 100; i++) {
+        const result = crossReferenceComponents(
+          makeFigmaComponentFixtures(),
+          makeStorybookComponentFixtures(),
+          { namingStrategy: 'fuzzy', fuzzyThreshold: 0.8 }
+        );
+        expect(result).toStrictEqual(reference);
+      }
     });
   });
 });
