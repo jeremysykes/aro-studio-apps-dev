@@ -9,7 +9,6 @@ import {
 	Button,
 	Card,
 	CardContent,
-	CardHeader,
 	CardTitle,
 	Table,
 	TableBody,
@@ -24,6 +23,12 @@ import {
 } from '@aro/ui/components';
 import { useConnectionStatus } from '@aro/ui/hooks';
 import { ConnectionStatusBar } from '@aro/ui/shell';
+import {
+	TwoColumnLayout,
+	CARD_CLASS,
+	CARD_CONTENT_CLASS,
+	COLUMN_HEADER_CLASS,
+} from './components/TwoColumnLayout';
 
 const JOB_KEY = 'hello-world:greet';
 
@@ -280,160 +285,195 @@ export default function HelloWorld() {
 							</Alert>
 						)}
 
-						{/* CTA row */}
-						<div className='flex items-center gap-3 mb-4'>
-							<Button
-								type='button'
-								variant='default'
-								size='sm'
-								onClick={handleRunJob}
-							>
-								Run {JOB_KEY}
-							</Button>
-							{runningRunId && (
-								<Button
-									type='button'
-									variant='destructive'
-									size='xs'
-									onClick={() => handleCancelJob(runningRunId)}
-								>
-									Cancel
-								</Button>
-							)}
-							{!runningRunId && runs.length > 0 && (
-								<span className='text-xs text-zinc-500'>
-									{runs.length} run{runs.length !== 1 ? 's' : ''}
-								</span>
-							)}
-						</div>
-
-						{/* Runs table */}
-						<Card className='mb-4'>
-							<CardHeader>
-								<CardTitle>Runs</CardTitle>
-							</CardHeader>
-							<CardContent className='p-0'>
-								<div className='overflow-x-auto'>
-									<Table>
-										<TableHeader>
-											<TableRow>
-												<TableHead>Time</TableHead>
-												<TableHead>ID</TableHead>
-												<TableHead className='text-right'>Status</TableHead>
-											</TableRow>
-										</TableHeader>
-										<TableBody>
-											{runs.map((run) => {
-												const isSelected = selectedRunId === run.id;
-												return (
-													<TableRow
-														key={run.id}
-														data-state={isSelected ? 'selected' : undefined}
-														className={`cursor-pointer ${isSelected ? 'bg-zinc-100' : ''}`}
-														onClick={() => setSelectedRunId(run.id)}
+						<section aria-labelledby='hello-world-heading'>
+							<h2 id='hello-world-heading' className='sr-only'>
+								Run and output
+							</h2>
+							<TwoColumnLayout
+								sidebarAside
+								sidebarRight
+								sidebar={
+									<Card className={CARD_CLASS}>
+										<div className={COLUMN_HEADER_CLASS} role='region' aria-label='Runs'>
+											<CardTitle className='mb-0 text-base font-medium text-muted-foreground'>
+												Runs
+											</CardTitle>
+										</div>
+										<CardContent
+											className={`${CARD_CONTENT_CLASS} p-0 max-h-[30vh] overflow-y-auto min-[900px]:max-h-none`}
+										>
+											<div className='overflow-x-auto'>
+												<Table>
+													<TableHeader>
+														<TableRow>
+															<TableHead>Time</TableHead>
+															<TableHead>ID</TableHead>
+															<TableHead className='text-right'>Status</TableHead>
+														</TableRow>
+													</TableHeader>
+													<TableBody>
+														{runs.map((run) => {
+															const isSelected = selectedRunId === run.id;
+															return (
+																<TableRow
+																	key={run.id}
+																	data-state={isSelected ? 'selected' : undefined}
+																	className={`cursor-pointer ${isSelected ? 'bg-zinc-100' : ''}`}
+																	onClick={() => setSelectedRunId(run.id)}
+																>
+																	<TableCell className='text-[11px] whitespace-nowrap'>
+																		{formatRelativeTime(run.startedAt)}
+																	</TableCell>
+																	<TableCell className='text-[11px] font-mono text-zinc-500 py-3'>
+																		<Tooltip>
+																			<TooltipTrigger asChild>
+																				<span className='cursor-default'>
+																					{run.id.slice(0, 8)}
+																				</span>
+																			</TooltipTrigger>
+																			<TooltipContent>{run.id}</TooltipContent>
+																		</Tooltip>
+																	</TableCell>
+																	<TableCell className='text-right'>
+																		{statusBadge(run.status)}
+																	</TableCell>
+																</TableRow>
+															);
+														})}
+														{runs.length === 0 && (
+															<TableRow>
+																<TableCell
+																	colSpan={3}
+																	className='text-center text-zinc-500 text-[11px] py-4'
+																>
+																	No runs yet
+																</TableCell>
+															</TableRow>
+														)}
+													</TableBody>
+												</Table>
+											</div>
+										</CardContent>
+									</Card>
+								}
+								main={
+									<Card className={CARD_CLASS}>
+										{/* CTA header row */}
+										<div
+											className={`${COLUMN_HEADER_CLASS} justify-between gap-4`}
+											role='region'
+											aria-label='Actions'
+										>
+											<div className='flex items-center gap-3'>
+												<Button
+													type='button'
+													variant='default'
+													size='sm'
+													onClick={handleRunJob}
+												>
+													Run {JOB_KEY}
+												</Button>
+												{runningRunId && (
+													<Button
+														type='button'
+														variant='destructive'
+														size='xs'
+														onClick={() => handleCancelJob(runningRunId)}
 													>
-														<TableCell className='text-[11px] whitespace-nowrap'>
-															{formatRelativeTime(run.startedAt)}
-														</TableCell>
-														<TableCell className='text-[11px] font-mono text-zinc-500 py-3'>
-															<Tooltip>
-																<TooltipTrigger asChild>
-																	<span className='cursor-default'>
-																		{run.id.slice(0, 8)}
-																	</span>
-																</TooltipTrigger>
-																<TooltipContent>{run.id}</TooltipContent>
-															</Tooltip>
-														</TableCell>
-														<TableCell className='text-right'>
-															{statusBadge(run.status)}
-														</TableCell>
-													</TableRow>
-												);
-											})}
-											{runs.length === 0 && (
-												<TableRow>
-													<TableCell
-														colSpan={3}
-														className='text-center text-zinc-500 text-[11px] py-4'
-													>
-														No runs yet
-													</TableCell>
-												</TableRow>
+														Cancel
+													</Button>
+												)}
+											</div>
+											{!runningRunId && runs.length > 0 && (
+												<span className='text-xs text-zinc-400 tabular-nums'>
+													{runs.length} run{runs.length !== 1 ? 's' : ''}
+												</span>
 											)}
-										</TableBody>
-									</Table>
-								</div>
-							</CardContent>
-						</Card>
+										</div>
 
-						{selectedRunId && (
-							<>
-								{/* Logs */}
-								<Card className='mb-4'>
-									<CardHeader>
-										<CardTitle>Logs</CardTitle>
-									</CardHeader>
-									<CardContent>
-										{logs.length > 0 ? (
-											<ul
-												className='list-none space-y-0.5 text-[11px] font-mono max-h-[60vh] overflow-y-auto'
-												role='log'
-												aria-live='polite'
-											>
-												{logs.map((entry) => {
-													const style = logStyle(entry.level);
-													return (
-														<li key={entry.id} className={style.className}>
-															<span aria-hidden='true'>{style.icon}</span>{' '}
-															<span className='text-zinc-400'>[{entry.level}]</span>{' '}
-															{entry.message}
-														</li>
-													);
-												})}
-												<div ref={logsEndRef} aria-hidden='true' />
-											</ul>
-										) : (
-											<p className='text-zinc-500 text-[11px]'>
-												Select a run to view its logs.
-											</p>
-										)}
-									</CardContent>
-								</Card>
+										{/* Main content: Logs + Artifacts */}
+										<CardContent className={`${CARD_CONTENT_CLASS} p-0`}>
+											{/* Logs section */}
+											<div className='border-b border-zinc-200 px-4 py-4'>
+												<div className='flex items-center gap-3 mb-3'>
+													<h3 className='text-base font-medium text-muted-foreground'>
+														Logs
+													</h3>
+													{selectedRunId && logs.length > 0 && (
+														<span className='text-xs text-zinc-400 tabular-nums'>
+															{logs.length} entr{logs.length === 1 ? 'y' : 'ies'}
+														</span>
+													)}
+												</div>
+												{selectedRunId ? (
+													<ul
+														className='list-none space-y-0.5 text-[11px] font-mono max-h-[40vh] overflow-y-auto'
+														role='log'
+														aria-live='polite'
+													>
+														{logs.map((entry) => {
+															const style = logStyle(entry.level);
+															return (
+																<li key={entry.id} className={style.className}>
+																	<span aria-hidden='true'>{style.icon}</span>{' '}
+																	<span className='text-zinc-400'>[{entry.level}]</span>{' '}
+																	{entry.message}
+																</li>
+															);
+														})}
+														<div ref={logsEndRef} aria-hidden='true' />
+													</ul>
+												) : (
+													<p className='text-zinc-500 text-[11px]'>
+														Select a run from the sidebar to view its log output.
+													</p>
+												)}
+											</div>
 
-								{/* Artifacts */}
-								<Card className='mb-4'>
-									<CardHeader>
-										<CardTitle>Artifacts</CardTitle>
-									</CardHeader>
-									<CardContent>
-										{artifacts.length > 0 ? (
-											<ul className='list-none space-y-0.5'>
-												{artifacts.map((artifact) => (
-													<li key={artifact.id}>
-														<Button
-															type='button'
-															variant='link'
-															className='p-0 h-auto font-mono text-[11px] font-normal'
-															onClick={() => handleSelectArtifact(artifact)}
-														>
-															{artifact.path}
-														</Button>
-													</li>
-												))}
-											</ul>
-										) : (
-											<p className='text-zinc-500 text-[11px]'>No artifacts.</p>
-										)}
-										{artifactContent !== null && (
-											<pre className='mt-4 rounded-md bg-zinc-100 p-3 text-[11px] font-mono overflow-auto max-h-[40vh]'>
-												{artifactContent}
-											</pre>
-										)}
-									</CardContent>
-								</Card>
-							</>
-						)}
+											{/* Artifacts section */}
+											<div className='px-4 py-4'>
+												<h3 className='text-base font-medium text-muted-foreground mb-3'>
+													Artifacts
+												</h3>
+												{selectedRunId ? (
+													<>
+														{artifacts.length > 0 ? (
+															<ul className='list-none space-y-0.5'>
+																{artifacts.map((artifact) => (
+																	<li key={artifact.id}>
+																		<Button
+																			type='button'
+																			variant='link'
+																			className='p-0 h-auto font-mono text-[11px] font-normal'
+																			onClick={() => handleSelectArtifact(artifact)}
+																		>
+																			{artifact.path}
+																		</Button>
+																	</li>
+																))}
+															</ul>
+														) : (
+															<p className='text-zinc-500 text-[11px]'>
+																No artifacts produced for this run.
+															</p>
+														)}
+														{artifactContent !== null && (
+															<pre className='mt-4 rounded-md bg-zinc-100 p-3 text-[11px] font-mono overflow-auto max-h-[40vh]'>
+																{artifactContent}
+															</pre>
+														)}
+													</>
+												) : (
+													<p className='text-zinc-500 text-[11px]'>
+														Select a run from the sidebar to view its artifacts.
+													</p>
+												)}
+											</div>
+										</CardContent>
+									</Card>
+								}
+							/>
+						</section>
 					</>
 				)}
 			</main>
