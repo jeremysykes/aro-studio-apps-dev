@@ -12,10 +12,10 @@ import type { LogEntry } from '../types';
 
 /* ── Log-level styling (zinc scale, brand-neutral) ── */
 const LOG_LEVEL_STYLES: Record<string, { className: string; icon: string }> = {
-	error: { className: 'text-zinc-900 font-medium', icon: '\u2716' },
-	warn: { className: 'text-zinc-700', icon: '\u26A0' },
-	info: { className: 'text-zinc-600', icon: '\u2139' },
-	debug: { className: 'text-zinc-400', icon: '\u2022' },
+	error: { className: 'text-zinc-900 font-medium', icon: '\u00D7' },
+	warn: { className: 'text-zinc-700', icon: '\u25B3' },
+	info: { className: 'text-zinc-600', icon: '\u2013' },
+	debug: { className: 'text-zinc-400', icon: '\u00B7' },
 };
 
 function logStyle(level: string) {
@@ -62,12 +62,12 @@ export function RunView() {
 		<div className='space-y-4 min-[900px]:flex min-[900px]:flex-col min-[900px]:min-h-0 min-[900px]:space-y-0'>
 			<Card className={CARD_CLASS}>
 				<div className={COLUMN_HEADER_CLASS} role='region' aria-label='Runs'>
-					<CardTitle className='mb-0 text-base font-medium text-zinc-500'>
+					<CardTitle className='mb-0 text-base font-medium text-muted-foreground'>
 						Runs
 					</CardTitle>
 				</div>
 				<CardContent
-					className={`${CARD_CONTENT_CLASS} p-0 max-h-[50vh] overflow-y-auto min-[900px]:max-h-none`}
+					className={`${CARD_CONTENT_CLASS} p-0 max-h-[30vh] overflow-y-auto min-[900px]:max-h-none`}
 				>
 					<RunsTable showStatus />
 				</CardContent>
@@ -94,7 +94,7 @@ export function RunView() {
 				aria-label='Logs'
 			>
 				<div className='flex items-center gap-3'>
-					<CardTitle className='mb-0 text-base font-medium text-zinc-500'>
+					<CardTitle className='mb-0 text-base font-medium text-muted-foreground'>
 						Logs
 					</CardTitle>
 					{selectedRunId && (

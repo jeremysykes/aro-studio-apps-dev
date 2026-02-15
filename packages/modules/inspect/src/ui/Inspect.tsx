@@ -95,18 +95,6 @@ export default function Inspect() {
 										</TabsTrigger>
 									))}
 								</TabsList>
-								{view === 'run' && (
-									<p className='mb-4 text-sm text-zinc-500'>
-										Run Inspect from the Setup tab, then select a run here to
-										view logs and progress.
-									</p>
-								)}
-								{view === 'report' && (
-									<p className='mb-4 text-sm text-zinc-500'>
-										Run Inspect from the Setup tab, then select a run here to
-										view reports.
-									</p>
-								)}
 								<TabsContent value='setup'>
 									<SetupView
 										hasAtLeastOneSource={hasAtLeastOneSource(config)}

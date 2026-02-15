@@ -110,6 +110,7 @@ function getColumns(
 		{
 			key: 'orphan',
 			header: 'Orphan',
+			align: 'right',
 			render: (c) =>
 				c.isOrphan ? (
 					<Badge variant='default'>Orphan</Badge>

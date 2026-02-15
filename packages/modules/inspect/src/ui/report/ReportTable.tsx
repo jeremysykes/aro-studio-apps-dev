@@ -15,6 +15,7 @@ export interface ReportTableColumn<T> {
 	render: (row: T) => React.ReactNode;
 	sortable?: boolean;
 	sortValue?: (row: T) => string | number;
+	align?: 'left' | 'right' | 'center';
 }
 
 export interface ReportTableProps<T> {
@@ -79,6 +80,7 @@ export function ReportTable<T>({
 					Showing {shownCount} of {totalCount} {title.toLowerCase()}
 				</div>
 			)}
+			<div className='overflow-x-auto'>
 			<Table>
 				<TableHeader>
 					<TableRow>
@@ -86,7 +88,7 @@ export function ReportTable<T>({
 							const sortable = col.sortable && col.sortValue;
 							const isSorted = sortKey === col.key;
 							return (
-								<TableHead key={col.key} scope='col'>
+								<TableHead key={col.key} scope='col' className={col.align === 'right' ? 'text-right' : col.align === 'center' ? 'text-center' : undefined}>
 									{sortable ? (
 										<Button
 											type='button'
@@ -134,7 +136,7 @@ export function ReportTable<T>({
 						sortedRows.map((row) => (
 							<TableRow key={getRowKey(row)}>
 								{columns.map((col) => (
-									<TableCell key={col.key} className='py-3 text-[11px]'>
+									<TableCell key={col.key} className={`py-3 text-[11px]${col.align === 'right' ? ' text-right' : col.align === 'center' ? ' text-center' : ''}`}>
 										{col.render(row)}
 									</TableCell>
 								))}
@@ -143,6 +145,7 @@ export function ReportTable<T>({
 					)}
 				</TableBody>
 			</Table>
+			</div>
 		</div>
 	);
 }

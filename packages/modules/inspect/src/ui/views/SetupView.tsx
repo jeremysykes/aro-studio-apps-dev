@@ -71,16 +71,16 @@ export function SetupView({ hasAtLeastOneSource, hasWorkspace }: SetupViewProps)
 				)}
 			</div>
 
-			<div className='grid grid-cols-1 min-[640px]:grid-cols-2 min-[900px]:grid-cols-3 gap-4'>
+			<div className='grid grid-cols-1 sm:grid-cols-2 min-[900px]:grid-cols-3 gap-4'>
 				{/* ── Figma ── */}
-				<Card>
+				<Card className='h-full'>
 					<CardHeader>
 						<div className='flex items-center justify-between'>
 							<CardTitle className='text-base'>Figma</CardTitle>
 							{figmaConfigured ? (
 								<Badge variant='secondary'>&#10003; Configured</Badge>
 							) : (
-								<span className='text-zinc-400 text-xs'>Not configured</span>
+								<span className='text-zinc-500 text-xs'>Not configured</span>
 							)}
 						</div>
 					</CardHeader>
@@ -126,14 +126,14 @@ export function SetupView({ hasAtLeastOneSource, hasWorkspace }: SetupViewProps)
 				</Card>
 
 				{/* ── Code tokens ── */}
-				<Card>
+				<Card className='h-full'>
 					<CardHeader>
 						<div className='flex items-center justify-between'>
 							<CardTitle className='text-base'>Code tokens</CardTitle>
 							{codeConfigured ? (
 								<Badge variant='secondary'>&#10003; Configured</Badge>
 							) : (
-								<span className='text-zinc-400 text-xs'>Not configured</span>
+								<span className='text-zinc-500 text-xs'>Not configured</span>
 							)}
 						</div>
 					</CardHeader>
@@ -163,14 +163,14 @@ export function SetupView({ hasAtLeastOneSource, hasWorkspace }: SetupViewProps)
 				</Card>
 
 				{/* ── Storybook ── */}
-				<Card>
+				<Card className='h-full'>
 					<CardHeader>
 						<div className='flex items-center justify-between'>
 							<CardTitle className='text-base'>Storybook</CardTitle>
 							{storybookConfigured ? (
 								<Badge variant='secondary'>&#10003; Configured</Badge>
 							) : (
-								<span className='text-zinc-400 text-xs'>Not configured</span>
+								<span className='text-zinc-500 text-xs'>Not configured</span>
 							)}
 						</div>
 					</CardHeader>
@@ -195,7 +195,7 @@ export function SetupView({ hasAtLeastOneSource, hasWorkspace }: SetupViewProps)
 							placeholder='Base URL (e.g. https://site.vercel.app/index.json)'
 							aria-label='Storybook index URL'
 						/>
-						<span className='text-[11px] text-zinc-500'>
+						<span className='block text-[11px] text-zinc-500'>
 							or workspace path to index
 						</span>
 						<label htmlFor='setup-storybook-path' className='sr-only'>

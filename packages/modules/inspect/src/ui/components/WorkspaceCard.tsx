@@ -58,7 +58,7 @@ export function WorkspaceCard() {
 
 	return (
 		<>
-			<Card className='mb-0 py-1.5 px-3'>
+			<Card className='mb-0 py-3 px-4'>
 				<CardContent className='p-0'>
 					{!workspacePath ? (
 						<div className='space-y-1'>

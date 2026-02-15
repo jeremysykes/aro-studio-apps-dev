@@ -10,7 +10,7 @@ const CARD_CLASS =
 const CARD_CONTENT_CLASS =
 	'min-[900px]:overflow-auto min-[900px]:min-h-0 min-w-0';
 const COLUMN_HEADER_CLASS =
-	'flex h-16 shrink-0 items-center border-b border-zinc-200 px-4';
+	'flex min-h-[4rem] shrink-0 items-center border-b border-zinc-200 px-4 py-3';
 
 export interface TwoColumnLayoutProps {
 	sidebar: React.ReactNode;

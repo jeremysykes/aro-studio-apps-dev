@@ -145,12 +145,12 @@ export function HealthDashboard({ report }: HealthDashboardProps) {
 		<div className='min-h-full flex flex-col items-center justify-center'>
 			<div className='grid grid-cols-1 min-[900px]:grid-cols-2 gap-8 min-[900px]:items-start w-full max-w-4xl'>
 				{/* ── Left: Health score — single focal point ── */}
-				<div className='min-[900px]:flex min-[900px]:flex-col min-[900px]:items-center min-[900px]:text-center min-[900px]:min-h-0'>
+				<div className='flex flex-col items-center text-center min-[900px]:min-h-0'>
 					<p className='text-sm font-medium text-zinc-500'>Health score</p>
 
 					{/* Score value */}
 					<p className='mt-1 tabular-nums'>
-						<span className='text-5xl font-bold text-zinc-900'>
+						<span className='text-5xl font-semibold text-zinc-900'>
 							{healthScore.composite}
 						</span>
 						<span className='text-lg font-normal text-zinc-400'> / 100</span>
@@ -182,8 +182,8 @@ export function HealthDashboard({ report }: HealthDashboardProps) {
 				</div>
 
 				{/* ── Right: Breakdown + findings ── */}
-				<div className='min-[900px]:flex min-[900px]:flex-col min-[900px]:items-center min-[900px]:min-h-0'>
-					<div className='w-full max-w-sm'>
+				<div className='flex flex-col min-[900px]:items-center min-[900px]:min-h-0'>
+					<div className='w-full max-w-md'>
 						{/* Sub-score breakdown */}
 						<section aria-labelledby='score-breakdown-heading'>
 							<h2

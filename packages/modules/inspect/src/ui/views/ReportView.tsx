@@ -54,12 +54,12 @@ export function ReportView() {
 	const sidebar = (
 		<Card className={CARD_CLASS}>
 			<div className={COLUMN_HEADER_CLASS} role='region' aria-label='Runs'>
-				<CardTitle className='mb-0 text-base font-medium text-zinc-500'>
+				<CardTitle className='mb-0 text-base font-medium text-muted-foreground'>
 					Runs
 				</CardTitle>
 			</div>
 			<CardContent
-				className={`${CARD_CONTENT_CLASS} p-0 max-h-[50vh] overflow-y-auto min-[900px]:max-h-none`}
+				className={`${CARD_CONTENT_CLASS} p-0 max-h-[30vh] overflow-y-auto min-[900px]:max-h-none`}
 			>
 				{runsWithReportLoading ? (
 					<TableSkeleton
@@ -77,11 +77,11 @@ export function ReportView() {
 	const main = (
 		<Card className={`${CARD_CLASS} flex flex-col`}>
 			<div
-				className={`${COLUMN_HEADER_CLASS} justify-between gap-4`}
+				className={`${COLUMN_HEADER_CLASS} justify-between gap-4 flex-wrap`}
 				role='region'
 				aria-label='Reports'
 			>
-				<CardTitle className='mb-0 text-base font-medium text-zinc-500'>
+				<CardTitle className='mb-0 text-base font-medium text-muted-foreground'>
 					Reports
 					{reportLoadState === 'success' && report && reportTab === 'tokens' && report.tokens?.length ? (
 						<span className='text-zinc-400 font-normal'>{' '}({report.tokens.length} tokens)</span>
@@ -90,14 +90,14 @@ export function ReportView() {
 						<span className='text-zinc-400 font-normal'>{' '}({report.components.length} components)</span>
 					) : null}
 				</CardTitle>
-				<div className='flex items-center gap-3 shrink-0'>
+				<div className='flex items-center gap-3 shrink-0 flex-wrap'>
 					{showFilter && (
 						<Input
 							type='search'
 							placeholder='Filter…'
 							value={filter}
 							onChange={(e) => setFilter(e.target.value)}
-							className='w-40'
+							className='w-full min-[640px]:w-40'
 							aria-label={`Filter ${reportTab}`}
 						/>
 					)}
@@ -148,7 +148,7 @@ export function ReportView() {
 				)}
 			</CardContent>
 			{reportLoadState === 'success' && report && (
-				<CardFooter className='shrink-0 flex items-center justify-end gap-2 border-t border-zinc-200 py-3 px-4'>
+				<CardFooter className='shrink-0 flex flex-wrap items-center justify-end gap-2 border-t border-zinc-200 py-3 px-4'>
 					<Button
 						type='button'
 						variant='outline'

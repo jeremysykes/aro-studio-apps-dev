@@ -25,7 +25,7 @@ export function ConnectionStatusBar({
       <AlertDescription>
         Something went wrong. Try again or restart the app.
         {onRetry && (
-          <Button type="button" variant="outline" size="xs" onClick={onRetry} className="mt-2 block">
+          <Button type="button" variant="outline" size="xs" onClick={onRetry} className="mt-2">
             Try again
           </Button>
         )}

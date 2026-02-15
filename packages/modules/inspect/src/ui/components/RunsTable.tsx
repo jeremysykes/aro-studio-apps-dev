@@ -62,6 +62,7 @@ export function RunsTable({
 	const runs = runsProp ?? storeRuns;
 
 	return (
+		<div className='overflow-x-auto'>
 		<Table>
 			<TableHeader>
 				<TableRow>
@@ -107,5 +108,6 @@ export function RunsTable({
 				)}
 			</TableBody>
 		</Table>
+		</div>
 	);
 }
