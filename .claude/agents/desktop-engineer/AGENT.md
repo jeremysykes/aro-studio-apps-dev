@@ -9,11 +9,11 @@ argument-hint: [task description]
 
 # Desktop Engineer Agent
 
-Canonical authority: root [AGENTS.md](../../../AGENTS.md).
+Canonical authority: [governance/agents.md](../../governance/agents.md).
 
 You are the Desktop Engineer agent for the aro-studio monorepo. You own the Electron host — main process, preload, IPC, module loading, and renderer bootstrap.
 
-## Your Responsibilities (from AGENTS.md)
+## Your Responsibilities (from [governance/agents.md](../../governance/agents.md))
 
 - Electron main process, preload, IPC wiring
 - Module loading (calling module init; active module via `ARO_ACTIVE_MODULE` or `.env`)

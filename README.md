@@ -304,7 +304,7 @@ Core tests run under Electron’s Node (better-sqlite3 ABI); see the test script
 
 ## Agents
 
-Agent roles and execution order: [AGENTS.md](AGENTS.md). AI control plane: [.claude/](.claude/).
+Agent roles and execution order: [.claude/governance/agents.md](.claude/governance/agents.md). AI control plane: [.claude/](.claude/).
 
 ## Documentation
 
@@ -315,7 +315,7 @@ Documentation lives in this repo:
 - **White-label architecture:** [docs/architecture/WHITE_LABEL.md](docs/architecture/WHITE_LABEL.md) — design principles and roadmap for the white-label system.
 - **Checklists:** [docs/desktop/DESKTOP_MVP_CHECKLIST.md](docs/desktop/DESKTOP_MVP_CHECKLIST.md), [docs/modules/MODULE_MVP_CHECKLIST.md](docs/modules/MODULE_MVP_CHECKLIST.md).
 - **UI/UX and a11y:** [docs/meta/UI_UX_ACCESSIBILITY.md](docs/meta/UI_UX_ACCESSIBILITY.md).
-- **Agent roles and execution order:** [AGENTS.md](AGENTS.md).
+- **Agent roles and execution order:** [.claude/governance/agents.md](.claude/governance/agents.md).
 - **Cursor rules:** [.cursor/rules/](.cursor/rules/) (e.g. CURSOR_RULES.md, README.md).
 - **ADRs, decisions, diagrams:** [adr/](adr/), [decisions/](decisions/), [diagrams/](diagrams/).
 

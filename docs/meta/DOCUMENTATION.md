@@ -5,9 +5,9 @@
 When project status or entry points change in a way a new contributor would care about (e.g. MVP completion, new top-level scripts, new package, major stack or agent-model change):
 
 - Update [README.md](../../README.md) so that the **Status**, **Run / build**, and **Testing** sections (and any other high-level sections) stay accurate.
-- Do not move deep technical or API detail into the README; keep linking to `docs/` and [AGENTS.md](../../AGENTS.md).
+- Do not move deep technical or API detail into the README; keep linking to `docs/` and [.claude/governance/agents.md](../../.claude/governance/agents.md).
 
-**Agent roles and control plane:** Role contract and execution order are in root [AGENTS.md](../../AGENTS.md). Agent definitions, routing, and precedence live under [.claude/](../../.claude/).
+**Agent roles and control plane:** Role contract and execution order are in [.claude/governance/agents.md](../../.claude/governance/agents.md). Agent definitions, routing, and precedence live under [.claude/](../../.claude/).
 
 ## When to update `docs/`
 

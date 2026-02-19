@@ -1,7 +1,10 @@
-This file defines the **agent role contract** for the [aro-studio-apps-dev](https://github.com/jeremysykes/aro-studio-apps-dev) repo: which agent types are allowed, their responsibilities and constraints, and execution order. AI control plane and agent definitions: [.claude/](.claude/). For **coding rules** (e.g. boundaries, SQL, dependencies), see [.cursor/rules/](.cursor/rules/) and `docs/ARCHITECTURE.md`.
+# Orchestration: agent roles and execution order
+
+This document is the **agent role contract** for the [aro-studio-apps-dev](https://github.com/jeremysykes/aro-studio-apps-dev) repo: which agent types are allowed, their responsibilities and constraints, separation of concerns, and execution order. It is part of the [.claude/](../) control plane (governance). For **coding rules** (e.g. boundaries, SQL, dependencies), see [.cursor/rules/](../../.cursor/rules/) and `docs/ARCHITECTURE.md`.
 
 This project is designed for agent-assisted development.
 Agents must follow architectural boundaries strictly.
+
 ## Allowed Agents
 
 ### Architect Agent
@@ -75,7 +78,7 @@ Responsibilities:
 - User flows, layout and interaction specs, visual hierarchy
 - Design tokens (spacing, type scale, colors where needed)
 - Accessibility requirements (e.g. WCAG 2.1 Level AA), acceptance criteria for UI/UX
-- Produce docs and specs in `docs/` or `decisions/` (e.g. wireframes in markdown, a11y checklist). May create or update [docs/meta/UI_UX_ACCESSIBILITY.md](docs/meta/UI_UX_ACCESSIBILITY.md).
+- Produce docs and specs in `docs/` or `decisions/` (e.g. wireframes in markdown, a11y checklist). May create or update [docs/meta/UI_UX_ACCESSIBILITY.md](../../docs/meta/UI_UX_ACCESSIBILITY.md).
 
 Must not:
 - Write application or component code
@@ -125,4 +128,4 @@ Renderer UI is owned solely by **UI Engineer**. Desktop Engineer owns only the D
 7. Product Designer may produce or update design/a11y specs
 8. UI Engineer implements all UI (Desktop shell, Web shell, and module screens) from specs using the design system
 
-When MVP status or main commands change, the README should be updated (see [docs/meta/DOCUMENTATION.md](docs/meta/DOCUMENTATION.md)).
+When MVP status or main commands change, the README should be updated (see [docs/meta/DOCUMENTATION.md](../../docs/meta/DOCUMENTATION.md)).

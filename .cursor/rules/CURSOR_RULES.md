@@ -1,6 +1,6 @@
 ### Ruleset
 
-Rules applied by Cursor when working in this repository. Must be consistent with `docs/` and with [AGENTS.md](../../AGENTS.md).
+Rules applied by Cursor when working in this repository. Must be consistent with `docs/` and with [.claude/governance/agents.md](../../.claude/governance/agents.md).
 
 1. Core must not import Desktop or Modules
 2. Modules must not import each other
