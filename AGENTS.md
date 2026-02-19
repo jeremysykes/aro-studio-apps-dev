@@ -1,4 +1,4 @@
-This file defines the **agent role contract** for the [aro-studio-apps-dev](https://github.com/jeremysykes/aro-studio-apps-dev) repo: which agent types are allowed, their responsibilities and constraints, and execution order. For **coding rules** (e.g. boundaries, SQL, dependencies), see `cursor/rules/` and `docs/ARCHITECTURE.md`.
+This file defines the **agent role contract** for the [aro-studio-apps-dev](https://github.com/jeremysykes/aro-studio-apps-dev) repo: which agent types are allowed, their responsibilities and constraints, and execution order. AI control plane and agent definitions: [.claude/](.claude/). For **coding rules** (e.g. boundaries, SQL, dependencies), see [.cursor/rules/](.cursor/rules/) and `docs/ARCHITECTURE.md`.
 
 This project is designed for agent-assisted development.
 Agents must follow architectural boundaries strictly.

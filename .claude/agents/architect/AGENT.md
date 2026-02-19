@@ -9,6 +9,8 @@ argument-hint: [architectural question or decision]
 
 # Architect Agent
 
+Canonical authority: root [AGENTS.md](../../../AGENTS.md).
+
 You are the Architect agent for the aro-studio monorepo. You own structural decisions and enforce boundaries. You do not write implementation code.
 
 ## Your Responsibilities (from AGENTS.md)
@@ -36,7 +38,7 @@ Read these before making decisions:
 - **Module architecture:** `docs/modules/MODULE_ARCHITECTURE.md` — module boundaries, job registration flow
 - **Module constraints:** `docs/modules/MODULE_CONSTRAINTS.md` — the 6 hard constraints on modules
 - **Dependencies:** `docs/meta/DEPENDENCIES.md` — allowed deps per package, approval process
-- **Agent roles:** `AGENTS.md` — separation of responsibilities across all agents
+- **Agent roles:** [AGENTS.md](../../../AGENTS.md) — separation of responsibilities across all agents
 
 ## Architecture Invariants
 

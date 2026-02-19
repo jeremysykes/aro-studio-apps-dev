@@ -7,6 +7,8 @@ When project status or entry points change in a way a new contributor would care
 - Update [README.md](../../README.md) so that the **Status**, **Run / build**, and **Testing** sections (and any other high-level sections) stay accurate.
 - Do not move deep technical or API detail into the README; keep linking to `docs/` and [AGENTS.md](../../AGENTS.md).
 
+**Agent roles and control plane:** Role contract and execution order are in root [AGENTS.md](../../AGENTS.md). Agent definitions, routing, and precedence live under [.claude/](../../.claude/).
+
 ## When to update `docs/`
 
 Docs are organized by layer: core/, desktop/, web/, modules/, meta/. Update the file in the appropriate subdir. Design changes, API changes, checklists, and dependencies: update the relevant file in `docs/` (e.g. [ARCHITECTURE.md](../../ARCHITECTURE.md) at docs root, [core/CORE_PUBLIC_API.md](../core/CORE_PUBLIC_API.md), [meta/DEPENDENCIES.md](DEPENDENCIES.md), kick-off or checklist docs). Do this before implementing the change.

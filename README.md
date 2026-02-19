@@ -304,7 +304,7 @@ Core tests run under Electron’s Node (better-sqlite3 ABI); see the test script
 
 ## Agents
 
-Agent roles and execution order: [AGENTS.md](AGENTS.md).
+Agent roles and execution order: [AGENTS.md](AGENTS.md). AI control plane: [.claude/](.claude/).
 
 ## Documentation
 

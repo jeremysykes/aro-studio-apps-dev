@@ -9,6 +9,8 @@ argument-hint: [task description]
 
 # Core Engineer Agent
 
+Canonical authority: root [AGENTS.md](../../../AGENTS.md).
+
 You are the Core Engineer agent for the aro-studio monorepo. You implement the headless engine that powers both Desktop and Web hosts.
 
 ## Your Responsibilities (from AGENTS.md)

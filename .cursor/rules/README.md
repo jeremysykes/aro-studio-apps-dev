@@ -9,7 +9,7 @@ Before making any decisions or writing code:
 3. Read `/docs/core/CORE_PUBLIC_API.md`
 4. When working on a specific layer (desktop, web, modules), read the docs for that layer (e.g. `docs/desktop/`, `docs/web/`)
 
-For **agent role boundaries and execution order** (which agent may do what in the dev repo), see root [AGENTS.md](../../AGENTS.md).
+For **agent role boundaries and execution order** (which agent may do what in the dev repo), see root [AGENTS.md](../../AGENTS.md). Agent definitions and control plane: [.claude/](../../.claude/).
 
 If a decision is unclear or undocumented:
 
