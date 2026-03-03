@@ -12,10 +12,10 @@ import type { LogEntry } from '../types';
 
 /* ── Log-level styling (zinc scale, brand-neutral) ── */
 const LOG_LEVEL_STYLES: Record<string, { className: string; icon: string }> = {
-	error: { className: 'text-zinc-900 font-medium', icon: '\u00D7' },
-	warn: { className: 'text-zinc-700', icon: '\u25B3' },
-	info: { className: 'text-zinc-600', icon: '\u2013' },
-	debug: { className: 'text-zinc-400', icon: '\u00B7' },
+	error: { className: 'text-foreground-default font-medium', icon: '\u00D7' },
+	warn: { className: 'text-foreground-default', icon: '\u25B3' },
+	info: { className: 'text-foreground-muted', icon: '\u2013' },
+	debug: { className: 'text-foreground-subtle', icon: '\u00B7' },
 };
 
 function logStyle(level: string) {
@@ -98,7 +98,7 @@ export function RunView() {
 						Logs
 					</CardTitle>
 					{selectedRunId && (
-						<span className='text-xs text-zinc-400 tabular-nums'>
+						<span className='text-xs text-foreground-subtle tabular-nums'>
 							{logs.length} entr{logs.length === 1 ? 'y' : 'ies'}
 							{elapsed && <> &middot; {elapsed}</>}
 						</span>
@@ -142,7 +142,7 @@ export function RunView() {
 							return (
 								<li key={entry.id} className={style.className}>
 									<span aria-hidden='true'>{style.icon}</span>{' '}
-									<span className='text-zinc-400'>[{entry.level}]</span>{' '}
+									<span className='text-foreground-subtle'>[{entry.level}]</span>{' '}
 									{entry.message}
 								</li>
 							);
@@ -150,7 +150,7 @@ export function RunView() {
 						<div ref={logsEndRef} aria-hidden='true' />
 					</ul>
 				) : (
-					<p className='text-zinc-500 text-[11px]'>
+					<p className='text-foreground-muted text-[11px]'>
 						Select a run from the list to view its logs. After you run Inspect,
 						completed runs appear here; choose one to see the log output.
 					</p>

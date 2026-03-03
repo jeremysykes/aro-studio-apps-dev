@@ -8,6 +8,7 @@ import {
 } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Skeleton } from '../components/ui/skeleton';
+import { ModuleThemeScope } from './ModuleThemeScope';
 import { WidgetErrorBoundary } from './WidgetErrorBoundary';
 import type { ModuleRegistryEntry } from './Sidebar';
 
@@ -53,15 +54,17 @@ export function WidgetCard({ module, onExpand }: WidgetCardProps) {
         </Button>
       </CardHeader>
       <CardContent className="flex-1 min-h-0 overflow-auto">
-        <WidgetErrorBoundary moduleLabel={module.label}>
-          <Suspense fallback={<Skeleton className="h-32 w-full" />}>
-            {WidgetComponent ? (
-              <WidgetComponent />
-            ) : (
-              <WidgetPlaceholder label={module.label} />
-            )}
-          </Suspense>
-        </WidgetErrorBoundary>
+        <ModuleThemeScope theme={module.theme}>
+          <WidgetErrorBoundary moduleLabel={module.label}>
+            <Suspense fallback={<Skeleton className="h-32 w-full" />}>
+              {WidgetComponent ? (
+                <WidgetComponent />
+              ) : (
+                <WidgetPlaceholder label={module.label} />
+              )}
+            </Suspense>
+          </WidgetErrorBoundary>
+        </ModuleThemeScope>
       </CardContent>
     </Card>
   );

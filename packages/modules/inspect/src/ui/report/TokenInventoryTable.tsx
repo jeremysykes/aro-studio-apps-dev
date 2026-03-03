@@ -12,7 +12,7 @@ function ColorSwatch({ value }: { value: string }) {
 	if (!COLOR_REGEX.test(trimmed)) return null;
 	return (
 		<span
-			className='inline-block w-3 h-3 rounded-sm border border-zinc-200 mr-1.5 align-middle shrink-0'
+			className='inline-block w-3 h-3 rounded-sm border border-border-default mr-1.5 align-middle shrink-0'
 			style={{ backgroundColor: trimmed }}
 			aria-hidden='true'
 		/>

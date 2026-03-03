@@ -13,6 +13,8 @@ export interface ModuleRegistryEntry {
   widget?: React.ComponentType;
   /** Short description shown as subtitle on dashboard widget cards. */
   description?: string;
+  /** Per-module theme overrides — keys are `--aro-*` CSS custom property names. */
+  theme?: Record<string, string>;
 }
 
 interface SidebarProps {

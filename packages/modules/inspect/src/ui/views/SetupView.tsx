@@ -61,17 +61,17 @@ export function SetupView({ hasAtLeastOneSource, hasWorkspace }: SetupViewProps)
 					Run Inspect
 				</Button>
 				{hasAtLeastOneSource ? (
-					<span className='text-xs text-zinc-500'>
+					<span className='text-xs text-foreground-muted'>
 						Will scan: {sources.join(', ')}
 					</span>
 				) : (
-					<span className='text-xs text-zinc-500'>
+					<span className='text-xs text-foreground-muted'>
 						Configure at least one source below to enable.
 					</span>
 				)}
 			</div>
 
-			<div className='grid grid-cols-1 sm:grid-cols-2 min-[900px]:grid-cols-3 gap-4'>
+			<div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
 				{/* ── Figma ── */}
 				<Card className='h-full'>
 					<CardHeader>
@@ -80,7 +80,7 @@ export function SetupView({ hasAtLeastOneSource, hasWorkspace }: SetupViewProps)
 							{figmaConfigured ? (
 								<Badge variant='secondary'>&#10003; Configured</Badge>
 							) : (
-								<span className='text-zinc-500 text-xs'>Not configured</span>
+								<span className='text-foreground-muted text-xs'>Not configured</span>
 							)}
 						</div>
 					</CardHeader>
@@ -133,12 +133,12 @@ export function SetupView({ hasAtLeastOneSource, hasWorkspace }: SetupViewProps)
 							{codeConfigured ? (
 								<Badge variant='secondary'>&#10003; Configured</Badge>
 							) : (
-								<span className='text-zinc-500 text-xs'>Not configured</span>
+								<span className='text-foreground-muted text-xs'>Not configured</span>
 							)}
 						</div>
 					</CardHeader>
 					<CardContent className='space-y-2'>
-						<p className='text-[11px] text-zinc-500'>
+						<p className='text-[11px] text-foreground-muted'>
 							Add your design tokens here. You can either list the path to each
 							token file (one per line or separated by commas), or paste JSON
 							from DTCG or Style Dictionary directly into the box below.
@@ -170,7 +170,7 @@ export function SetupView({ hasAtLeastOneSource, hasWorkspace }: SetupViewProps)
 							{storybookConfigured ? (
 								<Badge variant='secondary'>&#10003; Configured</Badge>
 							) : (
-								<span className='text-zinc-500 text-xs'>Not configured</span>
+								<span className='text-foreground-muted text-xs'>Not configured</span>
 							)}
 						</div>
 					</CardHeader>
@@ -195,7 +195,7 @@ export function SetupView({ hasAtLeastOneSource, hasWorkspace }: SetupViewProps)
 							placeholder='Base URL (e.g. https://site.vercel.app/index.json)'
 							aria-label='Storybook index URL'
 						/>
-						<span className='block text-[11px] text-zinc-500'>
+						<span className='block text-[11px] text-foreground-muted'>
 							or workspace path to index
 						</span>
 						<label htmlFor='setup-storybook-path' className='sr-only'>

@@ -54,14 +54,14 @@ export default function Inspect() {
 	return (
 		<InspectErrorBoundary>
 			<TooltipProvider delayDuration={300}>
-				<main className='px-3 py-6 sm:px-6 max-w-5xl mx-auto font-sans' role='main'>
+				<main className='min-h-full bg-background-muted px-3 py-6 sm:px-6 max-w-6xl mx-auto font-sans' role='main'>
 					<ConnectionStatusBar status={status} onRetry={loadRuns} />
 
 					{/* Title — R2: no border, 24px spacing */}
 					<div className='mb-6'>
 						<h1 className='flex flex-wrap items-baseline gap-x-2 gap-y-0.5'>
 							<span className='text-xl font-semibold'>Aro Inspect</span>
-							<span className='text-sm text-zinc-500'>
+							<span className='text-sm text-foreground-muted'>
 								Design system inventory & health
 							</span>
 						</h1>

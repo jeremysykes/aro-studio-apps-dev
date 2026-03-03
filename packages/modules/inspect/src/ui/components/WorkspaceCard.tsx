@@ -11,6 +11,7 @@ import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
+	CardTitle,
 } from '@aro/ui/components';
 import { useInspectStore } from '../store';
 import { DirectoryBrowser } from './DirectoryBrowser';
@@ -70,12 +71,16 @@ export function WorkspaceCard() {
 							>
 								Select workspace
 							</Button>
-							<p className='text-xs text-zinc-500'>
+							<p className='text-xs text-foreground-muted'>
 								Select a workspace to configure sources and run Inspect.
 							</p>
 						</div>
 					) : (
 						<div className='space-y-1'>
+							<CardTitle className='text-base'>Your Workspace</CardTitle>
+							<p className='text-xs text-foreground-muted'>
+								Point to a project directory to scan its design system sources.
+							</p>
 							<Button
 								type='button'
 								variant='ghost'
@@ -86,7 +91,7 @@ export function WorkspaceCard() {
 							</Button>
 							<Tooltip>
 								<TooltipTrigger asChild>
-									<p className='truncate text-[11px] text-zinc-500 cursor-default min-w-0'>
+									<p className='truncate text-[11px] text-foreground-muted cursor-default min-w-0'>
 										{workspacePath}
 									</p>
 								</TooltipTrigger>

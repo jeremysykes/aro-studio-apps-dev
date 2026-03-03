@@ -54,15 +54,25 @@ All visual decisions must resolve through abstract design tokens. No raw values 
 <nav className="bg-zinc-50 border-zinc-200">
 ```
 
-### Current State (MVP)
+### Current State
 
-The shadcn/ui components in `packages/ui` currently use hardcoded zinc/white/red color values. This is the standard shadcn pattern and is acceptable for MVP. These will be migrated to CSS custom properties when a theming system is added.
+The theme engine is fully wired:
 
-**Migration path:**
-1. Define a design token contract (CSS custom properties)
-2. Update Tailwind config to resolve tokens
-3. Replace hardcoded colors in shadcn components with token references
-4. Create per-brand token files
+1. **Token definitions** — `--aro-*` CSS custom properties are defined in `packages/ui/src/theme/tokens.css` on `:root`, covering backgrounds, surfaces, foreground, borders, rings, primary/secondary/destructive actions, interactive states, sidebar, shadows, and table headers.
+2. **Tailwind bridge** — The `@theme inline` block in `tokens.css` maps all `--aro-*` tokens to Tailwind utility classes (e.g., `bg-primary` → `var(--aro-primary)`), plus shadow tokens (`shadow-card`, `shadow-overlay`, etc.).
+3. **Component migration** — All shadcn components (`Button`, `Card`, `Badge`, `Tabs`, `Input`, `Dialog`, `Table`, `Tooltip`, `Progress`, `Separator`, `Skeleton`) use semantic token classes instead of hardcoded zinc/red values.
+4. **Inspect module** — All UI files in `packages/modules/inspect/src/ui/` use semantic token classes. Zero hardcoded zinc/red color references remain.
+5. **Tenant theme injection** — `useThemeTokens` hook (in `@aro/ui/hooks`) applies `TenantConfig.theme` overrides as CSS custom properties on `document.documentElement`. Both web and desktop `App.tsx` pass tenant config to `TenantProvider` and call `useThemeTokens`.
+
+**To override tokens for a tenant**, set entries in `TenantConfig.theme`:
+```json
+{ "theme": { "--aro-primary": "#2563eb", "--aro-primary-hover": "#1d4ed8" } }
+```
+
+**Remaining migration** (tracked in `docs/modules/inspect/Theming-spec.md` section 7):
+- Shell components (`TabsLayout`, `DashboardLayout`, `Sidebar`, `CarouselLayout`) still have some hardcoded zinc references
+- `Textarea` component needs migration
+- Theme preview tool for live theme switching during development
 
 ---
 
@@ -126,7 +136,8 @@ Every architectural decision must be documented. This file and the files it refe
 
 ## What Needs Work (Roadmap)
 
-1. **Design token system** — define CSS custom property contract, create Tailwind theme resolver
+1. ~~**Design token system**~~ — **Done.** `--aro-*` tokens defined in `tokens.css`, `@theme inline` bridge maps to Tailwind utilities, `useThemeTokens` hook injects tenant overrides.
 2. ~~**Brand config files**~~ — **Done.** `TenantConfig` provides `appName`, `logoUrl`, `faviconUrl`, and `splashComponent`. See [TENANT_CONFIGURATION.md](TENANT_CONFIGURATION.md) for setup and usage.
-3. **Migrate shadcn components** — replace hardcoded colors with token references
-4. **Theme preview tool** — live theme switching for development and demos
+3. ~~**Migrate shadcn components**~~ — **Done.** Core shadcn components and Inspect module use semantic token classes. See Theming-spec.md section 7 for remaining shell component migration.
+4. **Migrate shell components** — `TabsLayout`, `DashboardLayout`, `Sidebar`, `CarouselLayout` still have hardcoded zinc references
+5. **Theme preview tool** — live theme switching for development and demos

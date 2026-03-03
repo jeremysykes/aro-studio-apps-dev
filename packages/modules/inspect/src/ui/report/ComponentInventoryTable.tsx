@@ -37,7 +37,7 @@ function CoverageDots({ surfaces }: { surfaces: Component['surfaces'] }) {
 					<Tooltip key={key}>
 						<TooltipTrigger asChild>
 							<span
-								className={`inline-block w-2.5 h-2.5 rounded-full ${present ? 'bg-zinc-900' : 'bg-zinc-200'}`}
+								className={`inline-block w-2.5 h-2.5 rounded-full ${present ? 'bg-primary' : 'bg-surface-raised'}`}
 								aria-label={`${label}: ${present ? 'present' : 'absent'}`}
 							/>
 						</TooltipTrigger>
@@ -72,7 +72,7 @@ function getColumns(
 							href={storybookStoryUrl(storybookBaseUrl, storyId)}
 							target='_blank'
 							rel='noopener noreferrer'
-							className='text-[11px] text-zinc-900 hover:underline font-medium cursor-pointer'
+							className='text-[11px] text-foreground-default hover:underline font-medium cursor-pointer'
 						>
 							{displayName}
 						</a>

@@ -8,12 +8,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-zinc-900 text-zinc-50 hover:bg-zinc-800 focus-visible:ring-zinc-900',
-        destructive: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600',
-        outline: 'border border-[rgba(228,228,231,1)] bg-white hover:bg-zinc-100 focus-visible:ring-zinc-400',
-        secondary: 'bg-zinc-100 text-zinc-900 hover:bg-zinc-200 focus-visible:ring-zinc-400',
-        ghost: 'hover:bg-zinc-100 focus-visible:ring-zinc-400',
-        link: 'text-zinc-900 underline-offset-4 hover:underline focus-visible:ring-zinc-400',
+        default: 'bg-primary text-primary-foreground hover:bg-primary-hover focus-visible:ring-ring',
+        destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive-hover focus-visible:ring-destructive',
+        outline: 'border border-border-default bg-surface hover:bg-hover focus-visible:ring-ring-muted',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary-hover focus-visible:ring-ring-muted',
+        ghost: 'hover:bg-hover focus-visible:ring-ring-muted',
+        link: 'text-foreground-default underline-offset-4 hover:underline focus-visible:ring-ring-muted',
       },
       size: {
         default: 'h-10 px-4 py-2',

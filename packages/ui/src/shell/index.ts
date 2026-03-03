@@ -7,6 +7,7 @@ export { CarouselLayout } from './CarouselLayout';
 export { WidgetCard } from './WidgetCard';
 export { WidgetErrorBoundary } from './WidgetErrorBoundary';
 export { ModuleErrorBoundary } from './ModuleErrorBoundary';
+export { ModuleThemeScope } from './ModuleThemeScope';
 export { ShellRouter } from './ShellRouter';
 export type { ShellRouterProps } from './ShellRouter';
 export { ConnectionStatusBar } from './ConnectionStatusBar';

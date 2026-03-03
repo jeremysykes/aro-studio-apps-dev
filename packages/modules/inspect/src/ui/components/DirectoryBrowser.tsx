@@ -58,27 +58,27 @@ export function DirectoryBrowser({ initialPath, onSelect, onCancel, browse }: Di
 			</form>
 
 			{error && (
-				<p className='text-xs text-red-500'>{error}</p>
+				<p className='text-xs text-destructive'>{error}</p>
 			)}
 
-			<div className='border border-zinc-200 rounded-lg overflow-hidden'>
+			<div className='border border-border-default rounded-lg overflow-hidden'>
 				<div className='max-h-[320px] overflow-y-auto'>
 					{loading ? (
-						<div className='p-4 text-center text-xs text-zinc-400'>Loading...</div>
+						<div className='p-4 text-center text-xs text-foreground-subtle'>Loading...</div>
 					) : result ? (
-						<div className='divide-y divide-zinc-100'>
+						<div className='divide-y divide-border-muted'>
 							{result.parent && (
 								<button
 									type='button'
-									className='w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-zinc-50 text-left'
+									className='w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-background-muted text-left'
 									onClick={() => navigateTo(result.parent!)}
 								>
-									<span className='text-zinc-400'>&#8593;</span>
-									<span className='text-zinc-500'>..</span>
+									<span className='text-foreground-subtle'>&#8593;</span>
+									<span className='text-foreground-muted'>..</span>
 								</button>
 							)}
 							{result.entries.length === 0 && (
-								<div className='p-4 text-center text-xs text-zinc-400'>
+								<div className='p-4 text-center text-xs text-foreground-subtle'>
 									No subdirectories
 								</div>
 							)}
@@ -86,10 +86,10 @@ export function DirectoryBrowser({ initialPath, onSelect, onCancel, browse }: Di
 								<button
 									key={entry.path}
 									type='button'
-									className='w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-zinc-50 text-left'
+									className='w-full flex items-center gap-2 px-3 py-2 text-xs hover:bg-background-muted text-left'
 									onClick={() => navigateTo(entry.path)}
 								>
-									<span className='text-zinc-400'>&#128193;</span>
+									<span className='text-foreground-subtle'>&#128193;</span>
 									<span className='truncate'>{entry.name}</span>
 								</button>
 							))}
@@ -99,7 +99,7 @@ export function DirectoryBrowser({ initialPath, onSelect, onCancel, browse }: Di
 			</div>
 
 			{result && (
-				<p className='text-[11px] text-zinc-400 truncate' title={result.current}>
+				<p className='text-[11px] text-foreground-subtle truncate' title={result.current}>
 					{result.current}
 				</p>
 			)}

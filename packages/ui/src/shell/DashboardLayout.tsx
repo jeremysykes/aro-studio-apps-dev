@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { Button } from '../components/ui/button';
 import { useTenant } from '../hooks/useTenant';
 import { ModuleErrorBoundary } from './ModuleErrorBoundary';
+import { ModuleThemeScope } from './ModuleThemeScope';
 import { WidgetCard } from './WidgetCard';
 import type { ModuleRegistryEntry } from './Sidebar';
 
@@ -42,9 +43,11 @@ export function DashboardLayout({ modules }: DashboardLayoutProps) {
           <span className="text-lg font-semibold">{expandedModule.label}</span>
         </header>
         <main className="flex-1 min-h-0 overflow-auto">
-          <ModuleErrorBoundary key={expandedKey} moduleKey={expandedModule.key} moduleLabel={expandedModule.label}>
-            <FullComponent />
-          </ModuleErrorBoundary>
+          <ModuleThemeScope theme={expandedModule.theme} className="min-h-full">
+            <ModuleErrorBoundary key={expandedKey} moduleKey={expandedModule.key} moduleLabel={expandedModule.label}>
+              <FullComponent />
+            </ModuleErrorBoundary>
+          </ModuleThemeScope>
         </main>
       </div>
     );

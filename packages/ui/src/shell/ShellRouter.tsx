@@ -5,6 +5,7 @@ import { DashboardLayout } from './DashboardLayout';
 import { TabsLayout } from './TabsLayout';
 import { CarouselLayout } from './CarouselLayout';
 import { ModuleErrorBoundary } from './ModuleErrorBoundary';
+import { ModuleThemeScope } from './ModuleThemeScope';
 import type { ModuleRegistryEntry } from './Sidebar';
 
 export interface ShellRouterProps {
@@ -26,9 +27,11 @@ export function ShellRouter({ uiModel, modules }: ShellRouterProps) {
   // Standalone mode — no shell, module owns the full screen
   if (uiModel === 'standalone') {
     return activeEntry && ActiveModule ? (
-      <ModuleErrorBoundary key={activeKey} moduleKey={activeKey} moduleLabel={activeEntry.label}>
-        <ActiveModule />
-      </ModuleErrorBoundary>
+      <ModuleThemeScope theme={activeEntry.theme}>
+        <ModuleErrorBoundary key={activeKey} moduleKey={activeKey} moduleLabel={activeEntry.label}>
+          <ActiveModule />
+        </ModuleErrorBoundary>
+      </ModuleThemeScope>
     ) : null;
   }
 
@@ -56,9 +59,11 @@ export function ShellRouter({ uiModel, modules }: ShellRouterProps) {
   return (
     <ShellLayout modules={modules} activeKey={activeKey} onSelect={setActiveKey}>
       {activeEntry && ActiveModule ? (
-        <ModuleErrorBoundary key={activeKey} moduleKey={activeKey} moduleLabel={activeEntry.label}>
-          <ActiveModule />
-        </ModuleErrorBoundary>
+        <ModuleThemeScope theme={activeEntry.theme} className="h-full">
+          <ModuleErrorBoundary key={activeKey} moduleKey={activeKey} moduleLabel={activeEntry.label}>
+            <ActiveModule />
+          </ModuleErrorBoundary>
+        </ModuleThemeScope>
       ) : null}
     </ShellLayout>
   );

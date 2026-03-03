@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { cn } from '../lib/utils';
 import { ModuleErrorBoundary } from './ModuleErrorBoundary';
+import { ModuleThemeScope } from './ModuleThemeScope';
 import type { ModuleRegistryEntry } from './Sidebar';
 
 interface TabsLayoutProps {
@@ -40,9 +41,11 @@ export function TabsLayout({ modules }: TabsLayoutProps) {
       </nav>
       <main className="flex-1 min-h-0 overflow-auto">
         {activeModule && ActiveComponent ? (
-          <ModuleErrorBoundary key={activeKey} moduleKey={activeKey} moduleLabel={activeModule.label}>
-            <ActiveComponent />
-          </ModuleErrorBoundary>
+          <ModuleThemeScope theme={activeModule.theme} className="min-h-full">
+            <ModuleErrorBoundary key={activeKey} moduleKey={activeKey} moduleLabel={activeModule.label}>
+              <ActiveComponent />
+            </ModuleErrorBoundary>
+          </ModuleThemeScope>
         ) : null}
       </main>
     </div>

@@ -8,7 +8,7 @@ import { cn } from '../../lib/utils';
 const Tabs = TabsPrimitive.Root;
 
 const tabsListVariants = cva(
-	'inline-flex items-center justify-center rounded-md bg-zinc-100 p-1 text-zinc-600',
+	'inline-flex items-center justify-center rounded-md bg-secondary p-1 text-foreground-muted',
 	{
 		variants: {
 			size: {
@@ -21,7 +21,7 @@ const tabsListVariants = cva(
 );
 
 const tabsTriggerVariants = cva(
-	'inline-flex items-center justify-center whitespace-nowrap rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-zinc-950 data-[state=active]:shadow-sm',
+	'inline-flex items-center justify-center whitespace-nowrap rounded-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring-muted focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-surface data-[state=active]:text-foreground data-[state=active]:shadow-raised',
 	{
 		variants: {
 			size: {
@@ -72,7 +72,7 @@ const TabsContent = React.forwardRef<
 	<TabsPrimitive.Content
 		ref={ref}
 		className={cn(
-			'mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2',
+			'mt-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring-muted focus-visible:ring-offset-2',
 			className
 		)}
 		{...props}

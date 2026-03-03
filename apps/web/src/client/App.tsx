@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import type { UIModel } from '@aro/types';
+import type { TenantConfig, UIModel } from '@aro/types';
 import { Alert, AlertDescription } from '@aro/ui/components';
-import { TenantProvider, useTenant, useBrandHead } from '@aro/ui/hooks';
+import { TenantProvider, useTenant, useBrandHead, useThemeTokens } from '@aro/ui/hooks';
 import { moduleRegistry, type ModuleRegistryEntry } from './moduleRegistry';
 import { ShellRouter } from '@aro/ui/shell';
 
 function AppShell() {
   const tenant = useTenant();
   useBrandHead(tenant);
+  useThemeTokens(tenant);
 
   const [uiModel, setUIModel] = useState<UIModel | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,8 +66,14 @@ function AppShell() {
 }
 
 function App() {
+  const [tenantConfig, setTenantConfig] = useState<Partial<TenantConfig> | undefined>();
+
+  useEffect(() => {
+    window.aro.getTenantConfig().then(setTenantConfig);
+  }, []);
+
   return (
-    <TenantProvider>
+    <TenantProvider config={tenantConfig}>
       <AppShell />
     </TenantProvider>
   );

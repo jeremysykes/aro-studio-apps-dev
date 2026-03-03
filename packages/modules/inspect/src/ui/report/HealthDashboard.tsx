@@ -34,7 +34,7 @@ const InfoIcon = () => (
 		viewBox='0 0 16 16'
 		fill='none'
 		aria-hidden='true'
-		className='inline-block ml-1 align-[-1px] text-zinc-400'
+		className='inline-block ml-1 align-[-1px] text-foreground-subtle'
 	>
 		<circle cx='8' cy='8' r='6.5' stroke='currentColor' strokeWidth='1.5' />
 		<path d='M8 7v4' stroke='currentColor' strokeWidth='1.5' strokeLinecap='round' />
@@ -146,18 +146,18 @@ export function HealthDashboard({ report }: HealthDashboardProps) {
 			<div className='grid grid-cols-1 min-[900px]:grid-cols-2 gap-8 min-[900px]:items-start w-full max-w-4xl'>
 				{/* ── Left: Health score — single focal point ── */}
 				<div className='flex flex-col items-center text-center min-[900px]:min-h-0'>
-					<p className='text-sm font-medium text-zinc-500'>Health score</p>
+					<p className='text-sm font-medium text-foreground-muted'>Health score</p>
 
 					{/* Score value */}
 					<p className='mt-1 tabular-nums'>
-						<span className='text-5xl font-semibold text-zinc-900'>
+						<span className='text-5xl font-semibold text-foreground-default'>
 							{healthScore.composite}
 						</span>
-						<span className='text-lg font-normal text-zinc-400'> / 100</span>
+						<span className='text-lg font-normal text-foreground-subtle'> / 100</span>
 					</p>
 
 					{/* Level label */}
-					<p className='mt-1 text-sm text-zinc-500'>
+					<p className='mt-1 text-sm text-foreground-muted'>
 						{scoreLabel(healthScore.composite)}
 					</p>
 					<p className='sr-only'>
@@ -174,7 +174,7 @@ export function HealthDashboard({ report }: HealthDashboardProps) {
 					</div>
 
 					{/* Summary stats */}
-					<p className='mt-3 text-sm text-zinc-500'>
+					<p className='mt-3 text-sm text-foreground-muted'>
 						{summary.totalTokens} token{summary.totalTokens !== 1 ? 's' : ''} &middot;{' '}
 						{summary.totalComponents} component{summary.totalComponents !== 1 ? 's' : ''} &middot;{' '}
 						{report.findings.length} finding{report.findings.length !== 1 ? 's' : ''}
@@ -188,7 +188,7 @@ export function HealthDashboard({ report }: HealthDashboardProps) {
 						<section aria-labelledby='score-breakdown-heading'>
 							<h2
 								id='score-breakdown-heading'
-								className='text-sm font-medium text-zinc-500'
+								className='text-sm font-medium text-foreground-muted'
 							>
 								Score breakdown
 							</h2>
@@ -202,9 +202,9 @@ export function HealthDashboard({ report }: HealthDashboardProps) {
 									return (
 										<div key={key}>
 											<div className='flex items-baseline justify-between mb-1'>
-												<span className={`text-xs flex items-center gap-0 ${isNA ? 'text-zinc-400' : 'text-zinc-700'}`}>
+												<span className={`text-xs flex items-center gap-0 ${isNA ? 'text-foreground-subtle' : 'text-foreground-default'}`}>
 													{label}{' '}
-													<span className='text-zinc-400'>({weight})</span>
+													<span className='text-foreground-subtle'>({weight})</span>
 													<Tooltip>
 														<TooltipTrigger asChild>
 															<button type='button' className='cursor-help'>
@@ -217,18 +217,18 @@ export function HealthDashboard({ report }: HealthDashboardProps) {
 													</Tooltip>
 												</span>
 												{isNA ? (
-													<span className='text-xs font-medium text-zinc-400'>
+													<span className='text-xs font-medium text-foreground-subtle'>
 														N/A
 													</span>
 												) : (
-													<span className='text-xs font-medium tabular-nums text-zinc-900'>
+													<span className='text-xs font-medium tabular-nums text-foreground-default'>
 														{raw}
 													</span>
 												)}
 											</div>
 											{isNA ? (
 												<div
-													className='h-1.5 w-full rounded-full bg-zinc-100'
+													className='h-1.5 w-full rounded-full bg-surface-muted'
 													aria-label={`${label}: not applicable`}
 												/>
 											) : (
@@ -243,7 +243,7 @@ export function HealthDashboard({ report }: HealthDashboardProps) {
 								})}
 							</div>
 							{hasNAScores && (
-								<p className='mt-2 text-[11px] text-zinc-400'>
+								<p className='mt-2 text-[11px] text-foreground-subtle'>
 									N/A scores require multiple sources to measure. Weights are
 									redistributed among applicable scores.
 								</p>
@@ -256,7 +256,7 @@ export function HealthDashboard({ report }: HealthDashboardProps) {
 						<section aria-labelledby='findings-severity-heading'>
 							<h2
 								id='findings-severity-heading'
-								className='text-sm font-medium text-zinc-500'
+								className='text-sm font-medium text-foreground-muted'
 							>
 								Findings by severity
 							</h2>

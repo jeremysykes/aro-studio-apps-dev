@@ -15,31 +15,40 @@
 :root {
   /* ── Backgrounds ───────────────────────────────────────────── */
   --aro-background: #ffffff;
-  --aro-background-muted: #fafafa;      /* zinc-50 */
-  --aro-background-subtle: #f4f4f5;     /* zinc-100 */
+  --aro-background-muted: #f4f4f5;      /* zinc-100 (tuned from zinc-50 for figure-ground contrast) */
+  --aro-background-subtle: #e4e4e7;     /* zinc-200 (tuned from zinc-100) */
 
   /* ── Surfaces ──────────────────────────────────────────────── */
   --aro-surface: #ffffff;
-  --aro-surface-muted: #f4f4f5;         /* zinc-100 */
-  --aro-surface-raised: #e4e4e7;        /* zinc-200 */
+  --aro-surface-muted: #fafafa;         /* zinc-50  (tuned from zinc-100 — lighter layer between white and canvas) */
+  --aro-surface-raised: #f4f4f5;        /* zinc-100 (tuned from zinc-200 — lighter for new background scale) */
   --aro-surface-overlay: #18181b;       /* zinc-900 */
 
   /* ── Foreground / text ─────────────────────────────────────── */
   --aro-foreground: #09090b;            /* zinc-950 */
   --aro-foreground-default: #18181b;    /* zinc-900 */
-  --aro-foreground-muted: #71717a;      /* zinc-500 */
-  --aro-foreground-subtle: #a1a1aa;     /* zinc-400 */
+  --aro-foreground-muted: #52525b;      /* zinc-600 (tuned from zinc-500 — WCAG AA on zinc-100 canvas) */
+  --aro-foreground-subtle: #71717a;     /* zinc-500 (tuned from zinc-400 — WCAG AA on zinc-100 canvas) */
   --aro-foreground-on-emphasis: #fafafa;/* zinc-50 */
 
   /* ── Borders ───────────────────────────────────────────────── */
   --aro-border-default: #e4e4e7;        /* zinc-200 */
-  --aro-border-muted: #f4f4f5;          /* zinc-100 */
+  --aro-border-muted: #e4e4e7;          /* zinc-200 (tuned from zinc-100 — visible on zinc-100 canvas) */
   --aro-border-emphasis: #27272a;       /* zinc-800 */
 
   /* ── Focus rings ───────────────────────────────────────────── */
   --aro-ring: #18181b;                  /* zinc-900 */
-  --aro-ring-muted: #a1a1aa;            /* zinc-400 */
+  --aro-ring-muted: #71717a;            /* zinc-500 (tuned from zinc-400 — visible on zinc-100 canvas) */
   --aro-ring-offset: #ffffff;
+
+  /* ── Shadows ─────────────────────────────────────────────── */
+  --aro-shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  --aro-shadow-card-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
+  --aro-shadow-raised: 0 2px 4px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  --aro-shadow-overlay: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+
+  /* ── Table ───────────────────────────────────────────────── */
+  --aro-table-header-background: #fafafa; /* zinc-50 */
 
   /* ── Primary action (default buttons) ──────────────────────── */
   --aro-primary: #18181b;               /* zinc-900 */
@@ -98,6 +107,7 @@
 }
 
 @theme inline {
+  /* ── shadcn HSL-based tokens (keep) ──────────────────────────── */
   --color-background: hsl(var(--background));
   --color-foreground: hsl(var(--foreground));
   --color-border: hsl(var(--border));
@@ -105,4 +115,68 @@
   --color-destructive-foreground: hsl(var(--destructive-foreground));
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
+
+  /* ── Aro semantic tokens → Tailwind utilities ────────────────── */
+
+  /* Backgrounds */
+  --color-background-muted: var(--aro-background-muted);
+  --color-background-subtle: var(--aro-background-subtle);
+
+  /* Surfaces */
+  --color-surface: var(--aro-surface);
+  --color-surface-muted: var(--aro-surface-muted);
+  --color-surface-raised: var(--aro-surface-raised);
+  --color-surface-overlay: var(--aro-surface-overlay);
+
+  /* Foreground / text */
+  --color-foreground-default: var(--aro-foreground-default);
+  --color-foreground-muted: var(--aro-foreground-muted);
+  --color-foreground-subtle: var(--aro-foreground-subtle);
+  --color-foreground-on-emphasis: var(--aro-foreground-on-emphasis);
+
+  /* Borders */
+  --color-border-default: var(--aro-border-default);
+  --color-border-muted: var(--aro-border-muted);
+  --color-border-emphasis: var(--aro-border-emphasis);
+
+  /* Focus rings */
+  --color-ring: var(--aro-ring);
+  --color-ring-muted: var(--aro-ring-muted);
+
+  /* Primary action */
+  --color-primary: var(--aro-primary);
+  --color-primary-hover: var(--aro-primary-hover);
+  --color-primary-foreground: var(--aro-primary-foreground);
+
+  /* Secondary action */
+  --color-secondary: var(--aro-secondary);
+  --color-secondary-hover: var(--aro-secondary-hover);
+  --color-secondary-foreground: var(--aro-secondary-foreground);
+
+  /* Destructive */
+  --color-destructive-hover: var(--aro-destructive-hover);
+  --color-destructive-muted: var(--aro-destructive-muted);
+  --color-destructive-muted-foreground: var(--aro-destructive-muted-foreground);
+  --color-destructive-border: var(--aro-destructive-border);
+
+  /* Interactive states */
+  --color-hover: var(--aro-hover);
+  --color-active: var(--aro-active);
+
+  /* Sidebar / shell */
+  --color-sidebar-background: var(--aro-sidebar-background);
+  --color-sidebar-foreground: var(--aro-sidebar-foreground);
+  --color-sidebar-muted: var(--aro-sidebar-muted);
+  --color-sidebar-hover: var(--aro-sidebar-hover);
+  --color-sidebar-active: var(--aro-sidebar-active);
+  --color-sidebar-border: var(--aro-sidebar-border);
+
+  /* Shadows */
+  --shadow-card: var(--aro-shadow-card);
+  --shadow-card-hover: var(--aro-shadow-card-hover);
+  --shadow-raised: var(--aro-shadow-raised);
+  --shadow-overlay: var(--aro-shadow-overlay);
+
+  /* Table */
+  --color-table-header-background: var(--aro-table-header-background);
 }

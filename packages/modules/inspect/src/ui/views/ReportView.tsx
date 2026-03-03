@@ -84,10 +84,10 @@ export function ReportView() {
 				<CardTitle className='mb-0 text-base font-medium text-muted-foreground'>
 					Reports
 					{reportLoadState === 'success' && report && reportTab === 'tokens' && report.tokens?.length ? (
-						<span className='text-zinc-400 font-normal'>{' '}({report.tokens.length} tokens)</span>
+						<span className='text-foreground-subtle font-normal'>{' '}({report.tokens.length} tokens)</span>
 					) : null}
 					{reportLoadState === 'success' && report && reportTab === 'components' && report.components?.length ? (
-						<span className='text-zinc-400 font-normal'>{' '}({report.components.length} components)</span>
+						<span className='text-foreground-subtle font-normal'>{' '}({report.components.length} components)</span>
 					) : null}
 				</CardTitle>
 				<div className='flex items-center gap-3 shrink-0 flex-wrap'>
@@ -140,7 +140,7 @@ export function ReportView() {
 					/>
 				)}
 				{!selectedRunId && (
-					<p className='text-zinc-500 text-[11px]'>
+					<p className='text-foreground-muted text-[11px]'>
 						Select a run from the list to view its report. Each run includes a
 						health dashboard, token inventory, and component inventory. Runs
 						with a completed scan will show the full report here.
@@ -148,7 +148,7 @@ export function ReportView() {
 				)}
 			</CardContent>
 			{reportLoadState === 'success' && report && (
-				<CardFooter className='shrink-0 flex flex-wrap items-center justify-end gap-2 border-t border-zinc-200 py-3 px-4'>
+				<CardFooter className='shrink-0 flex flex-wrap items-center justify-end gap-2 border-t border-border-default py-3 px-4'>
 					<Button
 						type='button'
 						variant='outline'

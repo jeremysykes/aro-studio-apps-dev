@@ -12,3 +12,5 @@ export {
 } from './useTenant';
 
 export { useBrandHead } from './useBrandHead';
+
+export { useThemeTokens } from './useThemeTokens';

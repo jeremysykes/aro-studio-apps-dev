@@ -78,13 +78,13 @@ export function RunsTable({
 						<TableRow
 							key={run.id}
 							data-state={isSelected ? 'selected' : undefined}
-							className={`cursor-pointer ${isSelected ? 'bg-zinc-100' : ''}`}
+							className={`cursor-pointer ${isSelected ? 'bg-secondary' : ''}`}
 							onClick={() => selectRun(run.id)}
 						>
 							<TableCell className='text-[11px] whitespace-nowrap'>
 								{formatRelativeTime(run.startedAt)}
 							</TableCell>
-							<TableCell className='text-[11px] font-mono text-zinc-500 py-3'>
+							<TableCell className='text-[11px] font-mono text-foreground-muted py-3'>
 								<Tooltip>
 									<TooltipTrigger asChild>
 										<span className='cursor-default'>{run.id.slice(0, 8)}</span>
@@ -100,7 +100,7 @@ export function RunsTable({
 					<TableRow>
 						<TableCell
 							colSpan={showStatus ? 3 : 2}
-							className='text-center text-zinc-500 text-[11px] py-4'
+							className='text-center text-foreground-muted text-[11px] py-4'
 						>
 							No runs yet
 						</TableCell>

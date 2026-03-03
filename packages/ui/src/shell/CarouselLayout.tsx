@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '../components/ui/button';
 import { cn } from '../lib/utils';
 import { ModuleErrorBoundary } from './ModuleErrorBoundary';
+import { ModuleThemeScope } from './ModuleThemeScope';
 import type { ModuleRegistryEntry } from './Sidebar';
 
 interface CarouselLayoutProps {
@@ -27,9 +28,11 @@ export function CarouselLayout({ modules }: CarouselLayoutProps) {
       {/* Slide viewport — only the active module is rendered */}
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
         {activeModule && ActiveComponent ? (
-          <ModuleErrorBoundary key={activeModule.key} moduleKey={activeModule.key} moduleLabel={activeModule.label}>
-            <ActiveComponent />
-          </ModuleErrorBoundary>
+          <ModuleThemeScope theme={activeModule.theme} className="min-h-full">
+            <ModuleErrorBoundary key={activeModule.key} moduleKey={activeModule.key} moduleLabel={activeModule.label}>
+              <ActiveComponent />
+            </ModuleErrorBoundary>
+          </ModuleThemeScope>
         ) : null}
       </div>
 

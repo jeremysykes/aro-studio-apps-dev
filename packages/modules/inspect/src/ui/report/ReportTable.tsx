@@ -76,7 +76,7 @@ export function ReportTable<T>({
 		<div>
 			{/* Row count bar — only shown when actively filtering */}
 			{isFiltered && (
-				<div className='px-4 py-2 text-xs text-zinc-500'>
+				<div className='px-4 py-2 text-xs text-foreground-muted'>
 					Showing {shownCount} of {totalCount} {title.toLowerCase()}
 				</div>
 			)}
@@ -107,7 +107,7 @@ export function ReportTable<T>({
 										>
 											{col.header}
 											{isSorted && (
-												<span className='ml-1 text-zinc-500'>
+												<span className='ml-1 text-foreground-muted'>
 													{sortDir === 'asc' ? '\u2191' : '\u2193'}
 												</span>
 											)}
@@ -125,7 +125,7 @@ export function ReportTable<T>({
 						<TableRow>
 							<TableCell
 								colSpan={columns.length}
-								className='text-center text-zinc-500 text-[11px] py-8'
+								className='text-center text-foreground-muted text-[11px] py-8'
 							>
 								{isFiltered
 									? `No ${title.toLowerCase()} match the current filter.`
