@@ -2,9 +2,13 @@
   "name": "apps-aro-studio",
   "private": true,
   "scripts": {
-    "lint": "eslint .",
-    "build": "pnpm -r build",
-    "test": "pnpm -r test",
+    "lint": "nx run-many -t lint",
+    "build": "nx run-many -t build",
+    "test": "nx run-many -t test",
+    "affected:build": "nx affected -t build",
+    "affected:test": "nx affected -t test",
+    "affected:lint": "nx affected -t lint",
+    "graph": "nx graph",
     "desktop": "pnpm --filter @aro/desktop start",
     "start": "pnpm --filter @aro/desktop start",
     "web": "tsx dev/dev-web.ts",
@@ -12,19 +16,25 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{ts,tsx}": ["eslint --fix"]
+    "*.{ts,tsx}": [
+      "eslint --fix"
+    ]
   },
   "pnpm": {
     "onlyBuiltDependencies": [
       "better-sqlite3",
-      "electron"
+      "electron",
+      "esbuild",
+      "nx"
     ]
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
+    "@nx/js": "^22.5.4",
     "eslint": "^9.39.2",
     "husky": "^9.1.7",
     "lint-staged": "^15.4.3",
+    "nx": "^22.5.4",
     "tsx": "^4.21.0",
     "typescript-eslint": "^8.55.0"
   }
